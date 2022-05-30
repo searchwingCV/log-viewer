@@ -1,0 +1,42 @@
+version: "3.3"
+
+services:
+  server:
+    container_name: api
+    build:
+      context: server
+    command: uvicorn app.main:app --reload
+    volumes:
+      - ./server:/app
+    ports:
+      - "8000:8080"
+    env_file:
+      - ./server/.env
+    depends_on:
+      - db
+      - migrations
+
+  db:
+    container_name: db
+    build:
+      context: server
+      dockerfile: Dockerfile.db
+    restart: always
+    environment:
+      POSTGRES_USER: searchwing
+      POSTGRES_PASSWORD: searchwing
+      POSTGRES_DB: searchwing
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./server/db:/docker-entrypoint-initdb.d/
+
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
