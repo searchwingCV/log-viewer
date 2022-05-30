@@ -1,8 +1,10 @@
 fastapi==0.76.0
 uvicorn==0.17.6
 sqlalchemy==1.4.36
-geoalchemy2>=2.0.0
+geoalchemy>=2.0.0
 shapely==1.8.2
 alembic==1.7.7
 python-dotenv==0.20.0
 psycopg2==2.9.3
+flake8
+pre-commit
