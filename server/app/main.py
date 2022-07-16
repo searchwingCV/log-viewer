@@ -19,12 +19,3 @@ app.include_router(status.router)
 app.include_router(plane.router)
 
 SessionLocal = configure_db_session()
-
-
-# Dependency
-def get_db():
-    try:
-        db = SessionLocal()
-        yield db
-    finally:
-        db.close()

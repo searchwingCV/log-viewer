@@ -1,8 +1,8 @@
-FROM python=3.9
-
+FROM python:3.9.13-slim-buster
+LABEL maintainer="searchwing"
+RUN apt-get update \
+    && apt-get -y install libpq-dev gcc  
 COPY requirements.txt requirements.txt
 RUN python -m pip install -r requirements.txt
 WORKDIR /app
 COPY app .
-EXPOSE 8080
-CMD ["uvicorn", "app.main:app", "--port", "8080"]

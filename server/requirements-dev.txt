@@ -5,6 +5,7 @@ geoalchemy2==0.10.2
 shapely==1.8.2
 alembic==1.7.7
 python-dotenv==0.20.0
-psycopg2==2.9.3
+psycopg2-binary==2.9.3
 flake8
 pre-commit
+fastapi-pagination
