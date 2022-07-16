@@ -14,7 +14,6 @@ services:
       - ./server/.env
     depends_on:
       - db
-      - migrations
 
   db:
     container_name: db

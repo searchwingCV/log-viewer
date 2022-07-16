@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request
-from app.routers import status, log
+from app.routers import status, plane
+from app.internal.database import configure_db_session
 
 app = FastAPI(
     title="Searchwing flight log data API",
@@ -15,4 +16,15 @@ async def main(request: Request):
 
 
 app.include_router(status.router)
-app.include_router(log.router)
+app.include_router(plane.router)
+
+SessionLocal = configure_db_session()
+
+
+# Dependency
+def get_db():
+    try:
+        db = SessionLocal()
+        yield db
+    finally:
+        db.close()
