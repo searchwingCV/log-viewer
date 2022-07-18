@@ -39,11 +39,18 @@ class WeatherCondititions(enum.Enum):
     snow = "snow"
 
 
-plane_mission_association = Table(
+plane_flight_association = Table(
     "plane_mission_association",
     Base.metadata,
     Column("plane_id", ForeignKey("plane_details.plane_id"), primary_key=True),
+    Column("flight_id", ForeignKey("flight.flight_id"), primary_key=True),
+)
+
+misssion_flight_association = Table(
+    "misssion_flight_association",
+    Base.metadata,
     Column("mission_id", ForeignKey("mission_details.mission_id"), primary_key=True),
+    Column("flight_id", ForeignKey("flight.flight_id"), primary_key=True),
 )
 
 
@@ -57,23 +64,42 @@ class MissionDetails(Base):
     longitude = Column(Float)
     latitude = Column(Float)
     geo = Column(Geometry(geometry_type="POINT"))
+    is_test = Column(Boolean, default=True)
+    created_at = Column(DateTime, nullable=False, default=dt.now)
+    updated_at = Column(DateTime, onupdate=dt.now)
+
+
+@event.listens_for(MissionDetails, "before_insert")
+def calculate_geo_mission(mapper, connect, target):
+    target.geo = f"POINT({target.latitude}, {target.longitude})"
+
+
+class Flight(Base):
+    __tablename__ = "flight"
+    flight_id = Column(Integer, primary_key=True, autoincrement=True)
+    file_uri = Column(String)
+    plane_id = Column(Integer, ForeignKey("plane_details.plane_id"), nullable=True)
+    mission_id = Column(
+        Integer, ForeignKey("mission_details.mission_id"), nullable=True
+    )
+    average_speed = Column(Float, nullable=True)
+    distance = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    latitude = Column(Float, nullable=True)
+    geo = Column(Geometry(geometry_type="POINT"), nullable=True)
     pilot = Column(String, nullable=True)
     observer = Column(String, nullable=True)
     weather_conditions = Column(Enum(WeatherCondititions), nullable=True)
     temperature = Column(Integer, nullable=True)
+    start_time = Column(DateTime, nullable=True)
+    end_time = Column(DateTime, nullable=True)
     created_at = Column(DateTime, nullable=False, default=dt.now)
-    updated_at = Column(DateTime, nullable=False, onupdate=dt.now)
-    file = relationship("LogFile")
-    plane = relationship("PlaneDetails", secondary=plane_mission_association)
+    updated_at = Column(DateTime, onupdate=dt.now)
+    plane = relationship("PlaneDetails", secondary=plane_flight_association)
+    mission = relationship("MissionDetails", secondary=misssion_flight_association)
 
 
-@event.listens_for(MissionDetails, "before_insert")
-def calculate_geo(mapper, connect, target):
+@event.listens_for(Flight, "before_insert")
+@event.listens_for(Flight, "before_update")
+def calculate_geo_flight(mapper, connect, target):
     target.geo = f"POINT({target.latitude}, {target.longitude})"
-
-
-class LogFile(Base):
-    __tablename__ = "log_file"
-    file_id = Column(Integer, primary_key=True, autoincrement=True)
-    file_path = Column(String)
-    mission_id = Column(Integer, ForeignKey("mission_details.mission_id"))
