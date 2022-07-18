@@ -1,3 +1,5 @@
+import strawberry
+from ..models.metadata import PlaneDetails
 from datetime import datetime
 from .base import BaseSchema, GeoPoint
 from typing import Optional, Union
@@ -19,6 +21,28 @@ class PlaneDetailsSchema(BasePlaneSchema):
 
     class Config:
         orm_mode = True
+
+@strawberry.type
+# @strawberry.experimental.pydantic.type(model=PlaneDetailsSchema, all_fields=True)
+class PlaneGraphType:
+    plane_id: int
+    plane_alias: str
+    model: str
+    in_use: bool
+    plane_id: int
+    updated_at: Optional[datetime]
+    created_at: datetime
+
+    @classmethod
+    def marshall(cls, model: PlaneDetails):
+        return cls(
+            plane_id=strawberry.ID(str(model.plane_id)),
+            plane_alias=model.plane_alias,
+            model=model.model,
+            in_use=model.in_use,
+            updated_at=model.updated_at,
+            created_at=model.created_at
+        )
 
 
 class MissionDetailsSchema(BaseSchema):
