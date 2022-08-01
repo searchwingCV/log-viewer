@@ -1,6 +1,3 @@
-.ONESHELL:
-
-
 auto-model:
 	python devdocs/model/autogenerate.py
 
@@ -15,3 +12,6 @@ run-server:
 
 back-unit-test:
 	python -m pytest server/tests
+
+run-migrations:
+	docker compose up migrations

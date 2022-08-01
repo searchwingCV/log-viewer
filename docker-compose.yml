@@ -12,6 +12,7 @@ services:
       - "8081:8080"
     depends_on:
       - db
+      - migrations
     environment:
       POSTGRES_USER: searchwing
       POSTGRES_PASSWORD: searchwing
@@ -33,6 +34,24 @@ services:
       - "5432:5432"
     volumes:
       - ./server/db:/docker-entrypoint-initdb.d/
+
+  migrations:
+    container_name: migrations
+    build:
+      context: server
+    command: alembic upgrade head
+    volumes:
+      - ./server:/app
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
+    environment:
+      POSTGRES_USER: searchwing
+      POSTGRES_PASSWORD: searchwing
+      POSTGRES_DB: searchwing
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: 5432
 
   pgadmin:
     container_name: pgadmin4_container

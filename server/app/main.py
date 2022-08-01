@@ -7,12 +7,10 @@ from app.routers import status, plane
 from app.internal.database import configure_db_session
 
 
-
 app = FastAPI(
     title="Searchwing flight log data API",
     description="An API to keep log files organized and analyze them",
 )
-
 
 
 @app.get("/")
@@ -20,6 +18,7 @@ async def main(request: Request):
     return {
         "msg": f"Welcome to the Searchiwng Log API! To check the docs please visit: {request.url._url}docs"
     }
+
 
 schema = strawberry.Schema(Query, Mutation)
 

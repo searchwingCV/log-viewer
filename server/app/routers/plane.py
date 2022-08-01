@@ -1,4 +1,3 @@
-from curses.ascii import BS
 from typing import Union
 from fastapi import APIRouter, Depends, Query, status, HTTPException
 from psycopg2.errors import UniqueViolation
@@ -80,7 +79,7 @@ async def update_plane(
         except Exception as e:
             logger.exception(f"Exception detected: {e}")
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err)
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
             )
     else:
         raise HTTPException(

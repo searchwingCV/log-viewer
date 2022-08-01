@@ -1,4 +1,3 @@
-from ast import For
 import enum
 from ..constants import MAX_MISSION_ALIAS_LEN
 from datetime import datetime as dt

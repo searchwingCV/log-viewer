@@ -23,6 +23,7 @@ class PlaneDetailsSchema(BasePlaneSchema):
         orm_mode = True
         allow_population_by_field_name = True
 
+
 @strawberry.type
 # @strawberry.experimental.pydantic.type(model=PlaneDetailsSchema, all_fields=True)
 class PlaneGraphType:
@@ -42,7 +43,7 @@ class PlaneGraphType:
             model=model.model,
             in_use=model.in_use,
             updated_at=model.updated_at,
-            created_at=model.created_at
+            created_at=model.created_at,
         )
 
 

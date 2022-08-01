@@ -1,13 +1,11 @@
 import strawberry
 from sqlalchemy.orm import Session
-from ..dependencies import get_db
 from ..dependencies import configure_db_session
 from app.schemas.metadata import PlaneGraphType
 from app.models.metadata import PlaneDetails
 from psycopg2.errors import UniqueViolation
 from sqlalchemy.exc import IntegrityError
-import json
-from typing import Any, NewType
+from typing import NewType
 
 JSON = strawberry.scalar(
     NewType("JSON", object),
@@ -18,6 +16,7 @@ JSON = strawberry.scalar(
 
 SessionLocal = configure_db_session()
 
+
 @strawberry.type
 class Query:
     @strawberry.field
@@ -26,15 +25,14 @@ class Query:
         planes = db.query(PlaneDetails).all()
         return [PlaneGraphType.marshall(plane) for plane in planes]
 
+
 @strawberry.type
 class Mutation:
     @strawberry.field
     def add_plane(self, plane_alias: str, model: str) -> list[PlaneGraphType]:
         try:
             db: Session = SessionLocal()
-            plane_db = PlaneDetails(
-                plane_alias=plane_alias, model=model, in_use=True
-            )
+            plane_db = PlaneDetails(plane_alias=plane_alias, model=model, in_use=True)
             db.add(plane_db)
             db.commit()
         except IntegrityError as e:
