@@ -25,7 +25,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['flight_id'], ['flight.flight_id'], ),
     sa.PrimaryKeyConstraint('file_id')
     )
+    op.drop_column('flight', 'file_uri')
     op.add_column('flight', sa.Column('tfile_uri', sa.String(), nullable=True))
+    op.add_column('flight', sa.Column('notes', sa.String(), nullable=True))
     # ### end Alembic commands ###
 
 
