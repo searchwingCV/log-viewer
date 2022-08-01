@@ -1,3 +1,4 @@
+from ast import For
 import enum
 from ..constants import MAX_MISSION_ALIAS_LEN
 from datetime import datetime as dt
@@ -77,7 +78,7 @@ def calculate_geo_mission(mapper, connect, target):
 class Flight(Base):
     __tablename__ = "flight"
     flight_id = Column(Integer, primary_key=True, autoincrement=True)
-    file_uri = Column(String)
+    tfile_uri = Column(String, nullable=True)
     plane_id = Column(Integer, ForeignKey("plane_details.plane_id"), nullable=True)
     mission_id = Column(
         Integer, ForeignKey("mission_details.mission_id"), nullable=True
@@ -97,6 +98,14 @@ class Flight(Base):
     updated_at = Column(DateTime, onupdate=dt.now)
     plane = relationship("PlaneDetails", secondary=plane_flight_association)
     mission = relationship("MissionDetails", secondary=misssion_flight_association)
+    log_file = relationship("LogFile")
+
+
+class LogFile(Base):
+    __tablename__ = "logfile"
+    file_id = Column(Integer, primary_key=True, autoincrement=True)
+    file_uri = Column(String)
+    flight_id = Column(Integer, ForeignKey("flight.flight_id"))
 
 
 @event.listens_for(Flight, "before_insert")
