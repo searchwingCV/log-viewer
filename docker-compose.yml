@@ -10,10 +10,14 @@ services:
       - ./server:/app
     ports:
       - "8081:8080"
-    env_file:
-      - ./server/.env
     depends_on:
       - db
+    environment:
+      POSTGRES_USER: searchwing
+      POSTGRES_PASSWORD: searchwing
+      POSTGRES_DB: searchwing
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: 5432
 
   db:
     container_name: db
