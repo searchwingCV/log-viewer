@@ -25,4 +25,4 @@ graph = create_uml_graph(
     show_multiplicity_one=False,  # some people like to see the ones, some don't
 )
 
-graph.write_png(os.path.join(basedir, "schema.png"))  # write out the file
+graph.write_png(os.path.join(basedir, "model.png"))  # write out the file
