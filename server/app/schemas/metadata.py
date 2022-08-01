@@ -9,7 +9,7 @@ from ..models.metadata import WeatherCondititions
 
 
 class BasePlaneSchema(BaseSchema):
-    alias: str = Field(alias="planeAlias")
+    plane_alias: str = Field(alias="planeAlias")
     model: Optional[str] = Field(alias="model")
     in_use: bool = Field(alias="inUse", default=True)
 
@@ -21,6 +21,7 @@ class PlaneDetailsSchema(BasePlaneSchema):
 
     class Config:
         orm_mode = True
+        allow_population_by_field_name = True
 
 @strawberry.type
 # @strawberry.experimental.pydantic.type(model=PlaneDetailsSchema, all_fields=True)
@@ -46,6 +47,9 @@ class PlaneGraphType:
 
 
 class MissionDetailsSchema(BaseSchema):
+    class Config:
+        allow_population_by_field_name = True
+
     mission_id: Optional[int] = Field(alias="missionId")
     mission_alias: constr(max_length=MAX_MISSION_ALIAS_LEN) = Field(
         alias="missionAlias"

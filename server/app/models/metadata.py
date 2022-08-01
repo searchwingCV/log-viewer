@@ -99,6 +99,7 @@ class Flight(Base):
     plane = relationship("PlaneDetails", secondary=plane_flight_association)
     mission = relationship("MissionDetails", secondary=misssion_flight_association)
     log_file = relationship("LogFile")
+    notes = Column(String, nullable=False)
 
 
 class LogFile(Base):
