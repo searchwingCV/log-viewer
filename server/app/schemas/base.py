@@ -1,8 +1,16 @@
+from __future__ import annotations
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, validator, Field
 from ..internal.pydantic_handle_geom import create_geom
 from typing import Optional
 from shapely.geometry import Point
+from typing import TypeVar, Generic, Sequence
+from fastapi import Query
+from pydantic import conint
+from fastapi_pagination.bases import AbstractPage, AbstractParams, RawParams
+from math import ceil
+
+T = TypeVar("T")
 
 
 class BaseSchema(BaseModel):
@@ -10,12 +18,60 @@ class BaseSchema(BaseModel):
         return jsonable_encoder(self, **kwargs)
 
 
-class BasePageResponse(BaseSchema):
-    total: int = 0
+class Params(BaseModel, AbstractParams):
+    page: int = Query(1, ge=1, description="Page number")
+    size: int = Query(50, ge=1, le=100, description="Page size")
+    path: str = "/base"
+
+    def to_raw_params(self) -> RawParams:
+        return RawParams(
+            limit=self.size,
+            offset=self.size * (self.page - 1),
+        )
+
+    def get_next_path(self, total):
+        if not self.page >= ceil(total / self.size):
+            next_page = self.page + 1
+            return self.path + f"?page={next_page}&size={self.size}"
+        else:
+            return ""
+
+    def get_prev_path(self):
+        if self.page != 1:
+            prev_page = self.page - 1
+            return self.path + f"?page={prev_page}&size={self.size}"
+        else:
+            return ""
+
+
+class Page(AbstractPage[T], Generic[T]):
+    items: Sequence[T]
+    total: conint(ge=0)  # type: ignore
+    page: conint(ge=1)  # type: ignore
+    size: conint(ge=1)  # type: ignore
     next: str = ""
-    previous: str = ""
-    page: int = 0
-    size: int = 20
+    prev: str = ""
+
+    __params_type__ = Params  # Set params related to Page
+
+    @classmethod
+    def create(
+        cls,
+        items: Sequence[T],
+        total: int,
+        params: AbstractParams,
+    ) -> Page[T]:
+        if not isinstance(params, Params):
+            raise ValueError("Page should be used with Params")
+
+        return cls(
+            total=total,
+            items=items,
+            page=params.page,
+            size=params.size,
+            next=params.get_next_path(total),
+            prev=params.get_prev_path(),
+        )
 
 
 class GeoPoint(BaseSchema):
