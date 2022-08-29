@@ -1,11 +1,9 @@
 import strawberry
 from ..models.metadata import PlaneDetails
 from datetime import datetime
-from .base import BaseSchema, GeoPoint
+from .base import BaseSchema
 from typing import Optional, Union
-from pydantic import constr, Field
-from ..constants import MAX_MISSION_ALIAS_LEN
-from ..models.metadata import WeatherCondititions
+from pydantic import Field
 
 
 class BasePlaneSchema(BaseSchema):
@@ -45,23 +43,3 @@ class PlaneGraphType:
             updated_at=model.updated_at,
             created_at=model.created_at,
         )
-
-
-class MissionDetailsSchema(BaseSchema):
-    class Config:
-        allow_population_by_field_name = True
-
-    mission_id: Optional[int] = Field(alias="missionId")
-    mission_alias: constr(max_length=MAX_MISSION_ALIAS_LEN) = Field(
-        alias="missionAlias"
-    )
-    description: str = Field(alias="description")
-    location: float = Field(alias="location")
-    longitude: float = Field(alias="longitude")
-    geo: Optional[GeoPoint] = Field(alias="geo")
-    pilot: Optional[str] = Field(alias="pilot")
-    observer: Optional[str] = Field(alias="observer")
-    weather: Optional[WeatherCondititions] = Field(alias="weather")
-    temperature: Optional[int] = Field(alias="temperature")
-    updated_at: datetime = Field(alias="updatedAt")
-    created_at: datetime = Field(alias="createdAt")

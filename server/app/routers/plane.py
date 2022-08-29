@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Query, status, HTTPException
 from psycopg2.errors import UniqueViolation
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from ..schemas.metadata import PlaneDetailsSchema, BasePlaneSchema
+from ..schemas.plane import PlaneDetailsSchema, BasePlaneSchema
 from ..dependencies import get_db
 from ..models.metadata import PlaneDetails
 from ..internal.logging import get_logger
