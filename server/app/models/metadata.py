@@ -77,7 +77,6 @@ def calculate_geo_mission(mapper, connect, target):
 class Flight(Base):
     __tablename__ = "flight"
     flight_id = Column(Integer, primary_key=True, autoincrement=True)
-    tfile_uri = Column(String, nullable=True)
     plane_id = Column(Integer, ForeignKey("plane_details.plane_id"), nullable=True)
     mission_id = Column(
         Integer, ForeignKey("mission_details.mission_id"), nullable=True
@@ -98,12 +97,20 @@ class Flight(Base):
     plane = relationship("PlaneDetails", secondary=plane_flight_association)
     mission = relationship("MissionDetails", secondary=misssion_flight_association)
     log_file = relationship("LogFile")
-    notes = Column(String, nullable=False)
+    tfile = relationship("TelemetryFile")
+    notes = Column(String, nullable=True)
 
 
 class LogFile(Base):
     __tablename__ = "logfile"
     file_id = Column(Integer, primary_key=True, autoincrement=True)
+    file_uri = Column(String)
+    flight_id = Column(Integer, ForeignKey("flight.flight_id"))
+
+
+class TelemetryFile(Base):
+    __tablename__ = "telemetry_file"
+    tfile_id = Column(Integer, primary_key=True, autoincrement=True)
     file_uri = Column(String)
     flight_id = Column(Integer, ForeignKey("flight.flight_id"))
 
