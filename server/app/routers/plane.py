@@ -3,11 +3,13 @@ from fastapi import APIRouter, Depends, Query, status, HTTPException
 from psycopg2.errors import UniqueViolation
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from ..schemas.metadata import PlaneDetailsSchema, BasePlaneSchema
+from ..schemas.plane import PlaneDetailsSchema, BasePlaneSchema
 from ..dependencies import get_db
 from ..models.metadata import PlaneDetails
 from ..internal.logging import get_logger
-from fastapi_pagination import Page, add_pagination
+from fastapi_pagination import add_pagination
+from ..schemas.base import Page, Params
+from ..constants import DEFAULT_PAGE_LEN
 from fastapi_pagination.ext.sqlalchemy import paginate
 
 
@@ -52,13 +54,16 @@ async def add_plane(plane: BasePlaneSchema, db: Session = Depends(get_db)):
 
 @router.get("", response_model=Page[PlaneDetailsSchema], status_code=status.HTTP_200_OK)
 async def retrieve_plane(
-    plane_alias: Union[str, None] = Query(default=None), db: Session = Depends(get_db)
+    plane_alias: Union[str, None] = Query(default=None),
+    page: Union[int, None] = Query(default=1),
+    size: Union[int, None] = Query(default=DEFAULT_PAGE_LEN),
+    db: Session = Depends(get_db),
 ):
     if plane_alias is not None:
         planes = db.query(PlaneDetails).filter_by(plane_alias=plane_alias)
     else:
         planes = db.query(PlaneDetails)
-    return paginate(planes)
+    return paginate(planes, Params(page=page, size=size, path="/plane"))
 
 
 @router.patch(

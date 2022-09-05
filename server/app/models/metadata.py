@@ -59,7 +59,7 @@ class MissionDetails(Base):
 
     mission_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     mission_alias = Column(String(MAX_MISSION_ALIAS_LEN), unique=True, nullable=False)
-    description = Column(String, unique=True, nullable=False)
+    description = Column(String, nullable=False)
     location = Column(String, nullable=True)
     longitude = Column(Float)
     latitude = Column(Float)
@@ -70,8 +70,9 @@ class MissionDetails(Base):
 
 
 @event.listens_for(MissionDetails, "before_insert")
+@event.listens_for(MissionDetails, "before_update")
 def calculate_geo_mission(mapper, connect, target):
-    target.geo = f"POINT({target.latitude}, {target.longitude})"
+    target.geo = f"SRID=4269; POINT({target.latitude} {target.longitude})"
 
 
 class Flight(Base):
@@ -118,4 +119,4 @@ class TelemetryFile(Base):
 @event.listens_for(Flight, "before_insert")
 @event.listens_for(Flight, "before_update")
 def calculate_geo_flight(mapper, connect, target):
-    target.geo = f"POINT({target.latitude}, {target.longitude})"
+    target.geo = f"SRID=4269; POINT({target.latitude} {target.longitude})"

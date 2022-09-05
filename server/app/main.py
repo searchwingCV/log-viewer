@@ -3,7 +3,7 @@ from app.schemas.graph_queries import Query, Mutation
 from strawberry.fastapi import GraphQLRouter
 
 from fastapi import FastAPI, Request
-from app.routers import status, plane
+from app.routers import status, plane, mission
 from app.internal.database import configure_db_session
 
 
@@ -13,7 +13,7 @@ app = FastAPI(
 )
 
 
-@app.get("/")
+@app.get("/", description="Welcome")
 async def main(request: Request):
     return {
         "msg": f"Welcome to the Searchiwng Log API! To check the docs please visit: {request.url._url}docs"
@@ -26,6 +26,7 @@ graphql_app = GraphQLRouter(schema)
 
 app.include_router(status.router)
 app.include_router(plane.router)
+app.include_router(mission.router)
 app.include_router(graphql_app, prefix="/graphql-meta")
 
 SessionLocal = configure_db_session()
