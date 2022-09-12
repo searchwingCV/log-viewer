@@ -31,7 +31,7 @@ class PlaneDetails(Base):
     updated_at = Column(DateTime, nullable=True, onupdate=dt.now)
 
 
-class WeatherCondititions(enum.Enum):
+class WeatherCondititions(str, enum.Enum):
     sunny = "sunny"
     windy = "windy"
     cloudy = "cloudy"
@@ -78,9 +78,9 @@ def calculate_geo_mission(mapper, connect, target):
 class Flight(Base):
     __tablename__ = "flight"
     flight_id = Column(Integer, primary_key=True, autoincrement=True)
-    plane_id = Column(Integer, ForeignKey("plane_details.plane_id"), nullable=True)
+    plane_id = Column(Integer, ForeignKey("plane_details.plane_id"), nullable=False)
     mission_id = Column(
-        Integer, ForeignKey("mission_details.mission_id"), nullable=True
+        Integer, ForeignKey("mission_details.mission_id"), nullable=False
     )
     average_speed = Column(Float, nullable=True)
     distance = Column(Float, nullable=True)
@@ -119,4 +119,7 @@ class TelemetryFile(Base):
 @event.listens_for(Flight, "before_insert")
 @event.listens_for(Flight, "before_update")
 def calculate_geo_flight(mapper, connect, target):
-    target.geo = f"SRID=4269; POINT({target.latitude} {target.longitude})"
+    if all((target.latitude is not None, target.longitude is not None)):
+        target.geo = f"SRID=4269; POINT({target.latitude} {target.longitude})"
+    else:
+        target.geo = None

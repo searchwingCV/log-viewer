@@ -3,7 +3,7 @@ from app.schemas.graph_queries import Query, Mutation
 from strawberry.fastapi import GraphQLRouter
 
 from fastapi import FastAPI, Request
-from app.routers import status, plane, mission
+from app.routers import status, plane, mission, flight
 from app.internal.database import configure_db_session
 
 
@@ -27,6 +27,7 @@ graphql_app = GraphQLRouter(schema)
 app.include_router(status.router)
 app.include_router(plane.router)
 app.include_router(mission.router)
+app.include_router(flight.router)
 app.include_router(graphql_app, prefix="/graphql-meta")
 
 SessionLocal = configure_db_session()
