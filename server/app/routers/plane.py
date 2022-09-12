@@ -25,7 +25,7 @@ router = APIRouter(
 async def add_plane(plane: BasePlaneSchema, db: Session = Depends(get_db)):
     try:
         plane_db = PlaneDetails(
-            plane_alias=plane.alias, model=plane.model, in_use=plane.in_use
+            plane_alias=plane.plane_alias, model=plane.model, in_use=plane.in_use
         )
         db.add(plane_db)
         db.commit()
@@ -33,7 +33,7 @@ async def add_plane(plane: BasePlaneSchema, db: Session = Depends(get_db)):
         assert isinstance(e.orig, UniqueViolation)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"The following plane already exists: {plane.alias}",
+            detail=f"The following plane already exists: {plane.plane_alias}",
         )
     except Exception as err:
         logger.exception("Exception detected!")
@@ -78,7 +78,7 @@ async def update_plane(
             stored_plane_model = PlaneDetailsSchema.from_orm(stored_plane)
             update_data = plane_to_update.dict(exclude_unset=True)
             updated_plane = stored_plane_model.copy(update=update_data)
-            db.query(PlaneDetails).filter_by(plane_id=plane_id).update(update_data)
+            db.query(PlaneDetails).filter_by(id=plane_id).update(update_data)
             db.commit()
             return updated_plane.to_json()
         except Exception as e:
@@ -89,7 +89,7 @@ async def update_plane(
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"The following plane does not exists: {stored_plane.alias}",
+            detail=f"The following plane does not exists: {plane_to_update.plane_alias}",
         )
 
 

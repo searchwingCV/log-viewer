@@ -49,9 +49,9 @@ async def update_mission(
     stored_mission = db.query(MissionDetails).filter_by(mission_id=mission_id).first()
     if stored_mission:
         try:
-            stored_mission_model = MissionSchema.from_orm(stored_mission)
+            stored_mission_schema = MissionSchema.from_orm(stored_mission)
             update_data = mission_to_update.dict(exclude_unset=True)
-            updated_mission = stored_mission_model.copy(update=update_data)
+            updated_mission = stored_mission_schema.copy(update=update_data)
             db.query(MissionDetails).filter_by(mission_id=mission_id).update(
                 update_data
             )
