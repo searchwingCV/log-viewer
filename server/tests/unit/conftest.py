@@ -7,7 +7,7 @@ sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
 )
 
-from ...app.main import app  # noqa
+from app.main import app  # noqa
 
 
 @pytest.fixture(scope="module")
