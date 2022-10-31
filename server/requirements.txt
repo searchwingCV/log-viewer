@@ -10,3 +10,4 @@ fastapi-pagination==0.9.3
 strawberry-graphql>=0.119.0
 fsspec==2022.10.0
 s3fs==2022.10.0
+python-multipart
