@@ -1,10 +1,10 @@
-from typing import TypeVar, Generic, get_args
+from typing import Generic, TypeVar, get_args
 from uuid import UUID
-from app.internal.exceptions.db import DBException, NotFoundException
-from sqlalchemy.orm import Session
-from app.schemas.base import BaseSchema
-from app.models.metadata import Base
 
+from app.internal.exceptions.db import DBException, NotFoundException
+from app.models.metadata import Base
+from app.schemas.base import BaseSchema
+from sqlalchemy.orm import Session
 
 Schema = TypeVar("Schema", bound=BaseSchema)
 Model = TypeVar("Model", bound=Base)

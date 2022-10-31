@@ -1,21 +1,16 @@
 import enum
-from ..constants import MAX_MISSION_ALIAS_LEN
 from datetime import datetime as dt
-from sqlalchemy import (
-    Table,
-    Float,
-    ForeignKey,
-    Integer,
-    Boolean,
-    Column,
-    String,
-    DateTime,
-    event,
-    Enum,
-)
-from sqlalchemy.orm import relationship
+
 from geoalchemy2 import Geometry
+
+# fmt: off
+from sqlalchemy import Boolean, Column, DateTime, Enum, Float, ForeignKey, Integer, String, Table, event
+
+# fmt: on
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
+
+from ..constants import MAX_MISSION_ALIAS_LEN
 
 Base = declarative_base()
 

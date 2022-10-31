@@ -1,8 +1,10 @@
-from .base import BaseSchema
-from ..models.metadata import WeatherCondititions
-from typing import Optional, Union
-from pydantic import Field, validator
 from datetime import datetime
+from typing import Optional, Union
+
+from pydantic import Field, validator
+
+from ..models.metadata import WeatherCondititions
+from .base import BaseSchema
 
 
 class BaseFlightSchema(BaseSchema):

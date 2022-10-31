@@ -1,17 +1,18 @@
 from typing import Union
-from fastapi import APIRouter, Depends, Query, status, HTTPException
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi_pagination import add_pagination
+from fastapi_pagination.ext.sqlalchemy import paginate
 from psycopg2.errors import UniqueViolation
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from ..schemas.plane import PlaneDetailsSchema, BasePlaneSchema
-from ..dependencies import get_db
-from ..models.metadata import PlaneDetails
-from ..internal.logging import get_logger
-from fastapi_pagination import add_pagination
-from ..schemas.base import Page, Params
-from ..constants import DEFAULT_PAGE_LEN
-from fastapi_pagination.ext.sqlalchemy import paginate
 
+from ..constants import DEFAULT_PAGE_LEN
+from ..dependencies import get_db
+from ..internal.logging import get_logger
+from ..models.metadata import PlaneDetails
+from ..schemas.base import Page, Params
+from ..schemas.plane import BasePlaneSchema, PlaneDetailsSchema
 
 logger = get_logger(__name__)
 router = APIRouter(

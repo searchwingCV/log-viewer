@@ -19,3 +19,8 @@ repos:
         # making isort line length compatible with black
         - "--max-line-length=120"
         - "--max-complexity=18"
+-   repo: https://github.com/pycqa/isort
+    rev: 5.6.4
+    hooks:
+      - id: isort
+        args: ["--profile", "black", "--filter-files", "--line-length", "120"]

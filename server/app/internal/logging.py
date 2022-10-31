@@ -1,7 +1,7 @@
 import logging
+import os
 import sys
 from logging.handlers import TimedRotatingFileHandler
-import os
 
 FORMATTER = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")
 LOG_FILE = "fligh-log-service-back.log"

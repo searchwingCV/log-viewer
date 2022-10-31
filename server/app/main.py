@@ -1,11 +1,9 @@
 import strawberry
-from app.schemas.graph_queries import Query, Mutation
-from strawberry.fastapi import GraphQLRouter
-
-from fastapi import FastAPI, Request
-from app.routers import status, plane, mission, flight
 from app.internal.database import configure_db_session
-
+from app.routers import flight, mission, plane, status
+from app.schemas.graph_queries import Mutation, Query
+from fastapi import FastAPI, Request
+from strawberry.fastapi import GraphQLRouter
 
 app = FastAPI(
     title="Searchwing flight log data API",
