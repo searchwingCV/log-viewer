@@ -2,11 +2,7 @@ import enum
 from datetime import datetime as dt
 
 from geoalchemy2 import Geometry
-
-# fmt: off
 from sqlalchemy import Boolean, Column, DateTime, Enum, Float, ForeignKey, Integer, String, Table, event
-
-# fmt: on
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -74,9 +70,7 @@ class Flight(Base):
     __tablename__ = "flight"
     flight_id = Column(Integer, primary_key=True, autoincrement=True)
     plane_id = Column(Integer, ForeignKey("plane_details.plane_id"), nullable=False)
-    mission_id = Column(
-        Integer, ForeignKey("mission_details.mission_id"), nullable=False
-    )
+    mission_id = Column(Integer, ForeignKey("mission_details.mission_id"), nullable=False)
     average_speed = Column(Float, nullable=True)
     distance = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
