@@ -1,4 +1,5 @@
 import os
+import shutil
 from io import BytesIO
 
 import pytest
@@ -30,8 +31,12 @@ def test_get_uri(storage_obj):
     assert storage_obj.get_uri("1.txt") == expected_uri
 
 
-def test_save(storage_obj, test_stream):
-    storage_obj.save(test_stream, "2.txt")
-    assert os.path.isfile(os.path.join(basepath, "2.txt"))
-    assert open(os.path.join(basepath, "2.txt")).read() == "test 123"
-    os.remove(os.path.join(basepath, "2.txt"))
+@pytest.mark.parametrize("path", ["2.txt", "folder/2.txt", "folder/folder2/3.txt"])
+def test_save(storage_obj, test_stream, path):
+    storage_obj.save(test_stream, path)
+    assert os.path.isfile(os.path.join(basepath, path))
+    assert open(os.path.join(basepath, path)).read() == "test 123"
+    if os.path.isfile(os.path.join(basepath, "2.txt")):
+        os.remove(os.path.join(basepath, "2.txt"))
+    if os.path.isdir(os.path.join(basepath, "folder")):
+        shutil.rmtree(os.path.join(basepath, "folder"))

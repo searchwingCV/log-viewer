@@ -4,5 +4,5 @@ RUN apt-get update \
     && apt-get -y install libpq-dev gcc
 COPY requirements.txt requirements.txt
 RUN python -m pip install -r requirements.txt
-WORKDIR /app
+WORKDIR /searchwing
 COPY app .

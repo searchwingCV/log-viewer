@@ -30,13 +30,17 @@ class Storage:
             raise UndefinedProtocol(self.protocol)
 
     def save(self, fileio: BytesIO, filepath: str):
-        with self.fs.open(self.__merge_path(self.rootpath, filepath), "wb") as f:
+        fullpath = self.__merge_path(self.rootpath, filepath)
+        self.fs.makedirs(os.path.dirname(fullpath), exist_ok=True)
+        with self.fs.open(fullpath, "wb") as f:
             f.write(fileio.getbuffer())
 
     def get_uri(self, filepath: str) -> str:
-        return f"{self.protocol}://{self.__merge_path(self.rootpath, filepath)}"
+        fullpath = self.__merge_path(self.rootpath, filepath)
+        return f"{self.protocol}://{fullpath}"
 
     def get(self, filepath: str) -> BytesIO:
-        with self.fs.open(self.__merge_path(self.rootpath, filepath), "rb") as f:
+        fullpath = self.__merge_path(self.rootpath, filepath)
+        with self.fs.open(fullpath, "rb") as f:
             buf = BytesIO(f.read())
         return buf
