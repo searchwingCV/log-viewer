@@ -1,11 +1,13 @@
+from typing import NewType
+
 import strawberry
-from sqlalchemy.orm import Session
-from ..dependencies import configure_db_session
-from app.schemas.plane import PlaneGraphType
 from app.models.metadata import PlaneDetails
+from app.schemas.plane import PlaneGraphType
 from psycopg2.errors import UniqueViolation
 from sqlalchemy.exc import IntegrityError
-from typing import NewType
+from sqlalchemy.orm import Session
+
+from ..dependencies import configure_db_session
 
 JSON = strawberry.scalar(
     NewType("JSON", object),

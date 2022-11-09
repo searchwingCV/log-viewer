@@ -5,10 +5,9 @@ Revises:
 Create Date: 2022-07-11 17:30:00.290165
 
 """
-from alembic import op
-import sqlalchemy as sa
 import geoalchemy2
-
+import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "4a681232eabd"

@@ -1,14 +1,15 @@
 from __future__ import annotations
-from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel, validator, Field
-from ..internal.pydantic_handle_geom import create_geom
-from typing import Optional
-from shapely.geometry import Point
-from typing import TypeVar, Generic, Sequence
-from fastapi import Query
-from pydantic import conint
-from fastapi_pagination.bases import AbstractPage, AbstractParams, RawParams
+
 from math import ceil
+from typing import Generic, Optional, Sequence, TypeVar
+
+from fastapi import Query
+from fastapi.encoders import jsonable_encoder
+from fastapi_pagination.bases import AbstractPage, AbstractParams, RawParams
+from pydantic import BaseModel, Field, conint, validator
+from shapely.geometry import Point
+
+from ..internal.pydantic_handle_geom import create_geom
 
 T = TypeVar("T")
 

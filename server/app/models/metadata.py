@@ -1,21 +1,12 @@
 import enum
-from ..constants import MAX_MISSION_ALIAS_LEN
 from datetime import datetime as dt
-from sqlalchemy import (
-    Table,
-    Float,
-    ForeignKey,
-    Integer,
-    Boolean,
-    Column,
-    String,
-    DateTime,
-    event,
-    Enum,
-)
-from sqlalchemy.orm import relationship
+
 from geoalchemy2 import Geometry
+from sqlalchemy import Boolean, Column, DateTime, Enum, Float, ForeignKey, Integer, String, Table, event
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
+
+from ..constants import MAX_MISSION_ALIAS_LEN
 
 Base = declarative_base()
 
@@ -79,9 +70,7 @@ class Flight(Base):
     __tablename__ = "flight"
     flight_id = Column(Integer, primary_key=True, autoincrement=True)
     plane_id = Column(Integer, ForeignKey("plane_details.plane_id"), nullable=False)
-    mission_id = Column(
-        Integer, ForeignKey("mission_details.mission_id"), nullable=False
-    )
+    mission_id = Column(Integer, ForeignKey("mission_details.mission_id"), nullable=False)
     average_speed = Column(Float, nullable=True)
     distance = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)

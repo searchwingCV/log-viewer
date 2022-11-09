@@ -1,11 +1,11 @@
-import geoalchemy2.shape
 import logging
 from enum import Enum
 from typing import Dict, Optional, Union
+
+import geoalchemy2.shape
 from geoalchemy2 import WKBElement
 from shapely.geometry import Point, asShape
 from shapely.geometry.base import BaseGeometry
-
 
 logger = logging.getLogger(__name__)
 

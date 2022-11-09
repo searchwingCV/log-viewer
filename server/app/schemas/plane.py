@@ -1,9 +1,11 @@
-import strawberry
-from ..models.metadata import PlaneDetails
 from datetime import datetime
-from .base import BaseSchema
 from typing import Optional, Union
+
+import strawberry
 from pydantic import Field
+
+from ..models.metadata import PlaneDetails
+from .base import BaseSchema
 
 
 class BasePlaneSchema(BaseSchema):
