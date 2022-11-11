@@ -22,10 +22,13 @@ async def main(request: Request):
 
 
 @app.get("/file")
-def get_file_from_uri(uri: str, storage: Storage = Depends(get_storage)):
+async def get_file_from_uri(uri: str, storage: Storage = Depends(get_storage)):
     path = uri.replace(f"{storage.protocol}://", "")
     if storage.protocol == "file":
-        return FileResponse(path, filename=os.path.basename(path))
+        if os.path.isfile(path):
+            return FileResponse(path, filename=os.path.basename(path))
+        else:
+            raise HTTPException(404, "File not found")
     else:
         raise HTTPException(501, f"Not implemented -> {storage.protocol=}")
 
