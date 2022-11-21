@@ -3,9 +3,10 @@ from typing import List
 from pydantic import BaseModel, Field
 
 
-class LogFileUploadResponse(BaseModel):
+class FileUploadResponse(BaseModel):
     msg: str
-    log_file_id: int = Field(alias="logFileId")
+    file_type: str = Field(alias="fileType")
+    file_id: int = Field(alias="logFileId")
     file_uri: str = Field(alias="fileUri")
 
     class Config:
@@ -13,8 +14,8 @@ class LogFileUploadResponse(BaseModel):
         allow_population_by_field_name = True
 
 
-class LogFileDownload(BaseModel):
-    log_file_id: int = Field(alias="logFileId")
+class BaseFileDownload(BaseModel):
+    file_id: int = Field(alias="fileId")
     download_link: str = Field(alias="downloadLink")
 
     class Config:
@@ -22,10 +23,19 @@ class LogFileDownload(BaseModel):
         allow_population_by_field_name = True
 
 
-class FlightLogFiles(BaseModel):
-    flight_id: int = Field(alias="flightId")
+class BaseFileList(BaseModel):
     count: int
-    data: List[LogFileDownload]
+    data: List[BaseFileDownload]
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
+
+class FlightFilesList(BaseModel):
+    flight_id: int = Field(alias="flightId")
+    log: BaseFileList = Field(alias="logFiles", default=[])
+    tlog: BaseFileList = Field(alias="tLogFiles", default=[])
 
     class Config:
         orm_mode = True

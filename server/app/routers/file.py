@@ -1,72 +1,65 @@
-from io import BytesIO
+import os
 
+from app.dependencies import get_db, get_storage
+from app.internal.logging import get_logger
+from app.internal.storage import Storage
+from app.schemas.file import FileUploadResponse, FlightFilesList
+from app.services.file import FileService
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, status
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-
-from ..dependencies import get_db, get_storage
-from ..internal.logging import get_logger
-from ..internal.storage import Storage
-from ..models.metadata import Flight, LogFile
-from ..schemas.log import FlightLogFiles, LogFileDownload, LogFileUploadResponse
 
 logger = get_logger(__name__)
 router = APIRouter(
-    prefix="/log",
-    tags=["log"],
+    prefix="/file",
+    tags=["file"],
     responses={404: {"description": "Not found"}},
 )
+file_service = FileService()
 
 
-@router.post("/<flight_id>", response_model=LogFileUploadResponse)
-def upload(
+@router.post("/log/<flight_id>", response_model=FileUploadResponse)
+def upload_log_file(
     flight_id: int,
     file: UploadFile,
     storage: Storage = Depends(get_storage),
     db: Session = Depends(get_db),
 ):
-    flight = db.query(Flight).filter_by(flight_id=flight_id).first()
-    if flight:
-        try:
-            if flight is not None:
-                path = f"log/{flight_id}/{file.filename}"
-                uri = storage.get_uri(path)
-                log_db = LogFile(flight_id=flight_id, file_uri=uri)
-                db.add(log_db)
-                file_stream = file.file.read()
-                storage.save(BytesIO(file_stream), path)
-                db.commit()
-        except Exception as err:
-            db.rollback()
-            logger.exception("Exception detected!")
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
-        return LogFileUploadResponse(
-            msg="File was uploaded succesfully",
-            log_file_id=log_db.file_id,
-            file_uri=log_db.file_uri,
-        )
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Fight does not exist: {flight_id=}",
-        )
+    try:
+        return file_service.upload_log_file(flight_id, storage, file, db)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
-@router.get("/<flight_id>/list", response_model=FlightLogFiles)
+@router.post("/tlog/<flight_id>", response_model=FileUploadResponse)
+def upload_tlog_file(
+    flight_id: int,
+    file: UploadFile,
+    storage: Storage = Depends(get_storage),
+    db: Session = Depends(get_db),
+):
+    try:
+        return file_service.upload_tlog_file(flight_id, storage, file, db)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+
+
+@router.get("/<flight_id>/list", response_model=FlightFilesList)
 def list_files(flight_id: int, request: Request, db: Session = Depends(get_db)):
-    log_files = db.query(LogFile).filter_by(flight_id=flight_id).all()
-    if log_files:
-        try:
-            files = [
-                LogFileDownload(
-                    log_file_id=log_file.file_id,
-                    download_link=f"{request.base_url}file?uri={log_file.file_uri}",
-                )
-                for log_file in log_files
-            ]
-            return FlightLogFiles(flight_id=flight_id, count=len(files), data=files)
-        except Exception as err:
-            db.rollback()
-            logger.exception("Exception detected!")
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+    try:
+        return file_service.list_all_files(flight_id, db, request.base_url)
+    except Exception as err:
+        logger.exception("Exception detected!")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+
+
+@router.get("")
+async def get_file_from_uri(uri: str, storage: Storage = Depends(get_storage)):
+    path = uri.replace(f"{storage.protocol}://", "")
+    if storage.protocol == "file":
+        if os.path.isfile(path):
+            return FileResponse(path, filename=os.path.basename(path))
+        else:
+            raise HTTPException(404, "File not found")
     else:
-        return FlightLogFiles(flight_id=flight_id, count=0, data=[])
+        raise HTTPException(501, f"Not implemented -> {storage.protocol=}")
