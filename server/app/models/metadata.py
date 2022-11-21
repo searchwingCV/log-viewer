@@ -100,7 +100,7 @@ class LogFile(Base):
 
 class TelemetryFile(Base):
     __tablename__ = "telemetry_file"
-    tfile_id = Column(Integer, primary_key=True, autoincrement=True)
+    file_id = Column(Integer, primary_key=True, autoincrement=True)
     file_uri = Column(String)
     flight_id = Column(Integer, ForeignKey("flight.flight_id"))
 
