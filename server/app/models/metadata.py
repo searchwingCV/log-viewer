@@ -88,6 +88,7 @@ class Flight(Base):
     mission = relationship("MissionDetails", secondary=misssion_flight_association)
     log_file = relationship("LogFile")
     tfile = relationship("TelemetryFile")
+    rosbag = relationship("RosBagFile")
     notes = Column(String, nullable=True)
 
 
@@ -100,6 +101,13 @@ class LogFile(Base):
 
 class TelemetryFile(Base):
     __tablename__ = "telemetry_file"
+    file_id = Column(Integer, primary_key=True, autoincrement=True)
+    file_uri = Column(String)
+    flight_id = Column(Integer, ForeignKey("flight.flight_id"))
+
+
+class RosBagFile(Base):
+    __tablename__ = "rosbag_file"
     file_id = Column(Integer, primary_key=True, autoincrement=True)
     file_uri = Column(String)
     flight_id = Column(Integer, ForeignKey("flight.flight_id"))

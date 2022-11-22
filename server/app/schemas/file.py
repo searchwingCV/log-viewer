@@ -36,6 +36,7 @@ class FlightFilesList(BaseModel):
     flight_id: int = Field(alias="flightId")
     log: BaseFileList = Field(alias="logFiles", default=[])
     tlog: BaseFileList = Field(alias="tLogFiles", default=[])
+    rosbag: BaseFileList = Field(alias="rosBagFiles", default=[])
 
     class Config:
         orm_mode = True
