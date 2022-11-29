@@ -25,9 +25,7 @@ router = APIRouter(
 @router.post("", response_model=PlaneDetailsSchema, status_code=status.HTTP_201_CREATED)
 async def add_plane(plane: BasePlaneSchema, db: Session = Depends(get_db)):
     try:
-        plane_db = PlaneDetails(
-            plane_alias=plane.plane_alias, model=plane.model, in_use=plane.in_use
-        )
+        plane_db = PlaneDetails(plane_alias=plane.plane_alias, model=plane.model, in_use=plane.in_use)
         db.add(plane_db)
         db.commit()
     except IntegrityError as e:
@@ -38,9 +36,7 @@ async def add_plane(plane: BasePlaneSchema, db: Session = Depends(get_db)):
         )
     except Exception as err:
         logger.exception("Exception detected!")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err)
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
     return PlaneDetailsSchema(
         **dict(
             {
@@ -67,12 +63,8 @@ async def retrieve_plane(
     return paginate(planes, Params(page=page, size=size, path="/plane"))
 
 
-@router.patch(
-    "/<plane_id>", response_model=PlaneDetailsSchema, status_code=status.HTTP_200_OK
-)
-async def update_plane(
-    plane_id: int, plane_to_update: BasePlaneSchema, db: Session = Depends(get_db)
-):
+@router.patch("/{plane_id}", response_model=PlaneDetailsSchema, status_code=status.HTTP_200_OK)
+async def update_plane(plane_id: int, plane_to_update: BasePlaneSchema, db: Session = Depends(get_db)):
     stored_plane = db.query(PlaneDetails).filter_by(plane_id=plane_id).first()
     if stored_plane:
         try:
@@ -84,9 +76,7 @@ async def update_plane(
             return updated_plane.to_json()
         except Exception as e:
             logger.exception(f"Exception detected: {e}")
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-            )
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

@@ -29,9 +29,7 @@ async def add_flight(flight: BaseFlightSchema, db: Session = Depends(get_db)):
         db.commit()
     except Exception as err:
         logger.exception("Exception detected!")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err)
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
     return FlightSchema.from_orm(flight_db)
 
 
@@ -49,12 +47,8 @@ async def retrieve_flight(
     return paginate(flights, Params(page=page, size=size, path="/flight"))
 
 
-@router.patch(
-    "/<flight_id>", response_model=FlightSchema, status_code=status.HTTP_200_OK
-)
-async def update_flight(
-    flight_id: int, flight_to_update: BaseFlightSchema, db: Session = Depends(get_db)
-):
+@router.patch("/{flight_id}", response_model=FlightSchema, status_code=status.HTTP_200_OK)
+async def update_flight(flight_id: int, flight_to_update: BaseFlightSchema, db: Session = Depends(get_db)):
     stored_flight = db.query(Flight).filter_by(flight_id=flight_id).first()
     if stored_flight:
         try:
@@ -66,9 +60,7 @@ async def update_flight(
             return updated_flight.to_json()
         except Exception as e:
             logger.exception(f"Exception detected: {e}")
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-            )
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -76,9 +68,7 @@ async def update_flight(
         )
 
 
-@router.delete(
-    "/<flight_id>", response_model=FlightDeletion, status_code=status.HTTP_200_OK
-)
+@router.delete("/{flight_id}", response_model=FlightDeletion, status_code=status.HTTP_200_OK)
 async def delete_mission(
     flight_id: Union[str, None] = Query(default=None),
     db: Session = Depends(get_db),
@@ -94,9 +84,7 @@ async def delete_mission(
         db.commit()
     except Exception as e:
         logger.exception(f"Exception detected: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     return FlightDeletion(msg="Deleted", flight_id=flight_id).to_json()
 
 
