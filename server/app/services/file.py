@@ -3,7 +3,7 @@ from io import BytesIO
 from app.constants import ALLOWED_FILES
 from app.internal.logging import get_logger
 from app.internal.storage import Storage
-from app.models.metadata import LogFile, RosBagFile, TelemetryFile
+from app.models.metadata import APMParameterFile, LogFile, RosBagFile, TelemetryFile
 from app.schemas.file import BaseFileDownload, BaseFileList, FileUploadResponse, FlightFilesList
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
@@ -16,6 +16,7 @@ class FileService:
         self.log_file_model = LogFile
         self.telemetry_file_model = TelemetryFile
         self.rosbag_file_model = RosBagFile
+        self.apm_parameter_file_model = APMParameterFile
         self.base_file_download_serializer = BaseFileDownload
         self.base_file_list_serializer = BaseFileList
         self.file_upload_serializer = FileUploadResponse
@@ -24,7 +25,12 @@ class FileService:
         self.__allowed_files = ALLOWED_FILES
 
     def _get_model_mapping(self):
-        return {"log": self.log_file_model, "tlog": self.telemetry_file_model, "rosbag": self.rosbag_file_model}
+        return {
+            "log": self.log_file_model,
+            "tlog": self.telemetry_file_model,
+            "rosbag": self.rosbag_file_model,
+            "apm": self.apm_parameter_file_model,
+        }
 
     def upload_log_file(self, flight_id: int, storage: Storage, file: UploadFile, db: Session) -> FileUploadResponse:
         return self.__upload_file(flight_id, storage, file, db, "log")
@@ -34,6 +40,11 @@ class FileService:
 
     def upload_rosbag_file(self, flight_id: int, storage: Storage, file: UploadFile, db: Session) -> FileUploadResponse:
         return self.__upload_file(flight_id, storage, file, db, "rosbag")
+
+    def upload_apm_param_file(
+        self, flight_id: int, storage: Storage, file: UploadFile, db: Session
+    ) -> FileUploadResponse:
+        return self.__upload_file(flight_id, storage, file, db, "apm")
 
     def __upload_file(self, flight_id: str, storage: Storage, file: UploadFile, db: Session, file_type: str):
         try:
