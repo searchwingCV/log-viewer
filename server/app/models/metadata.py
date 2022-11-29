@@ -113,6 +113,13 @@ class RosBagFile(Base):
     flight_id = Column(Integer, ForeignKey("flight.flight_id"))
 
 
+class APMParameterFile(Base):
+    __tablename__ = "apm_parameter_file"
+    file_id = Column(Integer, primary_key=True, autoincrement=True)
+    file_uri = Column(String)
+    flight_id = Column(Integer, ForeignKey("flight.flight_id"))
+
+
 @event.listens_for(Flight, "before_insert")
 @event.listens_for(Flight, "before_update")
 def calculate_geo_flight(mapper, connect, target):

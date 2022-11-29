@@ -57,6 +57,19 @@ def upload_rosbag_file(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
+@router.post("/apm/<flight_id>", response_model=FileUploadResponse)
+def upload_apm_param_file(
+    flight_id: int,
+    file: UploadFile,
+    storage: Storage = Depends(get_storage),
+    db: Session = Depends(get_db),
+):
+    try:
+        return file_service.upload_apm_param_file(flight_id, storage, file, db)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+
+
 @router.get("/<flight_id>/list", response_model=FlightFilesList)
 def list_files(flight_id: int, request: Request, db: Session = Depends(get_db)):
     try:

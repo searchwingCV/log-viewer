@@ -37,6 +37,7 @@ class FlightFilesList(BaseModel):
     log: BaseFileList = Field(alias="logFiles", default=[])
     tlog: BaseFileList = Field(alias="tLogFiles", default=[])
     rosbag: BaseFileList = Field(alias="rosBagFiles", default=[])
+    apm: BaseFileList = Field(alias="apmParamFiles", default=[])
 
     class Config:
         orm_mode = True
