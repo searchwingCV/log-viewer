@@ -1,6 +1,7 @@
 from io import BytesIO
 
 from app.constants import ALLOWED_FILES
+from app.internal.encryption import encrypt
 from app.internal.logging import get_logger
 from app.internal.storage import Storage
 from app.models.metadata import APMParameterFile, LogFile, RosBagFile, TelemetryFile
@@ -80,7 +81,7 @@ class FileService:
                 files = [
                     self.base_file_download_serializer(
                         file_id=file_db.file_id,
-                        download_link=f"{base_url}file?uri={file_db.file_uri}",
+                        download_link=f"{base_url}file/{encrypt(file_db.file_uri)}",
                     )
                     for file_db in files_db
                 ]

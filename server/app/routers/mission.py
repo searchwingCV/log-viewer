@@ -36,34 +36,24 @@ async def add_mission(mission: BaseMissionSchema, db: Session = Depends(get_db))
         )
     except Exception as err:
         logger.exception("Exception detected!")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err)
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
     return MissionSchema.from_orm(mission_db)
 
 
-@router.patch(
-    "/<mission_id>", response_model=MissionSchema, status_code=status.HTTP_200_OK
-)
-async def update_mission(
-    mission_id: int, mission_to_update: BaseMissionSchema, db: Session = Depends(get_db)
-):
+@router.patch("/{mission_id}", response_model=MissionSchema, status_code=status.HTTP_200_OK)
+async def update_mission(mission_id: int, mission_to_update: BaseMissionSchema, db: Session = Depends(get_db)):
     stored_mission = db.query(MissionDetails).filter_by(mission_id=mission_id).first()
     if stored_mission:
         try:
             stored_mission_schema = MissionSchema.from_orm(stored_mission)
             update_data = mission_to_update.dict(exclude_unset=True)
             updated_mission = stored_mission_schema.copy(update=update_data)
-            db.query(MissionDetails).filter_by(mission_id=mission_id).update(
-                update_data
-            )
+            db.query(MissionDetails).filter_by(mission_id=mission_id).update(update_data)
             db.commit()
             return updated_mission.to_json()
         except Exception as e:
             logger.exception(f"Exception detected: {e}")
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-            )
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -85,9 +75,7 @@ async def retrieve_mission(
     return paginate(missions, Params(page=page, size=size, path="/mission"))
 
 
-@router.delete(
-    "/<mission_id>", response_model=MissionDeletion, status_code=status.HTTP_200_OK
-)
+@router.delete("/<mission_id>", response_model=MissionDeletion, status_code=status.HTTP_200_OK)
 async def delete_mission(
     mission_id: Union[str, None] = Query(default=None),
     db: Session = Depends(get_db),
@@ -103,9 +91,7 @@ async def delete_mission(
         db.commit()
     except Exception as e:
         logger.exception(f"Exception detected: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     return MissionDeletion(msg="Deleted", mission_id=mission_id).to_json()
 
 

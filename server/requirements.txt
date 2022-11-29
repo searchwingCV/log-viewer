@@ -11,3 +11,4 @@ strawberry-graphql>=0.119.0
 fsspec==2022.10.0
 s3fs==2022.10.0
 python-multipart
+cryptography==38.0.4

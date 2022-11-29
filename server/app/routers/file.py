@@ -1,6 +1,7 @@
 import os
 
 from app.dependencies import get_db, get_storage
+from app.internal.encryption import decrypt
 from app.internal.logging import get_logger
 from app.internal.storage import Storage
 from app.schemas.file import FileUploadResponse, FlightFilesList
@@ -18,7 +19,7 @@ router = APIRouter(
 file_service = FileService()
 
 
-@router.post("/log/<flight_id>", response_model=FileUploadResponse)
+@router.post("/log/{flight_id}", response_model=FileUploadResponse)
 def upload_log_file(
     flight_id: int,
     file: UploadFile,
@@ -31,7 +32,7 @@ def upload_log_file(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
-@router.post("/tlog/<flight_id>", response_model=FileUploadResponse)
+@router.post("/tlog/{flight_id}", response_model=FileUploadResponse)
 def upload_tlog_file(
     flight_id: int,
     file: UploadFile,
@@ -57,7 +58,7 @@ def upload_rosbag_file(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
-@router.post("/apm/<flight_id>", response_model=FileUploadResponse)
+@router.post("/apm/{flight_id}", response_model=FileUploadResponse)
 def upload_apm_param_file(
     flight_id: int,
     file: UploadFile,
@@ -70,7 +71,7 @@ def upload_apm_param_file(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
-@router.get("/<flight_id>/list", response_model=FlightFilesList)
+@router.get("/{flight_id}/list", response_model=FlightFilesList)
 def list_files(flight_id: int, request: Request, db: Session = Depends(get_db)):
     try:
         return file_service.list_all_files(flight_id, db, request.base_url)
@@ -79,8 +80,9 @@ def list_files(flight_id: int, request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
-@router.get("")
+@router.get("/{uri}")
 async def get_file_from_uri(uri: str, storage: Storage = Depends(get_storage)):
+    uri = decrypt(uri)
     path = uri.replace(f"{storage.protocol}://", "")
     if storage.protocol == "file":
         if os.path.isfile(path):
