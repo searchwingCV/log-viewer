@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "Python: FastAPI",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/server",
+            "module": "uvicorn",
+            "args": [
+                "app.main:app",
+                "--reload",
+                "--port",
+                "8080",
+                "--log-level",
+                "debug"
+            ],
+            "jinja": true,
+            "justMyCode": true
+        }
+    ]
+}
