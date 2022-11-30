@@ -1,4 +1,5 @@
-from typing import List
+from datetime import datetime
+from typing import List, Union
 
 from pydantic import BaseModel, Field
 
@@ -8,6 +9,8 @@ class FileUploadResponse(BaseModel):
     file_type: str = Field(alias="fileType")
     file_id: int = Field(alias="logFileId")
     file_uri: str = Field(alias="fileUri")
+    updated_at: Union[None, datetime] = Field(alias="updatedAt")
+    created_at: datetime = Field(alias="createdAt")
 
     class Config:
         orm_mode = True

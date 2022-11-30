@@ -7,7 +7,7 @@ from app.internal.storage import Storage
 from app.schemas.file import FileUploadResponse, FlightFilesList
 from app.services.file import FileService
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, status
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
 
 logger = get_logger(__name__)
@@ -19,7 +19,7 @@ router = APIRouter(
 file_service = FileService()
 
 
-@router.post("/log/{flight_id}", response_model=FileUploadResponse)
+@router.put("/log/{flight_id}", response_model=FileUploadResponse)
 def upload_log_file(
     flight_id: int,
     file: UploadFile,
@@ -32,7 +32,7 @@ def upload_log_file(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
-@router.post("/tlog/{flight_id}", response_model=FileUploadResponse)
+@router.put("/tlog/{flight_id}", response_model=FileUploadResponse)
 def upload_tlog_file(
     flight_id: int,
     file: UploadFile,
@@ -45,7 +45,7 @@ def upload_tlog_file(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
-@router.post("/rosbag/<flight_id>", response_model=FileUploadResponse)
+@router.put("/rosbag/{flight_id}", response_model=FileUploadResponse)
 def upload_rosbag_file(
     flight_id: int,
     file: UploadFile,
@@ -58,7 +58,7 @@ def upload_rosbag_file(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
-@router.post("/apm/{flight_id}", response_model=FileUploadResponse)
+@router.put("/apm/{flight_id}", response_model=FileUploadResponse)
 def upload_apm_param_file(
     flight_id: int,
     file: UploadFile,
@@ -67,6 +67,58 @@ def upload_apm_param_file(
 ):
     try:
         return file_service.upload_apm_param_file(flight_id, storage, file, db)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+
+
+@router.delete("/apm/{file_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_apm_param_file(
+    file_id: int,
+    storage: Storage = Depends(get_storage),
+    db: Session = Depends(get_db),
+):
+    try:
+        file_service.delete_apm_param_file(file_id, storage, db)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+
+
+@router.delete("/log/{file_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_log_file(
+    file_id: int,
+    storage: Storage = Depends(get_storage),
+    db: Session = Depends(get_db),
+):
+    try:
+        file_service.delete_log_file(file_id, storage, db)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+
+
+@router.delete("/tlog/{file_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_tlog_file(
+    file_id: int,
+    storage: Storage = Depends(get_storage),
+    db: Session = Depends(get_db),
+):
+    try:
+        file_service.delete_tlog_file(file_id, storage, db)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+
+
+@router.delete("/rosbag/{file_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_rosbag_file(
+    file_id: int,
+    storage: Storage = Depends(get_storage),
+    db: Session = Depends(get_db),
+):
+    try:
+        file_service.delete_rosbag_file(file_id, storage, db)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
     except Exception as err:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
