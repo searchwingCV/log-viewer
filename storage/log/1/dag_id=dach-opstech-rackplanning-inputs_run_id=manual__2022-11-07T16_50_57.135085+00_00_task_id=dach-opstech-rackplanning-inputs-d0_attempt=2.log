@@ -1,8 +1,0 @@
-dachopstechrackplanninginputsd-6ad8827b51e544b3a71aac68d8097886
-*** Falling back to local log
-*** Trying to get logs (last 100 lines) from worker pod dachopstechrackplanninginputsd-6ad8827b51e544b3a71aac68d8097886 ***
-
-
-[2022-11-07 17:29:26,722] {dagbag.py:507} INFO - Filling up the DagBag from /usr/local/airflow/dags/dach/dach-opstech-rackplanning-inputs/rackplanning.py
-[2022-11-07 17:29:27,576] {task_command.py:370} INFO - Running <TaskInstance: dach-opstech-rackplanning-inputs.dach-opstech-rackplanning-inputs-d0 manual__2022-11-07T16:50:57.135085+00:00 [queued]> on host dachopstechrackplanninginputsd-6ad8827b51e544b3a71aac68d8097886
-
