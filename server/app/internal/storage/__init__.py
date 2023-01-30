@@ -39,6 +39,9 @@ class Storage:
         fullpath = self.__merge_path(self.rootpath, filepath)
         return f"{self.protocol}://{fullpath}"
 
+    def get_path(self, uri: str) -> str:
+        return uri.replace(f"{self.protocol}://", "")
+
     def get(self, filepath: str) -> BytesIO:
         fullpath = self.__merge_path(self.rootpath, filepath)
         with self.fs.open(fullpath, "rb") as f:

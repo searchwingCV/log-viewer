@@ -95,29 +95,41 @@ class Flight(Base):
 class LogFile(Base):
     __tablename__ = "logfile"
     file_id = Column(Integer, primary_key=True, autoincrement=True)
-    file_uri = Column(String)
+    file_uri = Column(String, unique=True, primary_key=True)
     flight_id = Column(Integer, ForeignKey("flight.flight_id"))
+    created_at = Column(DateTime, nullable=False, default=dt.now)
+    updated_at = Column(DateTime, nullable=True, onupdate=dt.now)
+    version = Column(Integer, nullable=False, default=1)
 
 
 class TelemetryFile(Base):
     __tablename__ = "telemetry_file"
     file_id = Column(Integer, primary_key=True, autoincrement=True)
-    file_uri = Column(String)
+    file_uri = Column(String, unique=True, primary_key=True)
     flight_id = Column(Integer, ForeignKey("flight.flight_id"))
+    created_at = Column(DateTime, nullable=False, default=dt.now)
+    updated_at = Column(DateTime, nullable=True, onupdate=dt.now)
+    version = Column(Integer, nullable=False, default=1)
 
 
 class RosBagFile(Base):
     __tablename__ = "rosbag_file"
     file_id = Column(Integer, primary_key=True, autoincrement=True)
-    file_uri = Column(String)
+    file_uri = Column(String, unique=True, primary_key=True)
     flight_id = Column(Integer, ForeignKey("flight.flight_id"))
+    created_at = Column(DateTime, nullable=False, default=dt.now)
+    updated_at = Column(DateTime, nullable=True, onupdate=dt.now)
+    version = Column(Integer, nullable=False, default=1)
 
 
 class APMParameterFile(Base):
     __tablename__ = "apm_parameter_file"
     file_id = Column(Integer, primary_key=True, autoincrement=True)
-    file_uri = Column(String)
+    file_uri = Column(String, unique=True, primary_key=True)
     flight_id = Column(Integer, ForeignKey("flight.flight_id"))
+    created_at = Column(DateTime, nullable=False, default=dt.now)
+    updated_at = Column(DateTime, nullable=True, onupdate=dt.now)
+    version = Column(Integer, nullable=False, default=1)
 
 
 @event.listens_for(Flight, "before_insert")
