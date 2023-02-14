@@ -1,0 +1,33 @@
+lint-and-test-server:
+  only:
+    - merge_requests
+  image: python:3.9.13-slim-buster
+  variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
+  before_script:
+  - python --version  # For debugging
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+  - make install-back-deps
+  - make install-back-test-deps
+  script:
+  - make lint-server
+  - make test-server
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: server/coverage.xml
+
+deploy:
+  only:
+    - main
+  stage: deploy
+  script: echo "TBD!"
+  environment: production

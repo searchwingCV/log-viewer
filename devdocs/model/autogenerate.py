@@ -1,12 +1,13 @@
-import sys
 import os
+import sys
 
 basedir = os.path.dirname(__file__)
 sys.path.append(os.path.join(basedir, os.pardir, os.pardir))
 
-from server.app.models import metadata as model  # noqa
-from sqlalchemy_schemadisplay import create_uml_graph  # noqa
 from sqlalchemy.orm import class_mapper  # noqa
+from sqlalchemy_schemadisplay import create_uml_graph  # noqa
+
+from server.app.models import metadata as model  # noqa
 
 # lets find all the mappers in our model
 mappers = []
