@@ -31,7 +31,7 @@ lint-and-test-server:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: server/coverage.xml
+        path: coverage.xml
 
 deploy:
   only:
