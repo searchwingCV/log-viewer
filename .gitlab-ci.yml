@@ -10,6 +10,7 @@ lint-and-test-server:
       - venv/
   before_script:
   - apt update -y && apt install make -y
+  - apt-get update && apt-get -y install libpq-dev gcc
   - make --version
   - python --version
   - pip install virtualenv
