@@ -2,3 +2,4 @@
 *.env
 storage/
 .coverage
+coverage.xml
