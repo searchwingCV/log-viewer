@@ -5,8 +5,6 @@ lint-and-test-server:
   variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   tags:
-    - lint
-    - test
     - flight-log
   cache:
     paths:
