@@ -4,6 +4,10 @@ lint-and-test-server:
   image: python:3.9.13-slim-buster
   variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  tags:
+    - lint
+    - test
+    - flight-log
   cache:
     paths:
       - .cache/pip
