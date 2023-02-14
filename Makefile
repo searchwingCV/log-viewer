@@ -14,7 +14,9 @@ lint-server:
 run-server:
 	docker compose up server --build
 
-back-unit-test:
+test-server: test-unit-server
+
+test-unit-server:
 	python -m pytest server/tests --cov ./server/app --cov-report=xml
 
 run-migrations:

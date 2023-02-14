@@ -20,7 +20,7 @@ lint-and-test-server:
   - make install-back-test-deps
   script:
   - make lint-server
-  - make test-server
+  - make back-unit-test
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     reports:
