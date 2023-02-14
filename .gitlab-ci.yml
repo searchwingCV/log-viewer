@@ -9,7 +9,7 @@ lint-and-test-server:
       - .cache/pip
       - venv/
   before_script:
-  - sudo apt install make -y
+  - apt install make -y
   - make --version
   - python --version
   - pip install virtualenv
