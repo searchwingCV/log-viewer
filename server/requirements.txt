@@ -12,3 +12,5 @@ fsspec==2022.10.0
 s3fs==2022.10.0
 python-multipart
 cryptography==38.0.4
+fastapi-pagination
+requests>=2.28.0

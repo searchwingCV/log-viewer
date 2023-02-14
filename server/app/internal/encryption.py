@@ -1,8 +1,16 @@
 import os
 
+from app.internal.logging import get_logger
 from cryptography.fernet import Fernet
 
-fernet = Fernet(os.getenv("ENCRYPTION_KEY"))
+logger = get_logger(__name__)
+encription_key = os.getenv("ENCRYPTION_KEY")
+if encription_key is not None:
+    fernet = Fernet(encription_key)
+else:
+    logger.warning("Encryption key not provided, will generate a new one")
+    fernet = Fernet(Fernet.generate_key())
+
 ascii_format = os.getenv("ASCII_FORMAT", "utf-8")
 
 
