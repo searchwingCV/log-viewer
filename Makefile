@@ -17,7 +17,7 @@ run-server:
 test-server: test-unit-server
 
 test-unit-server:
-	python -m pytest server/tests --cov ./server/app --cov-report=xml
+	python -m pytest server/tests --cov ./server/app --cov-report=xml -vvvv
 
 run-migrations:
 	docker compose up migrations
