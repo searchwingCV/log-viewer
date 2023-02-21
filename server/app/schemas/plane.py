@@ -45,3 +45,29 @@ class PlaneGraphType:
             updated_at=model.updated_at,
             created_at=model.created_at,
         )
+
+
+@strawberry.type
+class BatteryMessage:
+    time_us: int
+    volt: float
+    volt_r: float
+    curr: float
+    curr_tot: float
+    enrg_tot: float
+    temp: float
+    res: float
+
+    @classmethod
+    def marshall(cls, data):
+
+        return cls(
+            time_us=data[0],
+            volt=data[1],
+            volt_r=data[2],
+            curr=data[3],
+            curr_tot=data[4],
+            enrg_tot=data[5],
+            temp=data[6],
+            res=data[7],
+        )

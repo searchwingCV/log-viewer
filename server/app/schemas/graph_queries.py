@@ -2,8 +2,9 @@ from typing import NewType
 
 import strawberry
 from app.models.metadata import PlaneDetails
-from app.schemas.plane import PlaneGraphType
+from app.schemas.plane import BatteryMessage, PlaneGraphType
 from psycopg2.errors import UniqueViolation
+from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -26,6 +27,12 @@ class Query:
         db: Session = SessionLocal()
         planes = db.query(PlaneDetails).all()
         return [PlaneGraphType.marshall(plane) for plane in planes]
+
+    @strawberry.field
+    def get_battery_data(self, flight_id: int) -> list[BatteryMessage]:
+        db: Session = SessionLocal()
+        data = db.execute(text("SELECT * FROM BAT"))
+        return [BatteryMessage.marshall(record) for record in data.fetchall()]
 
 
 @strawberry.type
