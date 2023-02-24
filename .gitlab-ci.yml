@@ -1,4 +1,4 @@
-lint-and-test-server:
+test-server:
   only:
     - merge_requests
   image: python:3.9.13-slim-buster
@@ -34,6 +34,25 @@ lint-and-test-server:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
+
+build-dev:
+  only:
+    - dev
+  stage: build-staging
+  variables:
+    BACKEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/server:$CI_COMMIT_REF_SLUG
+    DOCKER_TLS_CERTDIR: "/certs"
+  environment: staging
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - echo $CI_REGISTRY_IMAGE
+    - echo $CI_COMMIT_REF_SLUG
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $BACKEND_IMAGE_TAG ./server
+    - docker push $BACKEND_IMAGE_TAG
 
 deploy:
   only:
