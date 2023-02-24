@@ -51,6 +51,7 @@ deploy-dev:
   before_script:
     - echo $CI_REGISTRY_IMAGE
     - echo $CI_COMMIT_REF_SLUG
+    - echo $BACKEND_IMAGE_TAG
   script:
     - echo "Building"
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
