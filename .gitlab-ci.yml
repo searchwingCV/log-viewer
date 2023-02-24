@@ -38,7 +38,7 @@ test-server:
 build-dev:
   only:
     - dev
-  stage: build-staging
+  stage: build
   tags:
     - flight-log
   variables:
