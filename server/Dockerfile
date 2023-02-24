@@ -5,6 +5,6 @@ RUN apt-get update \
 COPY requirements.txt requirements.txt
 RUN python -m pip install -r requirements.txt
 WORKDIR /searchwing
-COPY app .
+COPY app app
 
 CMD ["uvicorn", "app.main:app", "--port=80", "--log-level=info"]
