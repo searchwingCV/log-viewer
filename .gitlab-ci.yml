@@ -56,8 +56,8 @@ deploy-dev:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t $BACKEND_IMAGE_TAG ./server
     - docker push $BACKEND_IMAGE_TAG
-    - echo "Deploying on CapRover..."
-    - docker run caprover/cli-caprover:v2.1.1 caprover deploy --caproverUrl $CAPROVER_URL --caproverPassword $CAPROVER_PASSWORD --caproverApp $CAPROVER_APP --imageName $BACKEND_IMAGE_TAG
+    - echo "Deploying backend on CapRover..."
+    - docker run caprover/cli-caprover:v2.1.1 caprover deploy --caproverUrl $CAPROVER_URL --appToken $CAPROVER_BACKEND_APP_TOKEN --caproverApp $CAPROVER_BACKEND_APP --imageName $BACKEND_IMAGE_TAG
 
 deploy:
   only:
