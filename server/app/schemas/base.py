@@ -15,6 +15,11 @@ T = TypeVar("T")
 
 
 class BaseSchema(BaseModel):
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+
     def to_json(self, **kwargs):
         return jsonable_encoder(self, **kwargs)
 
@@ -83,6 +88,4 @@ class GeoPoint(BaseSchema):
 
     geo: Optional[Point] = Field(None, alias="point")
 
-    _validate_geom = validator("geo", pre=True, always=True, allow_reuse=True)(
-        create_geom
-    )
+    _validate_geom = validator("geo", pre=True, always=True, allow_reuse=True)(create_geom)

@@ -66,5 +66,14 @@ services:
     ports:
       - "5050:80"
 
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss:8.5.16
+    restart: always
+    environment:
+      GF_INSTALL_PLUGINS: grafana-clock-panel 1.0.1,grafana-simple-json-datasource
+    ports:
+      - "3000:3000"
+
 volumes:
   storage:

@@ -1,6 +1,6 @@
 import strawberry
 from app.internal.database import configure_db_session
-from app.routers import file, flight, mission, plane, status
+from app.routers import file, flight, health, mission, plane
 from app.schemas.graph_queries import Mutation, Query
 from fastapi import FastAPI, Request
 from strawberry.fastapi import GraphQLRouter
@@ -20,7 +20,7 @@ schema = strawberry.Schema(Query, Mutation)
 
 graphql_app = GraphQLRouter(schema)
 
-app.include_router(status.router)
+app.include_router(health.router)
 app.include_router(plane.router)
 app.include_router(mission.router)
 app.include_router(flight.router)
