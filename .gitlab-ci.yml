@@ -58,6 +58,7 @@ deploy-dev:
     - docker build -t $BACKEND_IMAGE_TAG ./server
     - docker push $BACKEND_IMAGE_TAG
     - echo "Deploying backend on CapRover..."
+    - echo "docker run caprover/cli-caprover:latest caprover deploy --caproverUrl $CAPROVER_URL --appToken $CAPROVER_BACKEND_APP_TOKEN --caproverApp $CAPROVER_BACKEND_APP --imageName $BACKEND_IMAGE_TAG"
     - docker run caprover/cli-caprover:latest caprover deploy --caproverUrl $CAPROVER_URL --appToken $CAPROVER_BACKEND_APP_TOKEN --caproverApp $CAPROVER_BACKEND_APP --imageName $BACKEND_IMAGE_TAG
 
 deploy:
