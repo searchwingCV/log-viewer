@@ -6,3 +6,5 @@ COPY requirements.txt requirements.txt
 RUN python -m pip install -r requirements.txt
 WORKDIR /searchwing
 COPY app .
+
+ENTRYPOINT ["uvicorn app.main:app --reload --debug --host 0.0.0.0 --port 8080 --log-level info"]
