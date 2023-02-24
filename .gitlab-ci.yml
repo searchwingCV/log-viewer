@@ -39,6 +39,8 @@ build-dev:
   only:
     - dev
   stage: build-staging
+  tags:
+    - flight-log
   variables:
     BACKEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/server:$CI_COMMIT_REF_SLUG
     DOCKER_TLS_CERTDIR: "/certs"
