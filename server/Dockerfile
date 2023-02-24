@@ -7,4 +7,4 @@ RUN python -m pip install -r requirements.txt
 WORKDIR /searchwing
 COPY app app
 
-CMD ["uvicorn", "app.main:app", "--port=80", "--log-level=info"]
+CMD ["uvicorn", "app.main:app", "--host=0.0.0.0", "--port=80", "--log-level=info"]
