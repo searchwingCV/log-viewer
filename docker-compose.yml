@@ -7,12 +7,12 @@ services:
       context: server
     stdin_open: true
     tty: true
-    command: uvicorn app.main:app --reload --debug --host 0.0.0.0 --port 8080 --log-level info
+    command: python bin/api.py
     volumes:
       - ./server:/searchwing
       - ./storage:/data/
     ports:
-      - "8080:8080"
+      - "80:80"
     depends_on:
       - db
       - migrations

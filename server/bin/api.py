@@ -1,7 +1,8 @@
 from argparse import ArgumentParser, Namespace
 
 import uvicorn
-from src.main import app
+from fastapi import FastAPI
+from src.presentation.rest.controllers import flight, health, mission, plane, root
 
 
 def get_args() -> Namespace:
@@ -22,6 +23,18 @@ def get_args() -> Namespace:
 
 def run_api():
     args = get_args()
+
+    app = FastAPI(
+        title="Searchwing flight log data API",
+        description="An API to keep log files organized and analyze them",
+    )
+
+    app.include_router(root.router)
+    app.include_router(health.router)
+    app.include_router(plane.router)
+    app.include_router(mission.router)
+    app.include_router(flight.router)
+
     uvicorn.run(
         app,
         port=args.port,
