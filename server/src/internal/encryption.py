@@ -1,7 +1,7 @@
 import os
 
-from app.internal.logging import get_logger
 from cryptography.fernet import Fernet
+from src.internal.logging import get_logger
 
 logger = get_logger(__name__)
 encription_key = os.getenv("ENCRYPTION_KEY")

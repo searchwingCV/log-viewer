@@ -5,7 +5,9 @@ RUN apt-get update \
 COPY requirements.txt requirements.txt
 RUN python -m pip install -r requirements.txt
 WORKDIR /searchwing
-COPY app app
+COPY src src
+COPY bin bin
 COPY alembic alembic
 
-CMD ["uvicorn", "app.main:app", "--host=0.0.0.0", "--port=80", "--log-level=info"]
+ENV PYTHONPATH="/searchwing:/searchwing/src"
+CMD ["python", "bin/api.py"]

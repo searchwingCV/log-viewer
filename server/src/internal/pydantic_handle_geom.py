@@ -15,9 +15,7 @@ class EPSG(int, Enum):
     WEBM = 3857  # web-mercator: projected from WGS84
 
 
-def shape_to_wkb(
-    shape: Union[BaseGeometry, WKBElement], srid: EPSG = EPSG.WGS84
-) -> Optional[WKBElement]:
+def shape_to_wkb(shape: Union[BaseGeometry, WKBElement], srid: EPSG = EPSG.WGS84) -> Optional[WKBElement]:
     if isinstance(shape, BaseGeometry):
         return geoalchemy2.shape.from_shape(shape, srid=EPSG(srid).value)
     elif isinstance(shape, WKBElement):

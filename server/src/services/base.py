@@ -1,10 +1,10 @@
 from typing import Generic, TypeVar, get_args
 from uuid import UUID
 
-from app.internal.exceptions.db import DBException, NotFoundException
-from app.models.metadata import Base
-from app.schemas.base import BaseSchema
 from sqlalchemy.orm import Session
+from src.internal.exceptions.db import DBException, NotFoundException
+from src.models.metadata import Base
+from src.schemas.base import BaseSchema
 
 Schema = TypeVar("Schema", bound=BaseSchema)
 Model = TypeVar("Model", bound=Base)
@@ -21,18 +21,14 @@ class CRUDBase(Generic[Model]):
         self.table_name = self.model.__tablename__
         self.id_alias = "id"
 
-    def patch(
-        self, session: Session, id: int, filters: dict, data: BaseSchema
-    ) -> Model:
+    def patch(self, session: Session, id: int, filters: dict, data: BaseSchema) -> Model:
         stored_data = session.query(self.model).filter_by(**filters).first()
         if stored_data:
             try:
                 stored_data_schema = self.serializer.from_orm(data)
                 update_data = stored_data_schema.dict(exclude_unset=True)
                 updated_data = stored_data_schema.copy(update=update_data)
-                session.query(self.table_name).filter_by(mission_id=id).update(
-                    updated_data
-                )
+                session.query(self.table_name).filter_by(mission_id=id).update(updated_data)
                 session.commit()
                 return updated_data.to_json()
             except Exception as e:

@@ -2,8 +2,7 @@ from datetime import datetime
 from typing import Optional, Union
 
 from pydantic import Field, validator
-
-from .base import BaseSchema, GeoPoint
+from src.schemas.base import BaseSchema, GeoPoint
 
 
 class BaseMissionSchema(BaseSchema):

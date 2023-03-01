@@ -1,6 +1,6 @@
-from .config import Config
-from .internal.database import configure_db_session
-from .internal.storage import Storage
+from src.config import Config
+from src.internal.database import configure_db_session
+from src.internal.storage import Storage
 
 SessionLocal = configure_db_session()
 

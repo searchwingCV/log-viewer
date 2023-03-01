@@ -3,9 +3,8 @@ from typing import Optional, Union
 
 import strawberry
 from pydantic import Field
-
-from ..models.metadata import PlaneDetails
-from .base import BaseSchema
+from src.models.metadata import PlaneDetails
+from src.schemas.base import BaseSchema
 
 
 class BasePlaneSchema(BaseSchema):

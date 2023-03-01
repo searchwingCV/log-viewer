@@ -1,6 +1,6 @@
-from app.internal.logging import get_logger
-from app.schemas.health import AppHealth
 from sqlalchemy.orm import Session
+from src.internal.logging import get_logger
+from src.schemas.health import AppHealth
 
 logger = get_logger(__name__)
 

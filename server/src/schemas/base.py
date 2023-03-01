@@ -8,8 +8,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi_pagination.bases import AbstractPage, AbstractParams, RawParams
 from pydantic import BaseModel, Field, conint, validator
 from shapely.geometry import Point
-
-from ..internal.pydantic_handle_geom import create_geom
+from src.internal.pydantic_handle_geom import create_geom
 
 T = TypeVar("T")
 

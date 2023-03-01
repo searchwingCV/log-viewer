@@ -1,8 +1,8 @@
 import strawberry
-from app.internal.database import configure_db_session
-from app.routers import file, flight, health, mission, plane
-from app.schemas.graph_queries import Mutation, Query
 from fastapi import FastAPI, Request
+from src.internal.database import configure_db_session
+from src.routers import file, flight, health, mission, plane
+from src.schemas.graph_queries import Mutation, Query
 from strawberry.fastapi import GraphQLRouter
 
 app = FastAPI(

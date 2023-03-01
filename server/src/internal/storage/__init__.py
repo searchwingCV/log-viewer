@@ -2,8 +2,8 @@ import os
 from io import BytesIO
 
 import fsspec
-from app.internal.exceptions.storage import UndefinedProtocol
 from fsspec import AbstractFileSystem
+from src.internal.exceptions.storage import UndefinedProtocol
 
 
 class Storage:

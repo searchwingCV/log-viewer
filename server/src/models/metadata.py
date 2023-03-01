@@ -5,8 +5,7 @@ from geoalchemy2 import Geometry
 from sqlalchemy import Boolean, Column, DateTime, Enum, Float, ForeignKey, Integer, String, Table, event
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-
-from ..constants import MAX_MISSION_ALIAS_LEN
+from src.constants import MAX_MISSION_ALIAS_LEN
 
 Base = declarative_base()
 

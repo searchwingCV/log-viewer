@@ -2,28 +2,21 @@ from datetime import datetime
 from typing import Optional, Union
 
 from pydantic import Field, validator
-
-from ..models.metadata import WeatherCondititions
-from .base import BaseSchema
+from src.models.metadata import WeatherCondititions
+from src.schemas.base import BaseSchema
 
 
 class BaseFlightSchema(BaseSchema):
-    average_speed: Optional[float] = Field(
-        alias="averageSpeed", description="The average flight speed in km/h"
-    )
+    average_speed: Optional[float] = Field(alias="averageSpeed", description="The average flight speed in km/h")
     plane_id: int = Field(alias="planeId")
     mission_id: int = Field(alias="missionId")
-    distance: Optional[float] = Field(
-        alias="distance", description="The flown distance in km"
-    )
+    distance: Optional[float] = Field(alias="distance", description="The flown distance in km")
     latitude: Optional[float] = Field(alias="latitude")
     longitude: Optional[float] = Field(alias="longitude")
     pilot: Optional[str] = Field(alias="pilot")
     observer: Optional[str] = Field(alias="observer")
     weather_conditions: Optional[WeatherCondititions] = Field(alias="weatherConditions")
-    temperature: Optional[float] = Field(
-        alias="temperature", description="The temperature in ˚C"
-    )
+    temperature: Optional[float] = Field(alias="temperature", description="The temperature in ˚C")
     start_time: Optional[datetime] = Field(alias="startTime")
     end_time: Optional[datetime] = Field(alias="endTime")
     notes: Optional[str] = Field(alias="notes")

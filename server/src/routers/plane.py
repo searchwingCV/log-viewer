@@ -6,13 +6,12 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from psycopg2.errors import UniqueViolation
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-
-from ..constants import DEFAULT_PAGE_LEN
-from ..dependencies import get_db
-from ..internal.logging import get_logger
-from ..models.metadata import PlaneDetails
-from ..schemas.base import Page, Params
-from ..schemas.plane import BasePlaneSchema, PlaneDetailsSchema
+from src.constants import DEFAULT_PAGE_LEN
+from src.dependencies import get_db
+from src.internal.logging import get_logger
+from src.models.metadata import PlaneDetails
+from src.schemas.base import Page, Params
+from src.schemas.plane import BasePlaneSchema, PlaneDetailsSchema
 
 logger = get_logger(__name__)
 router = APIRouter(

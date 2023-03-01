@@ -1,5 +1,5 @@
-from app.schemas.base import BaseSchema
 from pydantic import Field
+from src.schemas.base import BaseSchema
 
 
 class AppHealth(BaseSchema):

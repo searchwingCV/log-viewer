@@ -1,14 +1,14 @@
 import os
 
-from app.dependencies import get_db, get_storage
-from app.internal.encryption import decrypt
-from app.internal.logging import get_logger
-from app.internal.storage import Storage
-from app.schemas.file import FileUploadResponse, FlightFilesList
-from app.services.file import FileService
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, status
 from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
+from src.dependencies import get_db, get_storage
+from src.internal.encryption import decrypt
+from src.internal.logging import get_logger
+from src.internal.storage import Storage
+from src.schemas.file import FileUploadResponse, FlightFilesList
+from src.services.file import FileService
 
 logger = get_logger(__name__)
 router = APIRouter(

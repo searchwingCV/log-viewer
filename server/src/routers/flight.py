@@ -4,13 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi_pagination import add_pagination
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
-
-from ..constants import DEFAULT_PAGE_LEN
-from ..dependencies import get_db
-from ..internal.logging import get_logger
-from ..models.metadata import Flight
-from ..schemas.base import Page, Params
-from ..schemas.flight import BaseFlightSchema, FlightDeletion, FlightSchema
+from src.constants import DEFAULT_PAGE_LEN
+from src.dependencies import get_db
+from src.internal.logging import get_logger
+from src.models.metadata import Flight
+from src.schemas.base import Page, Params
+from src.schemas.flight import BaseFlightSchema, FlightDeletion, FlightSchema
 
 router = APIRouter(
     prefix="/flight",

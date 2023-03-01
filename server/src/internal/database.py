@@ -2,8 +2,7 @@ import os
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
-
-from ..config import Config  # noqa
+from src.config import Config  # noqa
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 

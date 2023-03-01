@@ -1,8 +1,8 @@
-from app.dependencies import get_db
-from app.internal.healthcheck import Healthcheck
-from app.schemas.health import AppHealth
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
+from src.dependencies import get_db
+from src.internal.healthcheck import Healthcheck
+from src.schemas.health import AppHealth
 
 router = APIRouter(
     prefix="/health",

@@ -8,7 +8,7 @@ from sqlalchemy import engine_from_config, pool
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
-from app.config import Config  # noqa
+from src.config import Config  # noqa
 
 config = context.config
 
@@ -19,7 +19,7 @@ db_url = Config.SQLALCHEMY_DATABASE_URI.replace("%", "%%")
 config.set_main_option("sqlalchemy.url", db_url)
 
 
-from app.models.metadata import Base as MetadataBase  # noqa
+from src.models.metadata import Base as MetadataBase  # noqa
 
 target_metadata = MetadataBase.metadata
 
