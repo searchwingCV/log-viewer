@@ -1,6 +1,7 @@
 from typing import Union
 
 from common.constants import DEFAULT_PAGE_LEN
+from common.exceptions.db import DuplicatedKeyError
 from common.logging import get_logger
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi_pagination import add_pagination
@@ -9,8 +10,6 @@ from infrastructure.db.orm import Plane
 from infrastructure.dependencies import get_db
 from presentation.rest.serializers import Page, Params
 from presentation.rest.serializers.plane import CreatePlaneSerializer, PlaneSerializer
-from psycopg2.errors import UniqueViolation
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 logger = get_logger(__name__)
@@ -24,11 +23,11 @@ router = APIRouter(
 @router.post("", response_model=PlaneSerializer, status_code=status.HTTP_201_CREATED)
 async def add_plane(plane: CreatePlaneSerializer, db: Session = Depends(get_db)):
     try:
-        plane_db = Plane(alias=plane.alias, model=plane.model, in_use=plane.in_use)
-        db.add(plane_db)
-        db.commit()
-    except IntegrityError as e:
-        assert isinstance(e.orig, UniqueViolation)
+        from infrastructure.repositories.plane import PlaneRepository
+
+        plane_repo = PlaneRepository()
+        return PlaneSerializer.from_orm(plane_repo.upsert(db, plane)).to_json()
+    except DuplicatedKeyError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"The following plane already exists: {plane.alias}",
@@ -36,16 +35,6 @@ async def add_plane(plane: CreatePlaneSerializer, db: Session = Depends(get_db))
     except Exception as err:
         logger.exception("Exception detected!")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
-    return PlaneSerializer(
-        **dict(
-            {
-                "createdAt": plane_db.created_at,
-                "updatedAt": plane_db.updated_at,
-                "planeId": plane_db.plane_id,
-            },
-            **plane.to_json(),
-        )
-    ).to_json()
 
 
 @router.get("", response_model=Page[PlaneSerializer], status_code=status.HTTP_200_OK)

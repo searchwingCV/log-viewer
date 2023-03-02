@@ -43,7 +43,7 @@ misssion_flight_association = Table(
 class Mission(BaseModel):
     __tablename__ = "mission"
 
-    mission_alias = Column(String(MAX_MISSION_ALIAS_LEN), unique=True, nullable=False)
+    alias = Column(String(MAX_MISSION_ALIAS_LEN), unique=True, nullable=False)
     description = Column(String, nullable=False)
     location = Column(String, nullable=True)
     longitude = Column(Float)

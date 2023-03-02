@@ -3,7 +3,10 @@ from pydantic import BaseModel
 
 
 class BaseMission(BaseModel):
-    mission_alias: str
+    class Config:
+        orm_mode = True
+
+    alias: str
     description: str
     location: str
     latitude: float

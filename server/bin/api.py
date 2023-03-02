@@ -16,13 +16,12 @@ def get_args() -> Namespace:
         type=int,
         default=1,
     )
-    parser.add_argument("--debug", help="Activate debug", type=bool, default=False)
-    parser.add_argument("--reload", help="Activate reload (only for dev)", type=bool, default=False)
+    parser.add_argument("--debug", help="Activate debug", action="store_true")
+    parser.add_argument("--reload", help="Activate reload (only for dev)", action="store_true")
     return parser.parse_args()
 
 
-def run_api():
-    args = get_args()
+def build_api():
 
     app = FastAPI(
         title="Searchwing flight log data API",
@@ -35,8 +34,14 @@ def run_api():
     app.include_router(mission.router)
     app.include_router(flight.router)
 
+    return app
+
+
+if __name__ == "__main__":
+    args = get_args()
+
     uvicorn.run(
-        app,
+        "bin.api:build_api",
         port=args.port,
         host=args.host,
         log_level=args.log_level,
@@ -44,7 +49,3 @@ def run_api():
         reload=args.reload,
         debug=args.debug,
     )
-
-
-if __name__ == "__main__":
-    run_api()

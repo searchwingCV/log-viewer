@@ -6,6 +6,9 @@ from pydantic import BaseModel
 
 
 class DomainEntity(BaseModel):
-    id: ID_Type
-    created_at: datetime
+    class Config:
+        orm_mode = True
+
+    id: Optional[ID_Type]
+    created_at: Optional[datetime]
     updated_at: Optional[datetime]

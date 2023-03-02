@@ -31,7 +31,7 @@ async def add_mission(mission: CreateMissionSerializer, db: Session = Depends(ge
         assert isinstance(e.orig, UniqueViolation)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"The following mission already exists: {mission.mission_alias}",
+            detail=f"The following mission already exists: {mission.alias}",
         )
     except Exception as err:
         logger.exception("Exception detected!")
@@ -56,19 +56,19 @@ async def update_mission(mission_id: int, mission_to_update: CreateMissionSerial
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"The following mission does not exists: {stored_mission.mission_alias}",
+            detail=f"The following mission does not exists: {stored_mission.alias}",
         )
 
 
 @router.get("", response_model=Page[MissionSerializer], status_code=status.HTTP_200_OK)
 async def retrieve_mission(
-    mission_alias: Union[str, None] = Query(default=None),
+    alias: Union[str, None] = Query(default=None),
     page: Union[int, None] = Query(default=1),
     size: Union[int, None] = Query(default=DEFAULT_PAGE_LEN),
     db: Session = Depends(get_db),
 ):
-    if mission_alias is not None:
-        missions = db.query(Mission).filter_by(mission_alias=mission_alias)
+    if alias is not None:
+        missions = db.query(Mission).filter_by(alias=alias)
     else:
         missions = db.query(Mission)
     return paginate(missions, Params(page=page, size=size, path="/mission"))

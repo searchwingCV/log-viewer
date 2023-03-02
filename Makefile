@@ -14,10 +14,12 @@ lint-server:
 run-server:
 	docker compose up server --build
 
-test-server: test-unit-server
+test-server: test-unit-server test-integration-server
 
 test-unit-server:
-	python -m pytest server/tests --cov ./server/app --cov-report=xml -vvvv
+	python -m pytest server/tests/unit --cov ./server/app --cov-report=xml -vvvv --disable-warnings
 
+test-integration-server:
+	python -m pytest server/tests/integration --cov ./server/app --cov-append --disable-warnings --cov-report=xml -vvvv
 run-migrations:
 	docker compose up migrations

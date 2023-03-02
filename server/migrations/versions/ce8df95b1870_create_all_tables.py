@@ -23,7 +23,7 @@ def upgrade():
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.Column("updated_at", sa.DateTime(), nullable=True),
-        sa.Column("mission_alias", sa.String(length=50), nullable=False),
+        sa.Column("alias", sa.String(length=50), nullable=False),
         sa.Column("description", sa.String(), nullable=False),
         sa.Column("location", sa.String(), nullable=True),
         sa.Column("longitude", sa.Float(), nullable=True),
@@ -35,7 +35,7 @@ def upgrade():
         ),
         sa.Column("is_test", sa.Boolean(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("mission_alias"),
+        sa.UniqueConstraint("alias"),
     )
     op.create_index(op.f("ix_mission_id"), "mission", ["id"], unique=False)
     op.create_table(
