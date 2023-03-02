@@ -4,8 +4,19 @@ test-server:
   image: python:3.9.13-slim-buster
   variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+    PYTHONPATH: "./server:./server/src"
+    POSTGRES_USER: searchwing
+    POSTGRES_PASSWORD: searchwing
+    POSTGRES_DB: searchwing
+    POSTGRES_SERVER: db
+    POSTGRES_PORT: 5432
+    POSTGRES_TEST_PORT: 5432
+    POSTGRES_TEST_SERVER: test-db
   tags:
     - flight-log
+  services:
+    - name: postgres:latest
+      alias: test-db
   cache:
     paths:
       - .cache/pip
