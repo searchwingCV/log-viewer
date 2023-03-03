@@ -13,7 +13,7 @@ def test_upsert_new(test_db_session, get_sample_plane):
     created = repository.upsert(test_db_session, data)
 
     assert created.alias == data.alias
-    assert created.id is None
+    assert created.id is not None
     assert created.model == data.model
     assert created.in_use == data.in_use
 
@@ -50,7 +50,7 @@ def test_upsert_existing(test_db_session, get_sample_plane):
 
     assert planes_after == planes_before
     assert new_inserted_plane.alias == new_plane.alias
-    assert new_inserted_plane.updated_at is None
+    assert new_inserted_plane.updated_at is not None
 
 
 def test_find_by_id(test_db_session, insert_planes):
@@ -60,7 +60,7 @@ def test_find_by_id(test_db_session, insert_planes):
     plane = repository.get_by_id(test_db_session, 2)
 
     assert plane.id == 2
-    assert plane.alias is None
+    assert plane.alias is not None
 
 
 def test_delete_by_id(test_db_session, insert_planes):
