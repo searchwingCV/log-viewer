@@ -15,7 +15,7 @@ test-server:
   tags:
     - flight-log
   services:
-    - name: postgres:latest
+    - name: postgis/postgis:14-3.3
       alias: test-db
   cache:
     paths:
@@ -31,11 +31,7 @@ test-server:
   - source venv/bin/activate
   - make install-back-deps
   - make install-back-test-deps
-  - export POSTGRES_USER="searchwing"
-  - export POSTGRES_PASSWORD="searchwing"
-  - export POSTGRES_DB="searchwing"
-  - export POSTGRES_SERVER="localhost"
-  - export POSTGRES_PORT="5432"
+  - apt-get
   script:
   - make lint-server
   - make test-server
