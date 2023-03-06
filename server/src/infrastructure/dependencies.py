@@ -3,7 +3,7 @@ from infrastructure.db.session import SessionContextManager
 from infrastructure.storage import Storage
 
 
-def get_session():
+def get_db():
     with SessionContextManager() as session:
         yield session
 
