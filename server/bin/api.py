@@ -21,7 +21,7 @@ def get_args() -> Namespace:
     return parser.parse_args()
 
 
-def build_api():
+def build_api() -> FastAPI:
 
     app = FastAPI(
         title="Searchwing flight log data API",
