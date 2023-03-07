@@ -1,4 +1,4 @@
-from typing import Any, List, Type, Union
+from typing import Any, List, Tuple, Type, Union
 
 from domain.types import ID_Type, T_Model
 from infrastructure.db.orm import BaseModel
@@ -25,9 +25,11 @@ class BaseRepository:
             session.rollback()
             raise DBException(self._model, e) from e
 
-    def get_by_id(self, session: Session, id: ID_Type) -> T_Model:
+    def get_by_id(self, session: Session, id: ID_Type) -> Union[T_Model, None]:
         try:
             model = session.query(self._model).filter_by(id=id).first()
+            if model is None:
+                return model
         except Exception as e:
             raise DBException(self._model, e) from e
         return self._entity.from_orm(model)
@@ -40,15 +42,16 @@ class BaseRepository:
 
     def get_with_pagination(
         self, session: Session, page: int, size: int, query_filters: Any = None
-    ) -> Union[None, List[BaseModel]]:
+    ) -> Tuple[int, List[BaseModel]]:
         if query_filters is not None:
             query = session.query(self._model).filter(query_filters)
         else:
             query = session.query(self._model)
+        total = query.count()
+        if total == 0:
+            return 0, []
         result = query.limit(size).offset((page - 1) * size).all()
-        if result is None:
-            return result
-        return [self._model_to_schema(r) for r in result]
+        return total, [self._model_to_schema(r) for r in result]
 
     def _get_by_filters(self, session: Session, filters: dict, mode: str = "all") -> List[T_Model]:
         if mode not in ["all", "first"]:

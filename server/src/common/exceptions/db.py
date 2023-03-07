@@ -6,7 +6,8 @@ class DBException(Exception):
 
 class NotFoundException(Exception):
     def __init__(self, id, table_name) -> None:
-        self.message = f"No records are found for id '{id}' in the table '{table_name}'"
+        self.table = table_name
+        self.message = f"No records are found for id '{id}' in the table '{self.table}'"
         super().__init__(self.message)
 
 

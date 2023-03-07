@@ -1,15 +1,17 @@
 from typing import Union
 
+from application.services.dependencies import get_flight_service
 from application.services.file import FileService
+from application.services.flight import FlightService
 from common.constants import DEFAULT_PAGE_LEN
+from common.exceptions.db import NotFoundException
 from common.logging import get_logger
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, UploadFile, status
 from fastapi_pagination import add_pagination
-from fastapi_pagination.ext.sqlalchemy import paginate
-from infrastructure.db.orm import Flight
 from infrastructure.dependencies import get_db, get_storage
 from infrastructure.storage import Storage
 from presentation.rest.serializers import Page, Params
+from presentation.rest.serializers.errors import InvalidPayloadError, NotFoundError
 from presentation.rest.serializers.flight import (
     CreateFlightSerializer,
     FileUploadResponse,
@@ -19,8 +21,9 @@ from presentation.rest.serializers.flight import (
 )
 from sqlalchemy.orm import Session
 
+ROUTE_PREFIX = "/flight"
 router = APIRouter(
-    prefix="/flight",
+    prefix=ROUTE_PREFIX,
     tags=["flight"],
     responses={404: {"description": "Not found"}},
 )
@@ -30,42 +33,56 @@ file_service = FileService()
 
 
 @router.post("", response_model=FlightSerializer, status_code=status.HTTP_201_CREATED)
-async def add_flight(flight: CreateFlightSerializer, db: Session = Depends(get_db)):
+async def add_flight(
+    flight: CreateFlightSerializer,
+    flight_service: FlightService = Depends(get_flight_service),
+):
     try:
-        flight_db = Flight(**flight.dict())
-        db.add(flight_db)
-        db.commit()
+        return FlightSerializer.from_orm(flight_service.create(flight))
+    except NotFoundException as e:
+        error = InvalidPayloadError(detail=str(e))
+        return Response(status_code=status.HTTP_400_BAD_REQUEST, content=error.json())
     except Exception as err:
         logger.exception("Exception detected!")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
-    return FlightSerializer.from_orm(flight_db)
 
 
 @router.get("", response_model=Page[FlightSerializer], status_code=status.HTTP_200_OK)
-async def retrieve_flight(
-    flight_id: Union[int, None] = Query(default=None),
+async def retrieve_all_flights(
     page: Union[int, None] = Query(default=1),
     size: Union[int, None] = Query(default=DEFAULT_PAGE_LEN),
-    db: Session = Depends(get_db),
+    flight_service: FlightService = Depends(get_flight_service),
 ):
-    if flight_id is not None:
-        flights = db.query(Flight).filter_by(flight_id=flight_id)
-    else:
-        flights = db.query(Flight)
-    return paginate(flights, Params(page=page, size=size, path="/flight"))
+    total, flights = flight_service.get_all_with_pagination(page, size)
+    return Page.create(
+        items=flights,
+        total=total,
+        params=Params(page=page, size=size, path=ROUTE_PREFIX),
+    )
+
+
+@router.get("/{id}", response_model=FlightSerializer, status_code=status.HTTP_200_OK)
+async def retrieve_flight(id: int, flight_service: FlightService = Depends(get_flight_service)):
+    try:
+        flight = flight_service.get_by_id(id)
+        if not flight:
+            return Response(status_code=status.HTTP_404_NOT_FOUND, content=NotFoundError().json())
+        return flight
+    except Exception as err:
+        logger.exception("Exception detected!")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
 @router.patch("/{flight_id}", response_model=FlightSerializer, status_code=status.HTTP_200_OK)
-async def update_flight(flight_id: int, flight_to_update: CreateFlightSerializer, db: Session = Depends(get_db)):
-    stored_flight = db.query(Flight).filter_by(flight_id=flight_id).first()
-    if stored_flight:
+async def update_flight(
+    flight_id: int,
+    flight_to_update: CreateFlightSerializer,
+    flight_service: FlightService = Depends(get_flight_service),
+):
+    flight = flight_service.get_by_id(flight_to_update.id)
+    if flight:
         try:
-            stored_flight_schema = FlightSerializer.from_orm(stored_flight)
-            update_data = flight_to_update.dict(exclude_unset=True)
-            updated_flight = stored_flight_schema.copy(update=update_data)
-            db.query(Flight).filter_by(flight_id=flight_id).update(update_data)
-            db.commit()
-            return updated_flight.to_json()
+            return flight_service.create(flight_to_update)
         except Exception as e:
             logger.exception(f"Exception detected: {e}")
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
@@ -76,24 +93,14 @@ async def update_flight(flight_id: int, flight_to_update: CreateFlightSerializer
         )
 
 
-@router.delete("/{flight_id}", response_model=FlightDeletion, status_code=status.HTTP_200_OK)
-async def delete_mission(
-    flight_id: Union[str, None] = Query(default=None),
-    db: Session = Depends(get_db),
-):
+@router.delete("/{id}", response_model=FlightDeletion, status_code=status.HTTP_200_OK)
+async def delete_mission(id: int, flight_service: FlightService = Depends(get_flight_service)):
     try:
-        mission = db.query(Flight).filter_by(flight_id=flight_id)
-        if mission is None:
-            HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"The following flight does not exists, ID -> {flight_id}",
-            )
-        mission.delete()
-        db.commit()
+        flight_service.delete_by_id(id)
     except Exception as e:
         logger.exception(f"Exception detected: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-    return FlightDeletion(msg="Deleted", flight_id=flight_id).to_json()
+    return FlightDeletion(msg="Deleted", flight_id=int).to_json()
 
 
 @router.put("/{flight_id}/log-file", response_model=FileUploadResponse)

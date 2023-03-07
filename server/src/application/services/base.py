@@ -1,4 +1,4 @@
-from typing import List, Type, Union
+from typing import List, Tuple, Type, Union
 
 from domain.types import BaseModel as BaseEntity
 from domain.types import ID_Type, T_Model
@@ -33,7 +33,7 @@ class BaseCRUDService:
             result = self._repository.upsert(session=session, data=data)
         return result
 
-    def get_all_with_pagination(self, page: int, size: int) -> List[T_Model]:
+    def get_all_with_pagination(self, page: int, size: int) -> Tuple[int, List[T_Model]]:
         with self._session as session:
             result = self._repository.get_with_pagination(session, page, size)
         return result

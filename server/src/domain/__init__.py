@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Union
 
 from domain.types import ID_Type
 from pydantic import BaseModel
@@ -9,6 +9,6 @@ class DomainEntity(BaseModel):
     class Config:
         orm_mode = True
 
-    id: Optional[ID_Type]
-    created_at: Optional[datetime]
-    updated_at: Optional[datetime]
+    id: ID_Type
+    created_at: datetime
+    updated_at: Union[datetime, None]
