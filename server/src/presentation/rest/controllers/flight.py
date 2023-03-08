@@ -73,10 +73,9 @@ async def retrieve_flight(id: int, flight_service: FlightService = Depends(get_f
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
-@router.patch("/{flight_id}", response_model=FlightSerializer, status_code=status.HTTP_200_OK)
+@router.patch("", response_model=FlightSerializer, status_code=status.HTTP_200_OK)
 async def update_flight(
-    flight_id: int,
-    flight_to_update: CreateFlightSerializer,
+    flight_to_update: FlightSerializer,
     flight_service: FlightService = Depends(get_flight_service),
 ):
     flight = flight_service.get_by_id(flight_to_update.id)
@@ -89,7 +88,7 @@ async def update_flight(
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"The requested flight does not exist: {flight_id=}",
+            detail=f"The requested flight does not exist: {flight_to_update.id=}",
         )
 
 
