@@ -8,6 +8,8 @@ WORKDIR /searchwing
 COPY src src
 COPY bin bin
 COPY migrations migrations
+COPY ./alembic.ini ./alembic.ini
 
-ENV PYTHONPATH="/searchwing:/searchwing/src"
+ENV PYTHONPATH="/searchwing:/searchwing/src:/searchwing/migrations"
+
 CMD ["python", "bin/api.py"]

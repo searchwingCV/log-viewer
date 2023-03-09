@@ -1,15 +1,25 @@
-import os
+from typing import Optional, Type
 
-from common.config import Config  # noqa
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import Session as sqlalchemySession
+from sqlalchemy.orm import sessionmaker
+from src.common.config import BaseConfig, get_current_config
 
-basedir = os.path.abspath(os.path.dirname(__file__))
 
+class SessionContextManager:
+    def __init__(self, config: Optional[Type[BaseConfig]] = get_current_config()) -> None:
+        self._engine = create_engine(config.SQLALCHEMY_DATABASE_URI, pool_pre_ping=True)
+        self._session_maker = sessionmaker(autocommit=False, autoflush=False, bind=self._engine)
 
-def configure_db_session() -> Session:
+    def __enter__(self, *args, **kwargs) -> sqlalchemySession:
+        self._session = self._session_maker()
+        return self._session
 
-    engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, pool_pre_ping=True)
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    def __exit__(self, exc_type, exc, tb):
+        self._session.close()
 
-    return SessionLocal
+    def commit(self):
+        self._session.commit()
+
+    def rollback(self):
+        self._session.rollback()

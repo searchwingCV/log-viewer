@@ -63,6 +63,15 @@ def test_find_by_id(test_db_session, insert_planes):
     assert plane.alias is not None
 
 
+def test_find_by_id_returns_none(test_db_session, insert_planes):
+    insert_planes(5)
+
+    repository = PlaneRepository()
+    plane = repository.get_by_id(test_db_session, 22)
+
+    assert plane is None
+
+
 def test_delete_by_id(test_db_session, insert_planes):
     insert_planes(5)
     planes_before = len(test_db_session.query(PlaneModel).all())
@@ -103,20 +112,26 @@ def test_get_by_alias(test_db_session, get_sample_plane):
     ],
 )
 def test_get_with_pagination(test_db_session, insert_planes, expected_len, page, size):
-    insert_planes(43)
+    TOTAL_PLANES = 43
+
+    insert_planes(TOTAL_PLANES)
 
     repository = PlaneRepository()
-    result = repository.get_with_pagination(test_db_session, page, size)
-    assert result is not None
+    total, result = repository.get_with_pagination(test_db_session, page, size)
+
     assert len(result) == expected_len
+    assert total == TOTAL_PLANES
 
 
 def test_get_with_pagination_filter(test_db_session, insert_planes):
-    insert_planes(53)
+    TOTAL_PLANES = 53
+
+    insert_planes(TOTAL_PLANES)
 
     query_filter = PlaneModel.alias.contains("M")
     expected_len = len(test_db_session.query(PlaneModel).filter(query_filter).all())
     repository = PlaneRepository()
-    result = repository.get_with_pagination(test_db_session, 1, 50, query_filter)
+    total, result = repository.get_with_pagination(test_db_session, 1, 50, query_filter)
 
     assert len(result) == expected_len
+    assert total <= TOTAL_PLANES

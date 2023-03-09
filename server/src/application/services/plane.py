@@ -1,8 +1,6 @@
-"""
-CRUD services for the /plane resources
-"""
+from application.services.base import BaseCRUDService
+from domain.plane.entities import Plane
 
 
-class PlaneService:
-    def __init__(self):
-        pass
+class PlaneService(BaseCRUDService):
+    _entity = Plane

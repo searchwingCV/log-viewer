@@ -3,7 +3,7 @@ from datetime import datetime as dt
 from common.constants import MAX_MISSION_ALIAS_LEN
 from domain.flight.value_objects import WeatherCondititions
 from geoalchemy2 import Geometry
-from sqlalchemy import Boolean, Column, DateTime, Enum, Float, ForeignKey, Integer, String, Table, event
+from sqlalchemy import Boolean, Column, DateTime, Enum, Float, ForeignKey, Integer, String, Table, Text, event
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -60,12 +60,13 @@ def calculate_geo_mission(mapper, connect, target):
 
 class Flight(BaseModel):
     __tablename__ = "flight"
-    plane_id = Column(Integer, ForeignKey("plane.id"), nullable=False)
-    mission_id = Column(Integer, ForeignKey("mission.id"), nullable=False)
+    fk_plane = Column(Integer, ForeignKey("plane.id"), nullable=False)
+    fk_mission = Column(Integer, ForeignKey("mission.id"), nullable=True)
     average_speed = Column(Float, nullable=True)
     distance = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
     latitude = Column(Float, nullable=True)
+    notes = Column(Text, nullable=True)
     geo = Column(Geometry(geometry_type="POINT"), nullable=True)
     pilot = Column(String, nullable=True)
     observer = Column(String, nullable=True)

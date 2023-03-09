@@ -1,8 +1,30 @@
+import os
 from argparse import ArgumentParser, Namespace
 
 import uvicorn
+from alembic.command import upgrade
+from alembic.config import Config as AlembicConfig
 from fastapi import FastAPI
+from src.common.logging import get_logger
 from src.presentation.rest.controllers import flight, health, mission, plane, root
+
+logger = get_logger(__name__)
+
+
+def migrate_db():
+    try:
+        logger.info("Running DB migrations")
+        basedir = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
+        migrations_dir = os.path.join(basedir, "migrations")
+
+        config = AlembicConfig(file_=os.path.join(basedir, "alembic.ini"))
+        config.set_main_option("script_location", migrations_dir)
+
+        upgrade(config, "head")
+        logger.info("DB migrated!")
+    except Exception:
+        logger.exception("Error while running migrations, aborting boot...")
+        raise
 
 
 def get_args() -> Namespace:
@@ -21,7 +43,7 @@ def get_args() -> Namespace:
     return parser.parse_args()
 
 
-def build_api():
+def build_api() -> FastAPI:
 
     app = FastAPI(
         title="Searchwing flight log data API",
@@ -39,6 +61,8 @@ def build_api():
 
 if __name__ == "__main__":
     args = get_args()
+
+    migrate_db()
 
     uvicorn.run(
         "bin.api:build_api",
