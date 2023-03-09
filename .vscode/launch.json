@@ -5,12 +5,9 @@
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}/server",
-            "module": "uvicorn",
+            "envFile": "${workspaceFolder}/server/.env",
+            "program": "${workspaceFolder}/server/bin/api.py",
             "args": [
-                "app.main:app",
-                "--reload",
-                "--port",
-                "8080",
                 "--log-level",
                 "debug"
             ],

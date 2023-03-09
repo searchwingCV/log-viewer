@@ -3,7 +3,7 @@ import shutil
 from io import BytesIO
 
 import pytest
-from app.internal.storage import Storage
+from infrastructure.storage import Storage
 
 basepath = os.path.join(os.path.dirname(__file__), "mocks", "aux_files")
 

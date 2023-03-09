@@ -1,11 +1,22 @@
-lint-and-test-server:
+test-server:
   only:
     - merge_requests
   image: python:3.9.13-slim-buster
   variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+    PYTHONPATH: "./server:./server/src"
+    POSTGRES_USER: searchwing
+    POSTGRES_PASSWORD: searchwing
+    POSTGRES_DB: searchwing
+    POSTGRES_SERVER: db
+    POSTGRES_PORT: 5432
+    POSTGRES_TEST_PORT: 5432
+    POSTGRES_TEST_SERVER: test-db
   tags:
     - flight-log
+  services:
+    - name: postgis/postgis:14-3.3
+      alias: test-db
   cache:
     paths:
       - .cache/pip
@@ -20,11 +31,6 @@ lint-and-test-server:
   - source venv/bin/activate
   - make install-back-deps
   - make install-back-test-deps
-  - export POSTGRES_USER="searchwing"
-  - export POSTGRES_PASSWORD="searchwing"
-  - export POSTGRES_DB="searchwing"
-  - export POSTGRES_SERVER="localhost"
-  - export POSTGRES_PORT="5432"
   script:
   - make lint-server
   - make test-server
@@ -35,9 +41,49 @@ lint-and-test-server:
         coverage_format: cobertura
         path: coverage.xml
 
+deploy-dev:
+  only:
+    - dev
+  stage: build
+  tags:
+    - flight-log
+  variables:
+    BACKEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/server:$CI_COMMIT_REF_SLUG
+    FRONTEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/client:$CI_COMMIT_REF_SLUG
+    DOCKER_TLS_CERTDIR: "/certs"
+    ENVIRONMENT: staging
+  environment: staging
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - echo $CI_REGISTRY_IMAGE
+    - echo $CI_COMMIT_REF_SLUG
+    - echo $BACKEND_IMAGE_TAG
+    - echo $FRONTEND_IMAGE_TAG
+  script:
+    - ./scripts/deploy.sh
+
 deploy:
   only:
     - main
   stage: deploy
-  script: echo "TBD!"
+  when: manual
+  tags:
+    - flight-log
+  variables:
+    BACKEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/server:$CI_COMMIT_REF_SLUG
+    FRONTEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/client:$CI_COMMIT_REF_SLUG
+    DOCKER_TLS_CERTDIR: "/certs"
+    ENVIRONMENT: production
   environment: production
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - echo $CI_REGISTRY_IMAGE
+    - echo $CI_COMMIT_REF_SLUG
+    - echo $BACKEND_IMAGE_TAG
+    - echo $FRONTEND_IMAGE_TAG
+  script:
+    - ./scripts/deploy.sh
