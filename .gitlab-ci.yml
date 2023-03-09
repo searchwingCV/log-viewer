@@ -49,7 +49,9 @@ deploy-dev:
     - flight-log
   variables:
     BACKEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/server:$CI_COMMIT_REF_SLUG
+    FRONTEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/client:$CI_COMMIT_REF_SLUG
     DOCKER_TLS_CERTDIR: "/certs"
+    ENVIRONMENT: staging
   environment: staging
   image: docker:latest
   services:
@@ -58,17 +60,30 @@ deploy-dev:
     - echo $CI_REGISTRY_IMAGE
     - echo $CI_COMMIT_REF_SLUG
     - echo $BACKEND_IMAGE_TAG
+    - echo $FRONTEND_IMAGE_TAG
   script:
-    - echo "Building"
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build -t $BACKEND_IMAGE_TAG ./server
-    - docker push $BACKEND_IMAGE_TAG
-    - echo "Deploying backend on CapRover..."
-    - docker run caprover/cli-caprover:latest caprover deploy --caproverUrl $CAPROVER_URL --appToken $CAPROVER_BACKEND_APP_TOKEN --caproverApp $CAPROVER_BACKEND_APP --imageName $BACKEND_IMAGE_TAG
+    - ./scripts/deploy.sh
 
 deploy:
   only:
     - main
   stage: deploy
-  script: echo "TBD!"
+  when: manual
+  tags:
+    - flight-log
+  variables:
+    BACKEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/server:$CI_COMMIT_REF_SLUG
+    FRONTEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/client:$CI_COMMIT_REF_SLUG
+    DOCKER_TLS_CERTDIR: "/certs"
+    ENVIRONMENT: production
   environment: production
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - echo $CI_REGISTRY_IMAGE
+    - echo $CI_COMMIT_REF_SLUG
+    - echo $BACKEND_IMAGE_TAG
+    - echo $FRONTEND_IMAGE_TAG
+  script:
+    - ./scripts/deploy.sh
