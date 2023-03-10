@@ -3,7 +3,7 @@ import shutil
 from io import BytesIO
 
 import pytest
-from infrastructure.storage import Storage
+from src.infrastructure.storage import Storage
 
 basepath = os.path.join(os.path.dirname(__file__), "mocks", "aux_files")
 
@@ -38,5 +38,19 @@ def test_save(storage_obj, test_stream, path):
     assert open(os.path.join(basepath, path)).read() == "test 123"
     if os.path.isfile(os.path.join(basepath, "2.txt")):
         os.remove(os.path.join(basepath, "2.txt"))
+    if os.path.isdir(os.path.join(basepath, "folder")):
+        shutil.rmtree(os.path.join(basepath, "folder"))
+
+
+@pytest.mark.parametrize("path", ["2.txt", "folder/2.txt", "folder/folder2/3.txt"])
+def test_delete(storage_obj, test_stream, path):
+    if not len(path.split("/")) == 1:
+        os.makedirs(os.path.join(basepath, "/".join(path.split("/")[:-1])))
+    with open(os.path.join(basepath, path), "wb") as f:
+        f.write(test_stream.getbuffer())
+    storage_obj.delete(path)
+    assert not os.path.exists(os.path.join(basepath, path))
+
+    # delete created dirs
     if os.path.isdir(os.path.join(basepath, "folder")):
         shutil.rmtree(os.path.join(basepath, "folder"))
