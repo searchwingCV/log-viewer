@@ -3,3 +3,4 @@
 /storage
 .coverage
 coverage.xml
+*.DS_Store
