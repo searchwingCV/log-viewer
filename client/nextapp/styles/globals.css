@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  min-height: 100dvh;
+  min-height: 100vh;
+  min-height: stretch;
+  min-height: -webkit-fill-available;
+}
+
+html {
+  height: stretch;
+  height: -webkit-fill-available;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  font-smoothing: antialiased;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
