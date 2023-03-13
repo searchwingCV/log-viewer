@@ -1,22 +1,12 @@
 import enum
 
 
-class FlightPurpose(str, enum.Enum):
-    test = "Test"
-    pilot_training = "Pilot Training"
-    mission = "Mission"
-
-
-class FlightRating(str, enum.Enum):
-    good = "good"
-    problems = "problems"
-    crash = "crash"
-
-
-class WindIntensity(str, enum.Enum):
-    strong = "strong"
-    medium = "medium"
-    low = "low"
+class WeatherCondititions(str, enum.Enum):
+    sunny = "sunny"
+    windy = "windy"
+    cloudy = "cloudy"
+    rainy = "rainy"
+    snow = "snow"
 
 
 class AllowedFiles(str, enum.Enum):

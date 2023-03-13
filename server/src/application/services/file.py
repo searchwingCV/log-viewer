@@ -1,133 +1,59 @@
 from io import BytesIO
+from typing import List
 
-from common.constants import ALLOWED_FILES
-from common.encryption import encrypt
+from application.services.base import BaseCRUDService
 from common.logging import get_logger
+from domain import ID_Type
+from domain.flight_file.entities import BaseFlightFile, FlightFile
+from domain.flight_file.value_objects import AllowedFiles
 from fastapi import UploadFile
-from infrastructure.db.orm import Base, FlightFiles
+from infrastructure.db.session import SessionContextManager
+from infrastructure.repositories import FlightFileRepository
 from infrastructure.storage import Storage
-from presentation.rest.serializers.flight import (
-    FileDownloadResponse,
-    FileListResponse,
-    FileUploadResponse,
-    FlightFilesListResponse,
-)
-from sqlalchemy.orm import Session
 
 logger = get_logger(__name__)
 
 
-class FileService:
-    def __init__(self):
-        self.log_file_model = FlightFiles
-        self.telemetry_file_model = FlightFiles
-        self.rosbag_file_model = FlightFiles
-        self.apm_parameter_file_model = FlightFiles
-        self.base_file_download_serializer = FileDownloadResponse
-        self.base_file_list_serializer = FileListResponse
-        self.file_upload_serializer = FileUploadResponse
-        self.list_files_serializer = FlightFilesListResponse
-        self.model_mapping = self._get_model_mapping()
-        self.__allowed_files = ALLOWED_FILES
+class FileService(BaseCRUDService):
+    _entity = FlightFile
 
-    def _get_model_mapping(self):
-        return {
-            "log": self.log_file_model,
-            "tlog": self.telemetry_file_model,
-            "rosbag": self.rosbag_file_model,
-            "apm": self.apm_parameter_file_model,
-        }
+    def __init__(
+        self,
+        repository: FlightFileRepository,
+        storage: Storage,
+        session: SessionContextManager = SessionContextManager(),
+    ):
+        self._storage = storage
+        self._repository = repository
+        self._session = session
 
-    def upload_log_file(self, flight_id: int, storage: Storage, file: UploadFile, db: Session) -> FileUploadResponse:
-        return self.__upload_file(flight_id, storage, file, db, "log")
+    def __upload_binary_file(self, fileio: BytesIO, path: str) -> None:
+        self._storage.save(fileio, path)
 
-    def upload_tlog_file(self, flight_id: int, storage: Storage, file: UploadFile, db: Session) -> FileUploadResponse:
-        return self.__upload_file(flight_id, storage, file, db, "tlog")
+    def __delete_binary_file(self, path: str) -> None:
+        self._storage.delete(path)
 
-    def upload_rosbag_file(self, flight_id: int, storage: Storage, file: UploadFile, db: Session) -> FileUploadResponse:
-        return self.__upload_file(flight_id, storage, file, db, "rosbag")
+    def upload_file(self, flight_id: ID_Type, file: UploadFile, file_type: AllowedFiles) -> FlightFile:
+        base_file = self.__get_flight_file(flight_id, file.filename, file_type)
+        file_stream = BytesIO(file.file.read())
+        self.__upload_binary_file(file_stream, base_file.location)
+        with self._session as session:
+            flight_file = self._repository.upsert(session=session, data=base_file)
+        return flight_file
 
-    def upload_apm_param_file(
-        self, flight_id: int, storage: Storage, file: UploadFile, db: Session
-    ) -> FileUploadResponse:
-        self.__upload_file(flight_id, storage, file, db, "apm")
+    def __get_flight_file(self, flight_id: ID_Type, filename: str, file_type: AllowedFiles) -> BaseFlightFile:
+        path = f"{flight_id}/{file_type}/{filename}"
+        return BaseFlightFile(file_type=file_type, fk_flight=flight_id, location=path)
 
-    def delete_apm_param_file(self, file_id: int, storage: Storage, db: Session) -> None:
-        return self.__delete_file(file_id, storage, db, "apm")
-
-    def delete_log_file(self, file_id: int, storage: Storage, db: Session) -> None:
-        self.__delete_file(file_id, storage, db, "log")
-
-    def delete_tlog_file(self, file_id: int, storage: Storage, db: Session) -> None:
-        self.__delete_file(file_id, storage, db, "tlog")
-
-    def delete_rosbag_file(self, file_id: int, storage: Storage, db: Session) -> None:
-        self.__delete_file(file_id, storage, db, "rosbag")
-
-    def __delete_file(self, file_id: int, storage: Storage, db: Session, file_type: str):
-        file_db = db.query(self.model_mapping.get(file_type)).filter_by(file_id=file_id).first()
-        if file_db is not None:
-            db.delete(file_db)
-            uri = file_db.file_uri
-            db.commit()
-            path = storage.get_path(uri)
-            storage.fs.rm_file(path)
+    def delete_file(self, file_id: ID_Type):
+        flight_file = self._repository.get_by_id(file_id)
+        if flight_file is not None:
+            self.__delete_binary_file(flight_file.location)
+            self._repository.delete_by_id(file_id)
         else:
             pass
 
-    def __upload_file(self, flight_id: str, storage: Storage, file: UploadFile, db: Session, file_type: str):
-        try:
-            db_model = self.model_mapping.get(file_type)
-            path = f"{file_type}/{flight_id}/{file.filename}"
-            uri = storage.get_uri(path)
-            file_db = self.__add_or_update_db(flight_id, db, db_model, uri)
-            file_stream = file.file.read()
-            storage.save(BytesIO(file_stream), path)
-            db.commit()
-        except Exception as err:
-            db.rollback()
-            logger.exception("Exception detected!")
-            raise err
-        return FileUploadResponse(
-            msg="File was uploaded succesfully",
-            file_type=file_type,
-            file_id=file_db.file_id,
-            file_uri=file_db.file_uri,
-            created_at=file_db.created_at,
-            updated_at=file_db.updated_at,
-        )
-
-    def __add_or_update_db(self, flight_id: int, db: Session, db_model: Base, uri: str):
-        file_db = db.query(db_model).filter_by(file_uri=uri).first()
-        if file_db is None:
-            file_db = db_model(flight_id=flight_id, file_uri=uri)
-            db.add(file_db)
-        else:
-            file_db.version += 1
-        return file_db
-
-    def list_all_files(self, flight_id: int, db: Session, base_url: str):
-        all_files = self.list_files_serializer(flight_id=flight_id)
-        for file_type in self.__allowed_files:
-            all_files.__setattr__(file_type, self.__get_files_by_type(flight_id, db, base_url, file_type))
-        return all_files
-
-    def __get_files_by_type(self, flight_id: int, db: Session, base_url: str, file_type: str):
-        files_db = db.query(self.model_mapping.get(file_type)).filter_by(flight_id=flight_id).all()
-        if files_db:
-            try:
-                files = [
-                    self.base_file_download_serializer(
-                        file_id=file_db.file_id,
-                        download_link=f"{base_url}file/{encrypt(file_db.file_uri)}",
-                    )
-                    for file_db in files_db
-                ]
-                file_list = self.base_file_list_serializer(flight_id=flight_id, count=len(files), data=files)
-            except Exception as err:
-                db.rollback()
-                logger.exception("Exception detected!")
-                raise err
-            return file_list
-        else:
-            return self.base_file_list_serializer(flight_id=flight_id, count=0, data=[])
+    def list_all_files(self, flight_id: ID_Type) -> List[FlightFile]:
+        with self._session as session:
+            data = self._repository.get_by_flight(flight_id, session)
+        return data
