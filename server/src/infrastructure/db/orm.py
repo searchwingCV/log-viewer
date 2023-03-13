@@ -142,12 +142,11 @@ class Flight(BaseModel):
     files = relationship("FlightFiles")
 
 
-class FlightFiles(Base):
+class FlightFiles(BaseModel):
     __tablename__ = "flight_files"
     file_type = Column(String, nullable=False)
     location = Column(String, nullable=False)
-    file_uri = Column(String, unique=True, primary_key=True)
-    flight_id = Column(Integer, ForeignKey("flight.id"))
+    fk_flight = Column(Integer, ForeignKey("flight.id"))
     version = Column(Integer, nullable=False, default=1)
 
 

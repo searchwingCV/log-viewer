@@ -1,10 +1,15 @@
 from typing import Union
 
+from application.services.dependencies import get_flight_service
 from application.services.file import FileService
 from application.services.flight import FlightService
 from common.constants import DEFAULT_PAGE_LEN
 from common.exceptions.db import NotFoundException
 from common.logging import get_logger
+from domain.flight_file.value_objects import AllowedFiles
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, UploadFile, status
+from presentation.rest.serializers import Page, Params
+from presentation.rest.serializers.errors import InvalidPayloadError, NotFoundError
 from fastapi import APIRouter, Depends, Query, Request, Response, UploadFile, status
 from infrastructure.dependencies import get_db, get_storage
 from infrastructure.storage import Storage
@@ -20,7 +25,6 @@ from presentation.rest.serializers.flight import (
     FlightUpdate,
 )
 from presentation.rest.serializers.responses import BatchUpdateResponse
-from sqlalchemy.orm import Session
 
 ROUTE_PREFIX = "/flight"
 router = APIRouter(
@@ -30,7 +34,6 @@ router = APIRouter(
 )
 
 logger = get_logger(__name__)
-file_service = FileService()
 
 
 @router.post("", response_model=FlightSerializer, status_code=status.HTTP_201_CREATED)
@@ -91,8 +94,7 @@ async def delete_flight(id: int, flight_service: FlightService = Depends(get_fli
 def upload_log_file(
     flight_id: int,
     file: UploadFile,
-    storage: Storage = Depends(get_storage),
-    db: Session = Depends(get_db),
+    file_service: FileService = Depends(get_file_service),
 ):
     return file_service.upload_log_file(flight_id, storage, file, db)
 
@@ -101,10 +103,12 @@ def upload_log_file(
 def upload_tlog_file(
     flight_id: int,
     file: UploadFile,
-    storage: Storage = Depends(get_storage),
-    db: Session = Depends(get_db),
+    file_service: FileService = Depends(get_file_service),
 ):
-    return file_service.upload_tlog_file(flight_id, storage, file, db)
+    try:
+        return file_service.upload_tlog_file(flight_id, storage, file, db)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
 @router.put("/{flight_id}/rosbag-file", response_model=FileUploadResponse)
@@ -114,59 +118,38 @@ def upload_rosbag_file(
     storage: Storage = Depends(get_storage),
     db: Session = Depends(get_db),
 ):
-    return file_service.upload_rosbag_file(flight_id, storage, file, db)
+    try:
+        return file_service.upload_rosbag_file(flight_id, storage, file, db)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
 @router.put("/{flight_id}/apm-file", response_model=FileUploadResponse)
 def upload_apm_param_file(
     flight_id: int,
     file: UploadFile,
-    storage: Storage = Depends(get_storage),
-    db: Session = Depends(get_db),
+    file_service: FileService = Depends(get_file_service),
 ):
     return file_service.upload_apm_param_file(flight_id, storage, file, db)
 
 
-@router.delete("/{flight_id}/apm-file", status_code=status.HTTP_204_NO_CONTENT)
-def delete_apm_param_file(
+@router.delete("/file/{file_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_file(
     file_id: int,
-    storage: Storage = Depends(get_storage),
-    db: Session = Depends(get_db),
+    file_service: FileService = Depends(get_file_service),
 ):
-    file_service.delete_apm_param_file(file_id, storage, db)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-@router.delete("/{flight_id}/log-file", status_code=status.HTTP_204_NO_CONTENT)
-def delete_log_file(
-    file_id: int,
-    storage: Storage = Depends(get_storage),
-    db: Session = Depends(get_db),
-):
-    file_service.delete_log_file(file_id, storage, db)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-@router.delete("/{flight_id}/tlog-file", status_code=status.HTTP_204_NO_CONTENT)
-def delete_tlog_file(
-    file_id: int,
-    storage: Storage = Depends(get_storage),
-    db: Session = Depends(get_db),
-):
-    file_service.delete_tlog_file(file_id, storage, db)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-@router.delete("/{flight_id}/file/rosbag-file", status_code=status.HTTP_204_NO_CONTENT)
-def delete_rosbag_file(
-    file_id: int,
-    storage: Storage = Depends(get_storage),
-    db: Session = Depends(get_db),
-):
-    file_service.delete_rosbag_file(file_id, storage, db)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    try:
+        file_service.delete_file(file_id)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
 @router.get("/{flight_id}/files/list", response_model=FlightFilesListResponse)
-def list_files(flight_id: int, request: Request, db: Session = Depends(get_db)):
-    return file_service.list_all_files(flight_id, db, request.base_url)
+def list_files(
+    flight_id: int,
+    request: Request,
+    file_service: FileService = Depends(get_file_service),
+):
+    result = file_service.list_all_files(flight_id)
+    return FlightFilesListResponse.build_from_records(result, flight_id, request.base_url)
