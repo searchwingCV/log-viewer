@@ -1,7 +1,11 @@
 test-server:
   only:
     - merge_requests
+<<<<<<< HEAD
   image: python:3.10.10-slim-buster
+=======
+  image: python:3.10.9-slim-buster
+>>>>>>> 75148f3 (chore: update to python 3.10 in CI)
   variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
     PYTHONPATH: "./server:./server/src"
