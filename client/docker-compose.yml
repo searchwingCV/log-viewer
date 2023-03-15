@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  frontend:
+    container_name: flight-log-viewer-fe
+    image: flight-log-viewer-fe-dev
+    # network_mode: "host"
+    build:
+      context: .
+    volumes:
+      - /nextapp/node_modules
+      - ./nextapp:/app
+    ports:
+      - 3000:3000
+    environment:
+      - NEXT_PUBLIC_API_URL

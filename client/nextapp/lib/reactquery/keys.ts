@@ -1,0 +1,1 @@
+export const DRAWER_NAV_EXTENDED = 'drawer-nav-extended'
