@@ -1,3 +1,3 @@
-def test_app_status(test_client):
-    response = test_client.get("/status")
+def test_app_health(test_client):
+    response = test_client.get("/health")
     assert response.status_code == 200
