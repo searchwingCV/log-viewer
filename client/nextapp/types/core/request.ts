@@ -4,7 +4,6 @@
 import axios from 'axios';
 import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import FormData from 'form-data';
-
 import { ApiError } from './ApiError';
 import type { ApiRequestOptions } from './ApiRequestOptions';
 import type { ApiResult } from './ApiResult';
@@ -148,7 +147,8 @@ const getHeaders = async (config: OpenAPIConfig, options: ApiRequestOptions, for
     const username = await resolve(options, config.USERNAME);
     const password = await resolve(options, config.PASSWORD);
     const additionalHeaders = await resolve(options, config.HEADERS);
-    const formHeaders = typeof formData?.getHeaders === 'function' && formData?.getHeaders() || {}
+     /* tslint:disable-next-line */ 
+    const formHeaders = formData?.getHeaders && typeof formData?.getHeaders === 'function' && formData?.getHeaders() || {}
 
     const headers = Object.entries({
         Accept: 'application/json',
