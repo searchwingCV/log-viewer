@@ -4,7 +4,14 @@ import { FlightSchemaTable } from '@schema/FlightSchema'
 import { DateInputCell, TextInputCell } from '~/modules/TableComponents'
 import { SelectInputCell } from '~/modules/TableComponents'
 
-type ColumnType = 'number' | 'text' | 'textInput' | 'selectInput' | 'date' | 'dateInput'
+type ColumnType =
+  | 'number'
+  | 'text'
+  | 'textInput'
+  | 'selectInput'
+  | 'date'
+  | 'dateInput'
+  | 'numberInput'
 
 export const determineWidth = (columnType: ColumnType) => {
   switch (columnType) {
@@ -18,6 +25,8 @@ export const determineWidth = (columnType: ColumnType) => {
       return 'w-[200px]'
     case 'textInput':
       return 'w-[250px]'
+    case 'numberInput':
+      return 'w-[150px]'
     case 'selectInput':
       return 'w-[200px]'
     default:
@@ -158,7 +167,20 @@ export const flightColumns = (
   {
     Header: 'Observer',
     accessor: 'observer',
-    width: determineWidth('text'),
+    width: determineWidth('numberInput'),
+    Cell: (props: any) => {
+      if (props.cell.isGrouped || props.onlyGroupedFlatRows.length) {
+        return props.row.values.notes
+      }
+
+      return (
+        <TextInputCell
+          name={`observer-${props.row.values.flightId}-${props.row.index}`}
+          defaultValue={props.row.values.observer}
+          type="number"
+        />
+      )
+    },
   },
 
   // {

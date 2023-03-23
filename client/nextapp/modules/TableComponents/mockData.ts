@@ -16,7 +16,8 @@ export const flightData: FlightSchemaTable[] = [
         latitude: 320.32,
         notes: "Mission Impossible",
         createdAt: '2017-02-12T12:00:00-06:30',
-        missionId: "3994"
+        missionId: "3994",
+        observer: 28383
     },
 
     {

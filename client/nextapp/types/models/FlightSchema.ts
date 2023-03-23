@@ -49,6 +49,6 @@ export type FlightSchemaTable = {
     notes: string;
     //missionId?: number;
     createdAt?: string;
-    observer?: string
+    observer?: number
 
 }

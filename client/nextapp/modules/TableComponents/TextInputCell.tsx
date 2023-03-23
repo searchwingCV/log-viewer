@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 interface InputProps extends UseFormReturn<FieldValues, any> {
   name: string
-  type?: 'text' | 'date'
+  type?: 'text' | 'number'
   defaultValue?: string
 }
 
@@ -35,7 +35,8 @@ const Input = memo(
           title={newValue || defaultValue}
           trigger="mouseenter"
         >
-          <textarea
+          <input
+            type={type || 'text'}
             {...register(name as `${string}` | `${string}.${string}` | `${string}.${number}`, {
               onChange: (e) => {
                 if (e.target.value === defaultValue) {
@@ -50,11 +51,11 @@ const Input = memo(
               max-h-[31px]
               w-full
               rounded-md
+              p-2
               text-center
               placeholder-primary-rose
               focus:ring-0
               focus:ring-offset-0`,
-              type === 'date' ? 'py-2 pl-2 pr-6' : 'p-2',
               newValue === 'delete'
                 ? `bg-primary-red
                    text-primary-white`
@@ -75,15 +76,38 @@ const Input = memo(
               setNewValue('delete')
             }}
             type="button"
-            className={`absolute
-                        right-2
-                        top-1/2
-                        -translate-y-1/2
-                        cursor-pointer
-                       text-primary-red`}
+            className={clsx(
+              `absolute
+               top-1/2
+               -translate-y-1/2
+               cursor-pointer
+             text-primary-red`,
+              type === 'number' ? 'right-8' : 'right-2',
+            )}
           >
             <FontAwesomeIcon icon={'circle-xmark'} />
           </button>
+        ) : null}
+        {newValue === 'delete' && type === 'number' ? (
+          <span
+            className={`
+                          absolute
+                          top-1/2
+                          left-1/2
+                          h-[18px]
+                          w-[110px]
+                          -translate-y-1/2
+                          -translate-x-1/2
+                          transform
+                          overflow-hidden
+                          truncate
+                          text-ellipsis
+                          break-words
+                          bg-primary-red
+                          text-primary-white`}
+          >
+            delete
+          </span>
         ) : null}
       </div>
     )
@@ -95,10 +119,11 @@ const Input = memo(
 type TextInputCellProps = {
   name: string
   defaultValue?: string
+  type?: 'text' | 'number'
 }
 
-export const TextInputCell = ({ name, defaultValue }: TextInputCellProps) => {
+export const TextInputCell = ({ name, defaultValue, type }: TextInputCellProps) => {
   const methods = useFormContext()
 
-  return <Input {...methods} name={name} defaultValue={defaultValue} />
+  return <Input {...methods} name={name} defaultValue={defaultValue} type={type} />
 }
