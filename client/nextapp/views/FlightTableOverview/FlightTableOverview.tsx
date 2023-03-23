@@ -1,5 +1,7 @@
 import 'regenerator-runtime/runtime'
-import React, { useEffect, useMemo } from 'react'
+import React, { useMemo } from 'react'
+import { useMutation, useQueryClient } from 'react-query'
+import { ToastContainer, toast } from 'react-toastify'
 import { useTranslation } from 'next-i18next'
 import {
   useTable,
@@ -19,10 +21,9 @@ import {
 import { FormProvider, useForm } from 'react-hook-form'
 import Select from 'modules/Select'
 import Button from 'modules/Button'
-import { FlightSchema, FlightSchemaTable } from '@schema/FlightSchema'
-
+import { FlightSchemaTable } from '@schema/FlightSchema'
+import { putFlightsMock } from '~/api/flight/putFlights'
 import {
-  flightData,
   GlobalTextFilter,
   Pagination,
   SelectCheckbox,
@@ -32,28 +33,45 @@ import {
 } from '~/modules/TableComponents'
 
 import { flightColumns } from './flightColumns'
+import { fetchAllMissions } from '~/api/mission/getMissions'
 
 export type PaginationTableInstance<T extends object> = TableInstance<T> &
   UsePaginationInstanceProps<T> & {
     state: UsePaginationState<T>
   }
 
-type Props = {
-  data: FlightSchemaTable[]
-}
+export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => {
+  const { data: missions } = fetchAllMissions()
+  const queryClient = useQueryClient()
 
-export const FlightTableOverview = ({ data }: Props) => {
-  const methods = useForm<FlightSchema>({
+  const updateFlights = useMutation(putFlightsMock, {
+    onSettled: () => {
+      queryClient.invalidateQueries(['ALL_FLIGHTS'])
+    },
+    onSuccess: (data) => {
+      toast('Data changed.', {
+        type: 'success',
+      })
+      methods.reset({})
+      data.map((item) => methods.setValue(item, ''))
+      queryClient.invalidateQueries(['ALL_FLIGHTS'])
+    },
+    onError: (data) => {
+      toast('Error submitting data.', {
+        type: 'error',
+      })
+      //TODO: implement scrolling to input if error from be
+      //scrollInputIntoView(`input-${data[0]}`)
+    },
+  })
+
+  //TODO: find type
+  const methods = useForm<any>({
     criteriaMode: 'all',
     mode: 'onSubmit',
     defaultValues: {},
   })
 
-
-  useEffect(() => {
-
-    console.log(process.env.NEXT_PUBLIC_API_URL)
-  }, [])
   const defaultColumn = useMemo(
     () => ({
       // Let's set up our default Filter UI
@@ -61,12 +79,49 @@ export const FlightTableOverview = ({ data }: Props) => {
     }),
     [],
   )
-  const { t } = useTranslation()
-  const columns = useMemo<Column<FlightSchemaTable>[]>(() => flightColumns, [])
-  const sortedData = useMemo(() => flightData.sort((a, b) => a.flightId - b.flightId), [])
 
-  const onSubmit = methods.handleSubmit(async (data) => {
-    console.log(data)
+  const { t } = useTranslation()
+  const columns = useMemo<Column<FlightSchemaTable>[]>(
+    () =>
+      flightColumns(
+        missions?.map((mission) => {
+          return {
+            value: mission.missionId,
+            name: `${mission.missionAlias} - ${mission.missionId}`,
+          }
+        }),
+      ),
+    [missions],
+  )
+  const sortedData = useMemo(() => data.sort((a, b) => a.flightId - b.flightId), [])
+
+  const onSubmit = methods.handleSubmit(async (formData) => {
+    const changedKeys = Object.keys(formData).filter((item) => formData[item] !== '')
+    const changedIds = changedKeys.map((key) => key.split('-')[1])
+    const changedFlights = data.filter((flight) => {
+      return changedIds.includes(flight.flightId.toString())
+    })
+
+    const newFlights = changedFlights.map((flight) => {
+      const keysBelongingToFlight = changedKeys.filter((key) =>
+        key.includes(flight.flightId.toString()),
+      )
+      const changedProps = keysBelongingToFlight
+        .map((key) => {
+          return { [key.split('-')[0]]: formData[key] === 'delete' ? '' : formData[key] }
+        })
+        .reduce((prev, cur) => {
+          return { ...prev, ...cur }
+        })
+      const newFlight = { ...flight, ...changedProps }
+      return newFlight
+    })
+
+    if (!newFlights.length) {
+      toast('No new data inserted', { type: 'error' })
+    } else {
+      updateFlights.mutate({ flights: newFlights, changedIds: changedKeys })
+    }
   })
 
   const {
@@ -83,15 +138,12 @@ export const FlightTableOverview = ({ data }: Props) => {
     nextPage,
     previousPage,
     setPageSize,
-    state: { pageIndex, pageSize, globalFilter, selectedRowIds },
+    state: { pageIndex, pageSize, globalFilter, selectedRowIds, groupBy },
     setGlobalFilter,
     rows,
     setGroupBy,
     preGlobalFilteredRows,
     allColumns,
-    setSortBy,
-    selectedFlatRows,
-    getToggleHideAllColumnsProps,
     setColumnOrder,
   } = useTable(
     {
@@ -110,11 +162,8 @@ export const FlightTableOverview = ({ data }: Props) => {
     useRowSelect,
     (hooks) => {
       hooks.visibleColumns.push((columns: any) => [
-        // Let's make a column for selection
         {
           id: 'selection',
-          // The header can use the table's getToggleAllRowsSelectedProps method
-          // to render a checkbox
           Header: ({ getToggleAllRowsSelectedProps }: any) => (
             <SelectCheckbox
               {...getToggleAllRowsSelectedProps()}
@@ -122,8 +171,6 @@ export const FlightTableOverview = ({ data }: Props) => {
                           ml-4`}
             />
           ),
-          // The cell can use the individual row's getToggleRowSelectedProps method
-          // to the render a checkbox
           Cell: ({ row }: any) => (
             <div>
               <SelectCheckbox {...row.getToggleRowSelectedProps()} />
@@ -135,12 +182,23 @@ export const FlightTableOverview = ({ data }: Props) => {
     },
   ) as PaginationTableInstance<FlightSchemaTable>
 
+  const scrollInputIntoView = (id: string) => {
+    var element = document.getElementById(id)
+
+    if (element) {
+      element.scrollIntoView()
+    }
+  }
+
   return (
     <div
       className={`relative
-                  py-20
-                  px-6`}
+                  mb-40
+                  px-6
+                  pt-20
+                  pb-12`}
     >
+      <ToastContainer />
       <div
         className={`mb-8
                     grid
@@ -161,7 +219,7 @@ export const FlightTableOverview = ({ data }: Props) => {
           options={[
             { name: 'None', value: '' },
             { name: 'Pilot', value: 'pilot' },
-            { name: 'flightId', value: 'flightId' },
+            { name: 'missionId', value: 'missionId' },
           ]}
           onSetValue={setGroupBy}
           defaultValue="None"
@@ -172,11 +230,7 @@ export const FlightTableOverview = ({ data }: Props) => {
       <FormProvider {...methods}>
         <form onSubmit={onSubmit}>
           <div className="overflow-x-scroll">
-            <table
-              {...getTableProps()}
-              className={`roundex-xl
-                          table-fixed`}
-            >
+            <table {...getTableProps()} className={`roundex-xl`}>
               <TableHead
                 headerGroups={headerGroups}
                 allColumns={allColumns}
@@ -191,21 +245,24 @@ export const FlightTableOverview = ({ data }: Props) => {
               ></TableBody>
             </table>
           </div>
-          <Button
-            //href="/"
-            buttonStyle="Main"
-            type="submit"
-            className={`sticky
-                        left-[100vw]
-                        bottom-8
-                        w-[350px]
-                        p-4`}
-          >
-            {t('Submit Changes')}
-          </Button>
+          {!groupBy.length || groupBy?.[0] === '' ? (
+            <Button
+              disabled={!methods.formState.isDirty}
+              buttonStyle="Main"
+              type="submit"
+              className={`sticky
+                          left-[100vw]
+                          bottom-8
+                          w-[350px]
+                          p-4`}
+            >
+              {t('Submit Changes')}
+            </Button>
+          ) : (
+            <div className="min-h-[40px]"></div>
+          )}
         </form>
       </FormProvider>
-
       <Pagination
         gotoPage={gotoPage}
         previousPage={previousPage}

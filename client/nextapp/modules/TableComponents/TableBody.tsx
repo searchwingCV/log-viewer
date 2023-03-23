@@ -67,28 +67,34 @@ export const TableBody = <TColumnProps extends object>({
                   {...restCellProps}
                   key={key}
                   className={clsx(
+                    `flex
+                     items-center
+                     justify-center
+                     text-center`,
                     cell.column.id === firstColumnAccessor
-                      ? `flex
-                         items-center
+                      ? `flex 
                          rounded-r-[0px]
                          rounded-l-[0px]
                          rounded-tl-lg
                          rounded-bl-lg
+                         px-4
                          last-of-type:align-middle`
-                      : `w-full
-                         p-4
+                      : `
+                         flex
+                         items-center
+                         justify-center
+                         px-4
                          py-6`,
                     !row.isGrouped &&
                       `justify-center
                        text-center`,
-                    cell.column.id === row.groupByID && 'ml-6',
                     index === 0
-                      ? `ml-1
-                         w-[50px]`
-                      : 'w-[150px]',
+                      ? `ml-4
+                         w-[22px]`
+                      : '',
                   )}
                 >
-                  <span>
+                  <span className={cell.column.width}>
                     {cell.isGrouped ? (
                       // If it's a grouped cell, add an expander and row count
                       <>

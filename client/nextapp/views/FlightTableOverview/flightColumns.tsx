@@ -1,37 +1,82 @@
 import { format, parseISO, isValid } from 'date-fns'
 import { Column } from 'react-table'
 import { FlightSchemaTable } from '@schema/FlightSchema'
-import EditableTableCell from 'modules/EditableTableCell'
+import { DateInputCell, TextInputCell } from '~/modules/TableComponents'
+import { SelectInputCell } from '~/modules/TableComponents'
 
-export const flightColumns: Column<FlightSchemaTable>[] = [
-  { Header: 'flightId', accessor: 'flightId' },
+type ColumnType = 'number' | 'text' | 'textInput' | 'selectInput' | 'date' | 'dateInput'
+
+export const determineWidth = (columnType: ColumnType) => {
+  switch (columnType) {
+    case 'number':
+      return 'w-[80px]'
+    case 'text':
+      return 'w-[100px]'
+    case 'date':
+      return 'w-[120px]'
+    case 'dateInput':
+      return 'w-[200px]'
+    case 'textInput':
+      return 'w-[250px]'
+    case 'selectInput':
+      return 'w-[200px]'
+    default:
+      return 'w-[150px]'
+  }
+}
+
+export const flightColumns = (
+  missionOptions?: { name: string; value: string }[],
+): Column<FlightSchemaTable>[] => [
+  {
+    Header: 'Flight Id',
+    accessor: 'flightId',
+    width: determineWidth('number'),
+  },
 
   {
-    Header: 'planeId',
+    Header: 'Drone',
     accessor: 'planeId',
+    width: determineWidth('number'),
   },
   {
-    Header: 'MissionId',
     accessor: 'missionId',
+    Header: 'Mission',
     Cell: (props: any) => {
-      return <EditableTableCell name={`flight-${props.row.values.flightId}#${props.row.index}`} />
+      if (props.cell.isGrouped || props.onlyGroupedFlatRows.length) {
+        return <div>{props.row.values.missionId}</div>
+      }
+
+      if (props.onlyGroupedFlatRows.length) {
+        return props.row.values.mission
+      }
+      if (missionOptions && missionOptions.length) {
+        return (
+          <div>
+            <SelectInputCell
+              name={`mission-${props.row.values.flightId}-${props.row.index}`}
+              options={missionOptions}
+              defaultValue={props.row.values.missionId || undefined}
+            />
+          </div>
+        )
+      }
+
+      return <span>no missions yet</span>
     },
-    Aggregated: () => {
-      return null
-    },
-    filter: 'fuzzyText',
+    width: determineWidth('selectInput'),
   },
   {
     Header: 'Start Time',
     accessor: 'startTime',
     Cell: (props: any) => {
       if (isValid(parseISO(props.row.values.startTime))) {
-        return <span> {format(parseISO(props.row.values.startTime), 'dd-MM-yyyy')}</span>
+        return <div>{format(parseISO(props.row.values.startTime), 'dd.MM.yyyy')}</div>
       } else {
-        return null
+        return <div></div>
       }
     },
-    defaultCanFilter: false,
+    width: determineWidth('date'),
   },
 
   {
@@ -41,39 +86,81 @@ export const flightColumns: Column<FlightSchemaTable>[] = [
       return null
     },
     Cell: (props: any) => {
-      if (props.cell.isGrouped) {
-        return props.row.values.pilot
+      if (props.cell.isGrouped || props.onlyGroupedFlatRows.length) {
+        return <div>{props.row.values.pilot}</div>
       }
+
       return (
-        <EditableTableCell
-          name={`pilot-${props.row.values.flightId}#${props.row.index}`}
-          value={props.row.values.pilot}
+        <TextInputCell
+          name={`pilot-${props.row.values.flightId}-${props.row.index}`}
+          defaultValue={props.row.values.pilot}
         />
       )
     },
+    width: determineWidth('selectInput'),
   },
-  { Header: 'Average Speed', accessor: 'averageSpeed' },
-  { Header: 'Temperature', accessor: 'temperature' },
-  { Header: 'Latitude', accessor: 'latitude' },
-  { Header: 'Longitude', accessor: 'longitude' },
+  {
+    Header: 'Avg Speed',
+    accessor: 'averageSpeed',
+    width: determineWidth('number'),
+  },
+  {
+    Header: 'Temperature',
+    accessor: 'temperature',
+    width: determineWidth('number'),
+  },
+  {
+    Header: 'Latitude',
+    accessor: 'latitude',
+    width: determineWidth('number'),
+  },
+  {
+    Header: 'Longitude',
+    accessor: 'longitude',
+    width: determineWidth('number'),
+  },
   {
     Header: 'Notes',
     accessor: 'notes',
-
+    Aggregated: () => {
+      return null
+    },
     Cell: (props: any) => {
-      if (props.cell.isGrouped) {
-        return props.row.values.pilot
+      if (props.cell.isGrouped || props.onlyGroupedFlatRows.length) {
+        return props.row.values.notes
       }
       return (
-        <EditableTableCell
-          name={`notes-${props.row.values.flightId}#${props.row.index}`}
-          value={props.row.values.notes}
+        <TextInputCell
+          name={`notes-${props.row.values.flightId}-${props.row.index}`}
+          defaultValue={props.row.values.notes}
+        />
+      )
+    },
+    width: determineWidth('textInput'),
+  },
+  {
+    Header: 'CreatedAt',
+    accessor: 'createdAt',
+    width: determineWidth('dateInput'),
+    Cell: (props: any) => {
+      if (props.cell.isGrouped || props.onlyGroupedFlatRows.length) {
+        return props.row.values.notes
+      }
+
+      return (
+        <DateInputCell
+          name={`createdAt-${props.row.values.flightId}-${props.row.index}`}
+          defaultValue={props.row.values.createdAt}
         />
       )
     },
   },
-  { Header: 'CreatedAt', accessor: 'createdAt' },
-  { Header: 'Observer', accessor: 'observer' },
+  {
+    Header: 'Observer',
+    accessor: 'observer',
+    width: determineWidth('text'),
+  },
+
   // {
   //   Header: 'Total Distance',
   //   accessor: 'distance',

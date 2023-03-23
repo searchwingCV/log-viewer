@@ -8,14 +8,15 @@ export const flightData: FlightSchemaTable[] = [
         // 'D-MM-YYYY'),
         //  startTime: '01 August 2022',
         temperature: 339,
-        flightId: 9272,
+        flightId: 1,
         planeId: 1,
         pilot: 'Max Mustermann',
         averageSpeed: 33838,
         longitude: 290.93,
         latitude: 320.32,
         notes: "Mission Impossible",
-        createdAt: "test value"
+        createdAt: '2017-02-12T12:00:00-06:30',
+        missionId: "3994"
     },
 
     {
@@ -26,14 +27,14 @@ export const flightData: FlightSchemaTable[] = [
         //  startTime: '23rd July 2022',
         temperature: 3039,
         planeId: 2,
-        flightId: 2983,
+        flightId: 2,
         pilot: 'Jane Musterfrau',
         averageSpeed: 3993,
         longitude: 234.83,
         latitude: 34.26,
         notes: "Adler",
-        createdAt: "test value"
-
+        createdAt: "",
+        missionId: "3993"
     },
 
     {
@@ -43,14 +44,14 @@ export const flightData: FlightSchemaTable[] = [
         // 'D-MM-YYYY'),
         //  startTime: '23rd July 2022',
         temperature: 874,
-        flightId: 9389,
+        flightId: 3,
         planeId: 2,
         pilot: 'Peter Holzkopf',
         averageSpeed: 928,
         longitude: 39.37,
         latitude: 203.48,
         notes: "Falcon",
-        createdAt: "test value"
+        createdAt: ""
     },
 
     {
@@ -60,14 +61,14 @@ export const flightData: FlightSchemaTable[] = [
         // 'D-MM-YYYY'),
         //  startTime: '23rd July 2022',
         temperature: 874,
-        flightId: 3801,
+        flightId: 4,
         planeId: 4,
         pilot: 'Peter Holzkopf',
         averageSpeed: 928,
         longitude: 202.37,
         latitude: 12.01,
         notes: "",
-        createdAt: "test value"
+        createdAt: ""
     },
     {
         //date: format(
@@ -76,13 +77,14 @@ export const flightData: FlightSchemaTable[] = [
         // 'D-MM-YYYY'),
         //  startTime: '23rd July 2022',
         temperature: 1033,
-        flightId: 192,
+        flightId: 5,
         planeId: 7,
         pilot: 'Ute Müller',
         averageSpeed: 453,
         longitude: 129.37,
         latitude: 54.01,
-        notes: "233"
+        notes: "233",
+        missionId: "3995"
 
     },
     {
@@ -92,15 +94,15 @@ export const flightData: FlightSchemaTable[] = [
         // 'D-MM-YYYY'),
         //  startTime: '01 August 2022',
         temperature: 339,
-        flightId: 9272,
+        flightId: 6,
         planeId: 1,
         pilot: 'Max Mustermann',
         averageSpeed: 33838,
         longitude: 90.37,
         latitude: 52.01,
         notes: "",
-        createdAt: "test value"
-
+        createdAt: "",
+        missionId: '3992',
     },
 
     {
@@ -111,13 +113,13 @@ export const flightData: FlightSchemaTable[] = [
         //  startTime: '23rd July 2022',
         temperature: 3039,
         planeId: 2,
-        flightId: 2983,
+        flightId: 7,
         pilot: 'Jane Musterfrau',
         averageSpeed: 3993,
         longitude: 2.37,
         latitude: 202.01,
         notes: "",
-        createdAt: "test value"
+        createdAt: ""
 
     },
 
@@ -128,14 +130,14 @@ export const flightData: FlightSchemaTable[] = [
         // 'D-MM-YYYY'),
         //  startTime: '23rd July 2022',
         temperature: 874,
-        flightId: 9389,
+        flightId: 8,
         planeId: 2,
         pilot: 'Peter Holzkopf',
         averageSpeed: 928,
         longitude: 10.37,
         latitude: 89.01,
         notes: "",
-        createdAt: "test value"
+        createdAt: ""
     },
 
     {
@@ -145,14 +147,14 @@ export const flightData: FlightSchemaTable[] = [
         // 'D-MM-YYYY'),
         //  startTime: '23rd July 2022',
         temperature: 874,
-        flightId: 3801,
+        flightId: 9,
         planeId: 4,
         pilot: 'Peter Holzkopf',
         averageSpeed: 928,
         longitude: 20.37,
         latitude: 10.01,
         notes: "",
-        createdAt: "test value"
+        createdAt: ""
 
     },
     {
@@ -162,14 +164,14 @@ export const flightData: FlightSchemaTable[] = [
         // 'D-MM-YYYY'),
         //  startTime: '23rd July 2022',
         temperature: 1033,
-        flightId: 192,
+        flightId: 10,
         planeId: 7,
         pilot: 'Ute Müller',
         averageSpeed: 453,
         longitude: 90.37,
         latitude: 102.01,
         notes: "",
-        createdAt: "test value"
+        createdAt: ""
 
     },
     {
@@ -179,14 +181,14 @@ export const flightData: FlightSchemaTable[] = [
         // 'D-MM-YYYY'),
         //  startTime: '23rd July 2022',
         temperature: 874,
-        flightId: 9389,
+        flightId: 11,
         planeId: 2,
         pilot: 'Peter Holzkopf',
         averageSpeed: 928,
         longitude: 100.20,
         latitude: 76.01,
         notes: "",
-        createdAt: "test value"
+        createdAt: ""
 
     },
 
@@ -197,14 +199,14 @@ export const flightData: FlightSchemaTable[] = [
         // 'D-MM-YYYY'),
         //  startTime: '23rd July 2022',
         temperature: 874,
-        flightId: 3801,
+        flightId: 12,
         planeId: 4,
         pilot: 'Peter Holzkopf',
         averageSpeed: 928,
         longitude: 89.20,
         latitude: 25.01,
         notes: "",
-        createdAt: "test value"
+        createdAt: ""
 
 
     },
@@ -215,14 +217,14 @@ export const flightData: FlightSchemaTable[] = [
         // 'D-MM-YYYY'),
         //  startTime: '23rd July 2022',
         temperature: 1033,
-        flightId: 192,
+        flightId: 13,
         planeId: 7,
         pilot: 'Ute Müller',
         averageSpeed: 453,
         longitude: 49.20,
         latitude: 24.01,
         notes: "",
-        createdAt: "test value"
+        createdAt: ""
     },
 ]
 
@@ -238,7 +240,7 @@ export const missionData = [
         isTest: true,
         description: "some mission",
         location: "Germany",
-        missionId: "3994"
+        missionId: "3991"
 
     },
     {
@@ -249,7 +251,7 @@ export const missionData = [
         isTest: true,
         description: "some mission",
         location: "Germany",
-        missionId: "3994"
+        missionId: "3992"
     },
     {
 
@@ -259,7 +261,7 @@ export const missionData = [
         isTest: true,
         description: "some mission",
         location: "Italy",
-        missionId: "3994"
+        missionId: "3993"
     },
 
     {
@@ -281,7 +283,7 @@ export const missionData = [
         isTest: true,
         description: "some mission",
         location: "Germany",
-        missionId: "3994"
+        missionId: "3995"
 
     },
     {
@@ -292,7 +294,7 @@ export const missionData = [
         description: "some mission",
         isTest: true,
         location: "Germany",
-        missionId: "3994"
+        missionId: "3996"
 
     },
 
@@ -304,7 +306,7 @@ export const missionData = [
         description: "some mission",
         isTest: true,
         location: "Germany",
-        missionId: "3994"
+        missionId: "3997"
 
     },
 
@@ -316,7 +318,7 @@ export const missionData = [
         description: "some mission",
         isTest: true,
         location: "France",
-        missionId: "3994"
+        missionId: "3998"
 
     },
 
@@ -328,7 +330,7 @@ export const missionData = [
         description: "some mission",
         isTest: true,
         location: "Portugal",
-        missionId: "3994"
+        missionId: "3999"
     },
     {
 
@@ -338,7 +340,7 @@ export const missionData = [
         description: "some mission",
         isTest: true,
         location: "Germany",
-        missionId: "3994"
+        missionId: "3910"
     },
     {
 
@@ -348,7 +350,7 @@ export const missionData = [
         description: "some mission",
         isTest: true,
         location: "Germany",
-        missionId: "3994"
+        missionId: "3911"
     },
 
     {
@@ -358,7 +360,7 @@ export const missionData = [
         description: "some mission",
         isTest: true,
         location: "Germany",
-        missionId: "3994"
+        missionId: "3912"
     },
     {
 
@@ -368,6 +370,6 @@ export const missionData = [
         description: "some mission",
         isTest: true,
         location: "Germany",
-        missionId: "3994"
+        missionId: "3913"
     }
 ]

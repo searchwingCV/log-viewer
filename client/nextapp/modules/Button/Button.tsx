@@ -33,12 +33,13 @@ export const Button = ({
           `button
            text-primary-white
            decoration-primary-white
-           bg-y-indigo-to-petrol
            rounded-xl
            shadow-subtle`,
-          disabled &&
-            `bg-grey-medium
-               cursor-not-allowed`,
+          disabled
+            ? `bg-grey-dark
+               cursor-not-allowed
+             `
+            : 'bg-y-indigo-to-petrol',
         )
       case 'Secondary':
         return clsx(

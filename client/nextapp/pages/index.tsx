@@ -1,6 +1,3 @@
-// import getConfig from 'next/config'
-// const { publicRuntimeConfig: config } = getConfig()
-// console.log('config:', JSON.stringify(config))
 import { GetStaticProps } from 'next'
 
 import { Layout } from 'modules/Layout/Layout'
@@ -8,7 +5,7 @@ import { Layout } from 'modules/Layout/Layout'
 const Index = ({}) => {
   return (
     <>
-      <Layout>hello hello hello djdhjhjd kjdjkbds</Layout>
+      <Layout>Welcome to the log viewer dashboard</Layout>
     </>
   )
 }

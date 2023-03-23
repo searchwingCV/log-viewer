@@ -39,7 +39,7 @@ export type FlightSchema = {
 export type FlightSchemaTable = {
     startTime: string;
     temperature: number;
-    missionId?: number;
+    missionId?: string;
     flightId: number;
     planeId: number;
     pilot: string;
