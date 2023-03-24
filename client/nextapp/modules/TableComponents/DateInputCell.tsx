@@ -42,7 +42,7 @@ const Input = memo(
               pl-2
               pr-6
               text-center
-              placeholder-primary-rose
+              placeholder-primary-black
               focus:ring-0
               focus:ring-offset-0`,
             !!getValues(name) && newValue === 'delete'
@@ -51,8 +51,7 @@ const Input = memo(
               : !!getValues(name) && newValue && newValue !== parsedDefault
               ? `bg-primary-dark-petrol
                  text-primary-white`
-              : `bg-grey-light
-                 text-primary-rose`,
+              : `bg-grey-light`,
           )}
           placeholder={parsedDefault || ''}
         />

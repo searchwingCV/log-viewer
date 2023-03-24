@@ -53,7 +53,7 @@ const Input = memo(
               rounded-md
               p-2
               text-center
-              placeholder-primary-rose
+              placeholder-primary-black
               focus:ring-0
               focus:ring-offset-0`,
               newValue === 'delete'
@@ -62,8 +62,7 @@ const Input = memo(
                 : newValue !== '' && newValue !== defaultValue
                 ? `bg-primary-dark-petrol
                    text-primary-white`
-                : `bg-grey-light
-                   text-primary-rose`,
+                : `bg-grey-light`,
             )}
             placeholder={defaultValue || ''}
           />
@@ -90,12 +89,12 @@ const Input = memo(
         ) : null}
         {newValue === 'delete' && type === 'number' ? (
           <span
-            className={`
+            className={clsx(
+              `
                           absolute
                           top-1/2
                           left-1/2
                           h-[18px]
-                          w-[110px]
                           -translate-y-1/2
                           -translate-x-1/2
                           transform
@@ -104,7 +103,9 @@ const Input = memo(
                           text-ellipsis
                           break-words
                           bg-primary-red
-                          text-primary-white`}
+                          text-primary-white`,
+              type === 'number' ? ' w-[90px]' : 'w-[110px]',
+            )}
           >
             delete
           </span>
