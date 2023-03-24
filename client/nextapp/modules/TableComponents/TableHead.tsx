@@ -19,7 +19,7 @@ export const TableHead = ({ headerGroups, allColumns, setColumnOrder }: TableHea
 
   return (
     <thead className="w-full">
-      {headerGroups.map((headerGroup) => {
+      {headerGroups.map((headerGroup, index) => {
         const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps()
         return (
           <DragDropContext
@@ -46,29 +46,31 @@ export const TableHead = ({ headerGroups, allColumns, setColumnOrder }: TableHea
                   key={key}
                   {...droppableProvided.droppableProps}
                   ref={droppableProvided.innerRef}
-                  className={`!focus:border-black
-                              my-4
-                              flex
-                              w-full
-                              rounded-xl
-                              rounded-b
-                              bg-x-indigo-to-petrol
-                              px-4
-                              pt-4
-                              text-primary-white`}
+                  className={clsx(
+                    `!focus:border-black
+                      my-4
+                      flex
+                      w-full
+                      rounded-xl
+                      rounded-b
+                      bg-x-indigo-to-petrol
+                      pt-4
+                      text-center
+                      text-primary-white`,
+                  )}
                 >
                   {headerGroup.headers.map((column, index) => {
                     const { key, ...restHeaderProps } = column.getHeaderProps(
                       column.getSortByToggleProps(),
                     )
-
                     return (
                       <th
                         key={key}
                         className={clsx(
-                          `py-4
+                          `mx-4
+                           py-4
                            font-medium`,
-                          index === 0 ? 'w-[50px]' : 'w-[150px]',
+                          column.width,
                         )}
                       >
                         <Draggable key={column.id} draggableId={column.id} index={index}>
@@ -76,13 +78,13 @@ export const TableHead = ({ headerGroups, allColumns, setColumnOrder }: TableHea
                             <div
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              // {...extraProps}
                               ref={provided.innerRef}
                             >
                               <button
                                 className={`peer
                                             flex
                                             w-full
+                                            flex-col
                                             items-center
                                             justify-center`}
                                 onClick={() => {
@@ -104,9 +106,9 @@ export const TableHead = ({ headerGroups, allColumns, setColumnOrder }: TableHea
                                 {...restHeaderProps}
                               >
                                 {column.render('Header')}
-                                <span className="scale-2 ml-4">
+                                <div className="scale-2">
                                   {column.isSorted ? (column.isSortedDesc ? '▼' : '▲') : ''}
-                                </span>
+                                </div>
                               </button>
                               <div
                                 className={clsx(

@@ -12,7 +12,7 @@ export type MissionSchema = {
     latitude: number;
     longitude: number;
     isTest: boolean;
-    missionId?: number;
+    missionId: string;
     updatedAt?: string;
     createdAt?: string;
 };

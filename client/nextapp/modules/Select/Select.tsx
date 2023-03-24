@@ -1,11 +1,10 @@
 import * as React from 'react'
-import { useTranslation } from 'next-i18next'
 import clsx from 'clsx'
 import { Button } from 'modules/Button/Button'
 
 type SelectProps = {
   name: string
-  type?: 'text' | 'email' | 'tel'
+  type?: 'text'
   placeholder?: string
   disabled?: boolean
   options: { name: string; value: string | number }[]

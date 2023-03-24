@@ -1,15 +1,15 @@
 import '../styles/globals.css'
+import 'react-tippy/dist/tippy.css'
+import 'react-toastify/dist/ReactToastify.css'
 import type { AppProps } from 'next/app'
 import { Hydrate, QueryClientProvider, QueryClient } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import { ReactElement, ReactNode, useState } from 'react'
 import { appWithTranslation } from 'next-i18next'
 import { NextPage } from 'next'
-import { daysToMilliseconds } from '@lib/time'
 import { config, library } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
-import { fas } from '@fortawesome/free-solid-svg-icons'
-
+import 'react-datepicker/dist/react-datepicker.css'
 import {
   faChevronLeft,
   faChevronRight,
@@ -27,6 +27,8 @@ import {
   faPenSquare,
   faAngleLeft,
   faAngleRight,
+  faCircleXmark,
+  faUndo,
 } from '@fortawesome/free-solid-svg-icons'
 
 config.autoAddCss = false
@@ -47,6 +49,8 @@ library.add(
   faPenSquare,
   faAngleLeft,
   faAngleRight,
+  faCircleXmark,
+  faUndo,
 )
 
 export type NextPageWithLayout<Props = {}> = NextPage<Props> & {

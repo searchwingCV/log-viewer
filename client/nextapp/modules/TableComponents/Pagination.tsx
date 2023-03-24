@@ -32,7 +32,7 @@ export const Pagination = ({
     <div
       className={`pagination
                   absolute
-                  bottom-20`}
+                  bottom-6`}
     >
       <span className="">
         <CircleIconButton

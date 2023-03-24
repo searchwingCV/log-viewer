@@ -1,10 +1,15 @@
 import { NextPageWithLayout } from './_app'
+import { fetchAllFlights } from '~/api/flight/getFlights'
 import { Layout } from '~/modules/Layout/Layout'
 import FlightTableOverview from '~/views/FlightTableOverview'
-import { flightData } from '~/modules/TableComponents'
 
 const FlightOverviewPage: NextPageWithLayout = () => {
-  return <FlightTableOverview data={flightData} />
+  const { data } = fetchAllFlights()
+  if (!data) {
+    return null
+  }
+
+  return <FlightTableOverview data={data} />
 }
 
 FlightOverviewPage.getLayout = (page) => <Layout>{page}</Layout>
