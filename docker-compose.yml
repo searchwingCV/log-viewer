@@ -1,5 +1,5 @@
 version: "3.3"
-  
+
 services:
   server:
     container_name: api
@@ -105,7 +105,7 @@ services:
     image: flight-log-viewer-fe-dev
     # network_mode: "host"
     build:
-      context: .
+      context: ./client
     volumes:
       - ./client/nextapp/node_modules
       - ./client/nextapp:/app
@@ -116,5 +116,3 @@ services:
 
 volumes:
   storage:
- 
-

@@ -1,3 +1,6 @@
+#!/bin/bash
+
+set -e
 echo "Building app for environment $ENVIRONMENT"
 docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 docker build -t $BACKEND_IMAGE_TAG ./server
