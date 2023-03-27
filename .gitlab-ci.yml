@@ -62,7 +62,7 @@ deploy-dev:
     - echo $BACKEND_IMAGE_TAG
     - echo $FRONTEND_IMAGE_TAG
   script:
-    - ./scripts/deploy.sh
+    - bash ./scripts/deploy.sh
 
 deploy:
   only:
