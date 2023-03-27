@@ -61,8 +61,10 @@ deploy-dev:
     - echo $CI_COMMIT_REF_SLUG
     - echo $BACKEND_IMAGE_TAG
     - echo $FRONTEND_IMAGE_TAG
+    - apk update
+    - apk add bash
   script:
-    - /bin/sh ./scripts/deploy.sh
+    - ./scripts/deploy.sh
 
 deploy:
   only:
@@ -85,5 +87,7 @@ deploy:
     - echo $CI_COMMIT_REF_SLUG
     - echo $BACKEND_IMAGE_TAG
     - echo $FRONTEND_IMAGE_TAG
+    - apk update
+    - apk add bash
   script:
-    - /bin/sh ./scripts/deploy.sh
+    - ./scripts/deploy.sh
