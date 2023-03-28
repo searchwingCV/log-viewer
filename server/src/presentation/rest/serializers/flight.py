@@ -1,10 +1,10 @@
 from typing import List
 
-from domain.flight.entities import BaseFlight, Flight, FlightFile
+from domain.flight.entities import Flight, FlightFile, IBaseFlight
 from presentation.rest.serializers import APISerializer
 
 
-class CreateFlightSerializer(BaseFlight, APISerializer):
+class CreateFlightSerializer(IBaseFlight, APISerializer):
     pass
 
 
