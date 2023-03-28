@@ -1,6 +1,7 @@
 from datetime import datetime as dt
 
 from common.constants import MAX_MISSION_ALIAS_LEN
+from domain.drone.value_objects import DroneStatus
 from domain.flight.value_objects import WeatherCondititions
 from geoalchemy2 import Geometry
 from sqlalchemy import Boolean, Column, DateTime, Enum, Float, ForeignKey, Integer, String, Table, Text, event
@@ -17,18 +18,26 @@ class BaseModel(Base):
     updated_at = Column(DateTime, nullable=True, onupdate=dt.now)
 
 
-class Plane(BaseModel):
-    __tablename__ = "plane"
+class Drone(BaseModel):
+    __tablename__ = "drone"
+    """
+    from domain::
+    name: str
+    model: str
+    description: t.Optional[str]
+    status: DroneStatus = Field(default=DroneStatus.ready_for_flight)
+    """
+    name = Column(String, nullable=False, unique=True)
+    model = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    status = Column(Enum(DroneStatus), nullable=False)
+    sys_thismav = Column(Integer, nullable=False)
 
-    alias = Column(String, unique=True, nullable=False)
-    model = Column(String, nullable=True)
-    in_use = Column(Boolean, default=True)
 
-
-plane_flight_association = Table(
-    "plane_mission_association",
+drone_flight_association = Table(
+    "drone_mission_association",
     Base.metadata,
-    Column("plane_id", ForeignKey("plane.id"), primary_key=True),
+    Column("drone_id", ForeignKey("drone.id"), primary_key=True),
     Column("flight_id", ForeignKey("flight.id"), primary_key=True),
 )
 
@@ -60,7 +69,7 @@ def calculate_geo_mission(mapper, connect, target):
 
 class Flight(BaseModel):
     __tablename__ = "flight"
-    fk_plane = Column(Integer, ForeignKey("plane.id"), nullable=False)
+    fk_drone = Column(Integer, ForeignKey("drone.id"), nullable=False)
     fk_mission = Column(Integer, ForeignKey("mission.id"), nullable=True)
     average_speed = Column(Float, nullable=True)
     distance = Column(Float, nullable=True)
@@ -74,7 +83,7 @@ class Flight(BaseModel):
     temperature = Column(Integer, nullable=True)
     start_time = Column(DateTime, nullable=True)
     end_time = Column(DateTime, nullable=True)
-    plane = relationship("Plane", secondary=plane_flight_association)
+    drone = relationship("Drone", secondary=drone_flight_association)
     mission = relationship("Mission", secondary=misssion_flight_association)
     files = relationship("FlightFiles")
 
