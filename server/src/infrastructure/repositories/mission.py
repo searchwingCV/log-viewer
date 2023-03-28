@@ -10,5 +10,5 @@ class MissionRepository(BaseRepository):
     _model = MissionModel
     _entity = Mission
 
-    def get_by_alias(self, session: Session, alias: str) -> Union[Mission, None]:
-        return self._get_by_filters(session, {"alias": alias}, "first")
+    def get_by_name(self, session: Session, name: str) -> Union[Mission, None]:
+        return self._get_by_filters(session, {"name": name}, "first")

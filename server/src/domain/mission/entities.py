@@ -1,3 +1,6 @@
+import typing as t
+from datetime import date
+
 from domain import DomainEntity
 from pydantic import BaseModel
 
@@ -6,12 +9,12 @@ class BaseMission(BaseModel):
     class Config:
         orm_mode = True
 
-    alias: str
-    description: str
+    name: str
+    description: t.Optional[str]
     location: str
-    latitude: float
-    longitude: float
-    is_test: bool
+    start_date: date
+    end_date: date
+    partner_organization: t.Optional[str]
 
 
 class Mission(BaseMission, DomainEntity):
