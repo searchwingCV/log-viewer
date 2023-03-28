@@ -4,7 +4,7 @@ from common.constants import MAX_MISSION_ALIAS_LEN
 from domain.drone.value_objects import DroneStatus
 from domain.flight.value_objects import WeatherCondititions
 from geoalchemy2 import Geometry
-from sqlalchemy import Boolean, Column, DateTime, Enum, Float, ForeignKey, Integer, String, Table, Text, event
+from sqlalchemy import Column, Date, DateTime, Enum, Float, ForeignKey, Integer, String, Table, Text, event
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -52,19 +52,12 @@ misssion_flight_association = Table(
 class Mission(BaseModel):
     __tablename__ = "mission"
 
-    alias = Column(String(MAX_MISSION_ALIAS_LEN), unique=True, nullable=False)
+    name = Column(String(MAX_MISSION_ALIAS_LEN), unique=True, nullable=False)
     description = Column(String, nullable=False)
     location = Column(String, nullable=True)
-    longitude = Column(Float)
-    latitude = Column(Float)
-    geo = Column(Geometry(geometry_type="POINT"))
-    is_test = Column(Boolean, default=True)
-
-
-@event.listens_for(Mission, "before_insert")
-@event.listens_for(Mission, "before_update")
-def calculate_geo_mission(mapper, connect, target):
-    target.geo = f"SRID=4269; POINT({target.latitude} {target.longitude})"
+    start_date = Column(Date, nullable=False)
+    end_date = Column(Date, nullable=False)
+    partner_organization = Column(String, nullable=True)
 
 
 class Flight(BaseModel):

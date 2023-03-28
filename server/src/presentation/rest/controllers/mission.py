@@ -29,7 +29,7 @@ async def add_mission(
     except DuplicatedKeyError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"The following mission already exists: {mission.alias}",
+            detail=f"The following mission already exists: {mission.name}",
         )
     except Exception as err:
         logger.exception("Exception detected!")
@@ -51,7 +51,7 @@ async def update_mission(
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"The following mission does not exists: {mission.alias}",
+            detail=f"The following mission does not exists: {mission.name}",
         )
 
 
