@@ -6,7 +6,7 @@ from alembic.command import upgrade
 from alembic.config import Config as AlembicConfig
 from fastapi import FastAPI
 from src.common.logging import get_logger
-from src.presentation.rest.controllers import flight, health, mission, plane, root
+from src.presentation.rest.controllers import drone, flight, health, mission, root
 
 logger = get_logger(__name__)
 
@@ -52,7 +52,7 @@ def build_api() -> FastAPI:
 
     app.include_router(root.router)
     app.include_router(health.router)
-    app.include_router(plane.router)
+    app.include_router(drone.router)
     app.include_router(mission.router)
     app.include_router(flight.router)
 

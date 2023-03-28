@@ -12,7 +12,7 @@ class BaseFlight(BaseModel):
         orm_mode = True
 
     average_speed: Optional[float] = None
-    fk_plane: ID_Type
+    fk_drone: ID_Type
     fk_mission: Optional[ID_Type]
     distance: Optional[float] = None
     latitude: Optional[float] = None
