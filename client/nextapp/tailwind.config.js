@@ -25,6 +25,7 @@ module.exports = {
         light: '#F4F4F4',
         medium: '#CACACA',
         dark: '#909090',
+        'super-dark': '#2d2d2d',
       },
     },
     screens: {
