@@ -2,7 +2,7 @@ from application.services.base import BaseCRUDService
 from common.exceptions.db import NotFoundException
 from domain.flight.entities import BaseFlight, Flight
 from infrastructure.db.session import SessionContextManager
-from infrastructure.repositories import FlightRepository, MissionRepository, PlaneRepository
+from infrastructure.repositories import DroneRepository, FlightRepository, MissionRepository
 
 
 class FlightService(BaseCRUDService):
@@ -12,11 +12,11 @@ class FlightService(BaseCRUDService):
         self,
         repository: FlightRepository,
         mission_repository: MissionRepository,
-        plane_repository: PlaneRepository,
+        drone_repository: DroneRepository,
         session: SessionContextManager = SessionContextManager(),
     ):
         self._mission_repository = mission_repository
-        self._plane_repository = plane_repository
+        self._drone_repository = drone_repository
         super().__init__(repository, session)
 
     def create(self, data: BaseFlight) -> Flight:
@@ -25,7 +25,7 @@ class FlightService(BaseCRUDService):
                 if not self._mission_repository.get_by_id(session, data.fk_mission):
                     raise NotFoundException(data.fk_mission, "mission")
 
-            if not self._plane_repository.get_by_id(session, data.fk_plane):
-                raise NotFoundException(data.fk_mission, "plane")
+            if not self._drone_repository.get_by_id(session, data.fk_drone):
+                raise NotFoundException(data.fk_mission, "drone")
 
         return self.upsert(data)

@@ -1,18 +1,18 @@
-from application.services import FileService, FlightService, MissionService, PlaneService
-from infrastructure.repositories import FlightRepository, MissionRepository, PlaneRepository
+from application.services import DroneService, FileService, FlightService, MissionService
+from infrastructure.repositories import DroneRepository, FlightRepository, MissionRepository
 
 
 def get_file_service():
     yield FileService()
 
 
-def get_plane_service():
-    yield PlaneService(repository=PlaneRepository())
+def get_drone_service():
+    yield DroneService(repository=DroneRepository())
 
 
 def get_flight_service():
     yield FlightService(
-        plane_repository=PlaneRepository(), mission_repository=MissionRepository(), repository=FlightRepository()
+        drone_repository=DroneRepository(), mission_repository=MissionRepository(), repository=FlightRepository()
     )
 
 
