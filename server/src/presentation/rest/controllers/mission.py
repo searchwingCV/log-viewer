@@ -5,7 +5,6 @@ from application.services.dependencies import get_mission_service
 from common.constants import DEFAULT_PAGE_LEN
 from common.exceptions.db import DuplicatedKeyError
 from common.logging import get_logger
-from domain.mission.entities import Mission
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from presentation.rest.serializers import Page, Params
 from presentation.rest.serializers.mission import CreateMissionSerializer, MissionDeletion, MissionSerializer
@@ -38,7 +37,7 @@ async def add_mission(
 
 @router.patch("", response_model=MissionSerializer, status_code=status.HTTP_200_OK)
 async def update_mission(
-    mission_to_update: Mission,
+    mission_to_update: MissionSerializer,
     mission_service: MissionService = Depends(get_mission_service),
 ):
     mission = mission_service.get_by_id(mission_to_update.id)
