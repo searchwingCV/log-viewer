@@ -1,12 +1,10 @@
 import { FlightSchemaTable } from "@schema/FlightSchema"
 
-export const flightData: FlightSchemaTable[] = [
+export const flightData2 = [
     {
-        //date: format(
 
         startTime: 'test value',
-        // 'D-MM-YYYY'),
-        //  startTime: '01 August 2022',
+
         temperature: 339,
         flightId: 1,
         planeId: 1,
@@ -18,6 +16,13 @@ export const flightData: FlightSchemaTable[] = [
         createdAt: '2017-02-12T12:00:00-06:30',
         missionId: "3994",
         observer: 28383
+
+
+
+
+
+
+
     },
 
     {
@@ -227,6 +232,170 @@ export const flightData: FlightSchemaTable[] = [
         notes: "",
         createdAt: ""
     },
+]
+
+
+export const flightData: FlightSchemaTable[] = [
+
+
+    {
+        //actual columns
+        flightId: "123",
+        description: "test",
+        pilot: "Max Mustermann",
+        location: "La Reunion",
+        rating: "good",
+        droneNeedsRepair: false,
+        planeId: "3",
+        purpose: "test",
+        missionId: "3991",
+        notes: "",
+
+
+        //weather api
+
+        temperature: 30,
+        weatherConditions: ["Sunny", "Rainy"],
+
+        //from log
+        startTime: '2017-02-12T12:00:00-06:30',
+        createdAt: '2017-02-12T12:00:00-06:30',
+        energyConsumed: 234,//Wh
+        minPower: 34,//W
+        maxPower: 3,//W
+        avgPower: 453,//W
+        minBatVoltage: 3,//V
+        maxBatVoltage: 42404,//V
+        avgBatVoltage: 4494,//V
+        deltaBatVoltage: 4984,//V
+        minBatCurrent: 2,//A
+        maxBatCurrent: 4,//A
+        avgBatCurrent: 53,//A
+        minGroundSpeed: 342,//km/h
+        maxGroundSpeed: 344,//km/h
+        avgGroundSpeed: 43,//km/h
+        minAirSpeed: 244,//km/h
+        maxAirSpeed: 73,//km/h
+        avgAirSpeed: 53,//km/h
+        avgWindSpeed: 543,//km/h
+
+        maxSpeedUp: 234,//km/h
+        maxSpeedDown: 234, //km/h
+        maxSpeedHorizontal: 233, //km/h
+
+        maxTelemetaryDistance: 43,  //km
+        flightDuration: 42, //hh:mm:ss
+        logDuration: 2,//hh:mm:ss
+        totalDistance: 466, //km
+        hardwareVersion: "some version",
+        firmwareVersion: "some firmware",
+    },
+
+    {
+        //actual columns
+        flightId: "124",
+        description: "test",
+        pilot: "Max Mustermann",
+        location: "La Reunion",
+        rating: "good",
+        droneNeedsRepair: false,
+        planeId: "3",
+        purpose: "test",
+        missionId: "3991",
+        notes: "",
+
+
+        //weather api
+
+        temperature: 30,
+        weatherConditions: ["Sunny", "Rainy"],
+
+        //from log
+        startTime: '2017-02-12T12:00:00-06:30',
+        createdAt: '2017-02-12T12:00:00-06:30',
+        energyConsumed: 234,//Wh
+        minPower: 34,//W
+        maxPower: 3,//W
+        avgPower: 453,//W
+        minBatVoltage: 3,//V
+        maxBatVoltage: 42404,//V
+        avgBatVoltage: 4494,//V
+        deltaBatVoltage: 4984,//V
+        minBatCurrent: 2,//A
+        maxBatCurrent: 4,//A
+        avgBatCurrent: 53,//A
+        minGroundSpeed: 342,//km/h
+        maxGroundSpeed: 344,//km/h
+        avgGroundSpeed: 43,//km/h
+        minAirSpeed: 244,//km/h
+        maxAirSpeed: 73,//km/h
+        avgAirSpeed: 53,//km/h
+        avgWindSpeed: 543,//km/h
+
+        maxSpeedUp: 234,//km/h
+        maxSpeedDown: 234, //km/h
+        maxSpeedHorizontal: 233, //km/h
+
+        maxTelemetaryDistance: 43,  //km
+        flightDuration: 42, //hh:mm:ss
+        logDuration: 2,//hh:mm:ss
+        totalDistance: 466, //km
+        hardwareVersion: "some version",
+        firmwareVersion: "some firmware",
+    },
+
+    {
+        //actual columns
+        flightId: "125",
+        description: "test",
+        pilot: "Max Mustermann",
+        location: "La Reunion",
+        rating: "good",
+        droneNeedsRepair: false,
+        planeId: "3",
+        purpose: "test",
+        missionId: "3991",
+        notes: "",
+
+
+        //weather api
+
+        temperature: 30,
+        weatherConditions: ["Sunny", "Rainy"],
+
+        //from log
+        startTime: '2017-02-12T12:00:00-06:30',
+        createdAt: '2017-02-12T12:00:00-06:30',
+        energyConsumed: 234,//Wh
+        minPower: 34,//W
+        maxPower: 3,//W
+        avgPower: 453,//W
+        minBatVoltage: 3,//V
+        maxBatVoltage: 42404,//V
+        avgBatVoltage: 4494,//V
+        deltaBatVoltage: 4984,//V
+        minBatCurrent: 2,//A
+        maxBatCurrent: 4,//A
+        avgBatCurrent: 53,//A
+        minGroundSpeed: 342,//km/h
+        maxGroundSpeed: 344,//km/h
+        avgGroundSpeed: 43,//km/h
+        minAirSpeed: 244,//km/h
+        maxAirSpeed: 73,//km/h
+        avgAirSpeed: 53,//km/h
+        avgWindSpeed: 543,//km/h
+
+        maxSpeedUp: 234,//km/h
+        maxSpeedDown: 234, //km/h
+        maxSpeedHorizontal: 233, //km/h
+
+        maxTelemetaryDistance: 43,  //km
+        flightDuration: 42, //hh:mm:ss
+        logDuration: 2,//hh:mm:ss
+        totalDistance: 466, //km
+        hardwareVersion: "some version",
+        firmwareVersion: "some firmware",
+    }
 ]
 
 

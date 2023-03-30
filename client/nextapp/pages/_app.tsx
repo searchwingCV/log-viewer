@@ -9,7 +9,6 @@ import { appWithTranslation } from 'next-i18next'
 import { NextPage } from 'next'
 import { config, library } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
-import 'react-datepicker/dist/react-datepicker.css'
 import {
   faChevronLeft,
   faChevronRight,
@@ -53,7 +52,7 @@ library.add(
   faUndo,
 )
 
-export type NextPageWithLayout<Props = {}> = NextPage<Props> & {
+export type NextPageWithLayout<Props = object> = NextPage<Props> & {
   getLayout?: (page: ReactElement) => ReactNode
 }
 

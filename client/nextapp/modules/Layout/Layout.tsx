@@ -17,7 +17,6 @@ export const Layout = ({ children }: Props) => {
                       min-h-screen
                       w-full
                       bg-grey-light
-                      px-8
                     `}
         >
           {children}
