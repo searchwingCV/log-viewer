@@ -1,1 +1,1 @@
-export const DRAWER_NAV_EXTENDED = 'drawer-nav-extended'
+export const DRAWER_EXTENDED = 'drawer-extended'

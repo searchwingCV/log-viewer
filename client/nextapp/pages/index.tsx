@@ -10,7 +10,7 @@ const Index = ({}) => {
   )
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale, preview, previewData }) => {
+export const getStaticProps: GetStaticProps = ({}) => {
   return {
     props: {},
     revalidate: 60 * 15, //15m

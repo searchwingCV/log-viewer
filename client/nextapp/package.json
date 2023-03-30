@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "tsc": "tsc",
     "lint": "next lint",
     "prepare": "husky install",
     "generate-client": "openapi --input http://localhost:8080/openapi.json --output ./types --client axios"
@@ -19,6 +20,7 @@
     "@hookform/error-message": "^2.0.0",
     "@hookform/resolvers": "^2.9.6",
     "@react-spring/web": "^9.4.4",
+    "@typescript-eslint/eslint-plugin": "^5.57.0",
     "@use-gesture/react": "^10.2.16",
     "axios": "^1.2.0",
     "clsx": "^1.1.1",

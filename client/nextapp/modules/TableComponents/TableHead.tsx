@@ -87,6 +87,7 @@ export const TableHead = ({ headerGroups, allColumns, setColumnOrder }: TableHea
                                             flex-col
                                             items-center
                                             justify-center`}
+                                type="button"
                                 onClick={() => {
                                   const isTargetVisible = toggleMatrix.find(
                                     (prop) => prop.propName === column.id,
@@ -111,13 +112,14 @@ export const TableHead = ({ headerGroups, allColumns, setColumnOrder }: TableHea
                                 </div>
                               </button>
                               <div
-                                className={clsx(
-                                  toggleMatrix.find((col) => col.propName === column.id)?.visible
-                                    ? 'visible'
-                                    : 'invisible',
-                                )}
+                                className="min-h-[30px] min-w-full"
+                                // className={clsx(
+                                //   toggleMatrix.find((col) => col.propName === column.id)?.visible
+                                //     ? 'visible'
+                                //     : 'invisible',
+                                // )}
                               >
-                                {column.canFilter ? column.render('Filter') : null}
+                                {/* {column.canFilter ? column.render('Filter') : null} */}
                               </div>
                             </div>
                           )}
