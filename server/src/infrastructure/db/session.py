@@ -1,9 +1,9 @@
 from typing import Optional, Type
 
+from common.config import BaseConfig, get_current_config
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session as sqlalchemySession
 from sqlalchemy.orm import sessionmaker
-from src.common.config import BaseConfig, get_current_config
 
 
 class SessionContextManager:
