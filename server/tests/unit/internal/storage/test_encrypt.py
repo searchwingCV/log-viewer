@@ -1,6 +1,6 @@
 import pytest
+from common.encryption import decrypt, encrypt
 from cryptography.fernet import Fernet
-from src.common.encryption import decrypt, encrypt
 
 
 @pytest.fixture

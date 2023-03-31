@@ -1,11 +1,11 @@
 from typing import Any, List, Tuple, Type, Union
 
+from common.exceptions.db import DataToORMSerializationException, DBException, DuplicatedKeyError
 from domain.types import ID_Type, T_Model
 from infrastructure.db.orm import BaseModel
 from pydantic import BaseModel as BaseEntity
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from src.common.exceptions.db import DataToORMSerializationException, DBException, DuplicatedKeyError
 
 
 class BaseRepository:
