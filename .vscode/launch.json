@@ -12,7 +12,8 @@
                 "debug"
             ],
             "jinja": true,
-            "justMyCode": true
+            "justMyCode": true,
+            "env": {"PYTHONPATH": "${workspaceFolder}${pathSeparator}server:${env:PYTHONPATH}${workspaceFolder}${pathSeparator}src"}
         }
     ]
 }
