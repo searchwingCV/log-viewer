@@ -3,3 +3,5 @@
 /storage
 .coverage
 coverage.xml
+.DS_Store
+.vscode/settings.jsong

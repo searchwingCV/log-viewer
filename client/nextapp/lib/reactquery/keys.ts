@@ -1,0 +1,1 @@
+export const DRAWER_EXTENDED = 'drawer-extended'

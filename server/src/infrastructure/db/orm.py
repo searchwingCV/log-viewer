@@ -1,9 +1,24 @@
 from datetime import datetime as dt
 
 from common.constants import MAX_MISSION_ALIAS_LEN
-from domain.flight.value_objects import WeatherCondititions
+from domain.drone.value_objects import DroneStatus
+from domain.flight.value_objects import FlightPurpose, FlightRating, WindIntensity
 from geoalchemy2 import Geometry
-from sqlalchemy import Boolean, Column, DateTime, Enum, Float, ForeignKey, Integer, String, Table, Text, event
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    Enum,
+    Float,
+    ForeignKey,
+    Integer,
+    Interval,
+    String,
+    Table,
+    Text,
+    event,
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -14,21 +29,29 @@ class BaseModel(Base):
     __abstract__ = True
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     created_at = Column(DateTime, nullable=False, default=dt.now)
-    updated_at = Column(DateTime, nullable=True, onupdate=dt.now)
+    updated_at = Column(DateTime, onupdate=dt.now)
 
 
-class Plane(BaseModel):
-    __tablename__ = "plane"
+class Drone(BaseModel):
+    __tablename__ = "drone"
+    """
+    from domain::
+    name: str
+    model: str
+    description: t.Optional[str]
+    status: DroneStatus = Field(default=DroneStatus.ready_for_flight)
+    """
+    name = Column(String, nullable=False, unique=True)
+    model = Column(String, nullable=False)
+    description = Column(String)
+    status = Column(Enum(DroneStatus), nullable=False)
+    sys_thismav = Column(Integer, nullable=False)
 
-    alias = Column(String, unique=True, nullable=False)
-    model = Column(String, nullable=True)
-    in_use = Column(Boolean, default=True)
 
-
-plane_flight_association = Table(
-    "plane_mission_association",
+drone_flight_association = Table(
+    "drone_mission_association",
     Base.metadata,
-    Column("plane_id", ForeignKey("plane.id"), primary_key=True),
+    Column("drone_id", ForeignKey("drone.id"), primary_key=True),
     Column("flight_id", ForeignKey("flight.id"), primary_key=True),
 )
 
@@ -43,46 +66,86 @@ misssion_flight_association = Table(
 class Mission(BaseModel):
     __tablename__ = "mission"
 
-    alias = Column(String(MAX_MISSION_ALIAS_LEN), unique=True, nullable=False)
+    name = Column(String(MAX_MISSION_ALIAS_LEN), unique=True, nullable=False)
     description = Column(String, nullable=False)
-    location = Column(String, nullable=True)
-    longitude = Column(Float)
-    latitude = Column(Float)
-    geo = Column(Geometry(geometry_type="POINT"))
-    is_test = Column(Boolean, default=True)
-
-
-@event.listens_for(Mission, "before_insert")
-@event.listens_for(Mission, "before_update")
-def calculate_geo_mission(mapper, connect, target):
-    target.geo = f"SRID=4269; POINT({target.latitude} {target.longitude})"
+    location = Column(String, nullable=False)
+    start_date = Column(Date, nullable=False)
+    end_date = Column(Date, nullable=False)
+    partner_organization = Column(String)
 
 
 class Flight(BaseModel):
     __tablename__ = "flight"
-    fk_plane = Column(Integer, ForeignKey("plane.id"), nullable=False)
-    fk_mission = Column(Integer, ForeignKey("mission.id"), nullable=True)
-    average_speed = Column(Float, nullable=True)
-    distance = Column(Float, nullable=True)
-    longitude = Column(Float, nullable=True)
-    latitude = Column(Float, nullable=True)
-    notes = Column(Text, nullable=True)
-    geo = Column(Geometry(geometry_type="POINT"), nullable=True)
-    pilot = Column(String, nullable=True)
-    observer = Column(String, nullable=True)
-    weather_conditions = Column(Enum(WeatherCondititions), nullable=True)
-    temperature = Column(Integer, nullable=True)
-    start_time = Column(DateTime, nullable=True)
-    end_time = Column(DateTime, nullable=True)
-    plane = relationship("Plane", secondary=plane_flight_association)
+    # user defined fields
+    fk_drone = Column(Integer, ForeignKey("drone.id"), nullable=False)
+    fk_mission = Column(Integer, ForeignKey("mission.id"))
+    location = Column(String, nullable=False)
+    pilot = Column(String)
+    observer = Column(String)
+    rating = Column(Enum(FlightRating), nullable=False)
+    purpose = Column(Enum(FlightPurpose), nullable=False)
+    notes = Column(Text)
+    drone_needs_repair = Column(Boolean, default=False, nullable=False)
+
+    # From weather API
+    temperature_celsius = Column(Float)
+    wind = Column(Enum(WindIntensity))
+
+    # Computed from logs
+    log_start_time = Column(DateTime)
+    log_end_time = Column(DateTime)
+    log_duration = Column(Interval)
+
+    start_latitude = Column(String)
+    start_longitude = Column(String)
+    start_geo = Column(Geometry(geometry_type="POINT"))
+
+    end_latitude = Column(String)
+    end_longitude = Column(String)
+    end_geo = Column(Geometry(geometry_type="POINT"))
+
+    hardware_version = Column(String)
+    firmware_version = Column(String)
+
+    distance_km = Column(Float)
+
+    max_groundspeed = Column(Float)
+    min_groundspeed = Column(Float)
+    avg_groundspeed = Column(Float)
+
+    max_airspeed = Column(Float)
+    min_airspeed = Column(Float)
+    avg_airspeed = Column(Float)
+
+    max_vertical_speed_up = Column(Float)
+    min_vertical_speed_down = Column(Float)
+
+    max_telemetry_distance_km = Column(Float)
+
+    max_battery_voltage = Column(Float)
+    min_battery_voltage = Column(Float)
+    delta_battery_voltage = Column(Float)
+
+    max_power_w = Column(Float)
+    min_power_w = Column(Float)
+    avg_power_w = Column(Float)
+
+    max_windspeed_kmh = Column(Float)
+    min_windspeed_kmh = Column(Float)
+    avg_windspeed_kmg = Column(Float)
+
+    energy_consumed_wh = Column(Float)
+
+    # relations
+    drone = relationship("Drone", secondary=drone_flight_association)
     mission = relationship("Mission", secondary=misssion_flight_association)
     files = relationship("FlightFiles")
 
 
 class FlightFiles(Base):
     __tablename__ = "flight_files"
-    file_type = Column(String, Enum(WeatherCondititions), nullable=False)
-    location = Column(String, Enum(WeatherCondititions), nullable=False)
+    file_type = Column(String, nullable=False)
+    location = Column(String, nullable=False)
     file_uri = Column(String, unique=True, primary_key=True)
     flight_id = Column(Integer, ForeignKey("flight.id"))
     version = Column(Integer, nullable=False, default=1)
@@ -91,7 +154,12 @@ class FlightFiles(Base):
 @event.listens_for(Flight, "before_insert")
 @event.listens_for(Flight, "before_update")
 def calculate_geo_flight(mapper, connect, target):
-    if all((target.latitude is not None, target.longitude is not None)):
-        target.geo = f"SRID=4269; POINT({target.latitude} {target.longitude})"
+    if all((target.start_latitude is not None, target.start_longitude is not None)):
+        target.start_geo = f"SRID=4269; POINT({target.start_latitude} {target.start_longitude})"
     else:
-        target.geo = None
+        target.start_geo = None
+
+    if all((target.end_latitude is not None, target.end_longitude is not None)):
+        target.end_geo = f"SRID=4269; POINT({target.end_latitude} {target.end_longitude})"
+    else:
+        target.end_geo = None
