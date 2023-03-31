@@ -1,10 +1,10 @@
 import os
 
+from common.encryption import decrypt
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse
 from infrastructure.dependencies import get_storage
 from infrastructure.storage import Storage
-from src.common.encryption import decrypt
 
 router = APIRouter(prefix="", tags=["root"], responses={404: {"description": "Not found"}}, include_in_schema=False)
 

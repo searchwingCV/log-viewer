@@ -4,9 +4,9 @@ from argparse import ArgumentParser, Namespace
 import uvicorn
 from alembic.command import upgrade
 from alembic.config import Config as AlembicConfig
+from common.logging import get_logger
 from fastapi import FastAPI
-from src.common.logging import get_logger
-from src.presentation.rest.controllers import drone, flight, health, mission, root
+from presentation.rest.controllers import drone, flight, health, mission, root
 
 logger = get_logger(__name__)
 
