@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 
-from src.application.services.base import BaseCRUDService
-from src.infrastructure.repositories.base import BaseRepository
+from application.services.base import BaseCRUDService
+from infrastructure.repositories.base import BaseRepository
 
 
 def test_get_by_id(mock_session_factory):
