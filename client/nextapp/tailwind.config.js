@@ -40,10 +40,10 @@ module.exports = {
 
     extend: {
       width: {
-        'side-nav': '260px',
+        'side-drawer': '280px',
       },
       spacing: {
-        'side-nav-width': '260px',
+        'side-drawer-width': '260px',
       },
       background: {
         transparent: 'transparent',

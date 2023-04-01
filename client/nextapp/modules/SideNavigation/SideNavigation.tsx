@@ -52,7 +52,7 @@ export const SideNavigation = ({}: Props) => {
                   bottom-0
                   z-10
                   h-full
-                  w-side-nav`}
+                  w-side-drawer`}
       style={slideX}
     >
       <div

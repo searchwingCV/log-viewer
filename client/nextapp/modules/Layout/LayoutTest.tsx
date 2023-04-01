@@ -30,7 +30,7 @@ export const Layout = ({ children }: Props) => {
       >
         <SideNavigation />
         <animated.div
-          className={clsx(`ml-side-nav-width
+          className={clsx(`ml-side-drawer-width
                            h-screen
                            overflow-x-hidden`)}
           style={slideX}

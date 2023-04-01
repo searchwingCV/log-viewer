@@ -55,8 +55,8 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
   const { data: sideNavExtended } = useQuery(DRAWER_EXTENDED)
 
   const slideX = useSpring({
-    transform: sideNavExtended ? 'translate3d(0px,0,0)' : `translate3d(-220px,0,0)`,
-    minWidth: sideNavExtended ? 'calc(100vw - 270px)' : `calc(100vw - 40px)`,
+    transform: sideNavExtended ? 'translate3d(20px,0,0)' : `translate3d(-240px,0,0)`,
+    minWidth: sideNavExtended ? 'calc(100vw - 270px)' : `calc(100vw - 0px)`,
   })
 
   const queryClient = useQueryClient()
@@ -174,7 +174,6 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
     preGlobalFilteredRows,
     allColumns,
     setColumnOrder,
-    visibleColumns,
   } = useTable(
     {
       columns: columns,
@@ -230,7 +229,7 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
         <CustomizeOrder allColumns={allColumns} setColumnOrder={setColumnOrder} />
       </SideDrawer>
       <animated.div
-        className={clsx(`ml-side-nav-width
+        className={clsx(`ml-side-drawer-width
                           h-screen
                           overflow-x-hidden`)}
         style={slideX}
