@@ -20,17 +20,17 @@ export const SideDrawer = ({ children }: Props) => {
   }
 
   const slideX = useSpring({
-    transform: isExtended ? 'translate3d(0px,0,0)' : `translate3d(-260px,0,0)`,
+    transform: isExtended ? 'translate3d(0px,0,0)' : `translate3d(-280px,0,0)`,
   })
 
   return (
     <animated.div
-      className={`fixed
+      className={`w-side-drawer
+                  fixed
                   top-0
                   bottom-0
                   z-10
                   h-full
-                  w-side-nav
                   `}
       style={slideX}
     >
