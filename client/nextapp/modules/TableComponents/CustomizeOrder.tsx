@@ -1,5 +1,5 @@
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { useRef } from 'react'
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { ColumnInstance } from 'react-table'
 
 type CustomizeOrderProps = {
@@ -9,7 +9,6 @@ type CustomizeOrderProps = {
 
 export const CustomizeOrder = ({ allColumns, setColumnOrder }: CustomizeOrderProps) => {
   const currentColOrder = useRef<string[]>([])
-
   return (
     <div
       className="h-full
@@ -48,7 +47,18 @@ export const CustomizeOrder = ({ allColumns, setColumnOrder }: CustomizeOrderPro
                       {...provided.dragHandleProps}
                     >
                       {typeof item?.Header === 'string' ? (
-                        <div className="">{`[${index}] ${item?.Header}`}</div>
+                        <div>
+                          <span className="mr-2">
+                            <input
+                              type="checkbox"
+                              id={item?.id}
+                              name={item?.id}
+                              value={item?.id}
+                              {...item.getToggleHiddenProps()}
+                            />
+                          </span>
+                          {`[${index}] ${item?.Header}`}
+                        </div>
                       ) : null}
                     </div>
                   )}
