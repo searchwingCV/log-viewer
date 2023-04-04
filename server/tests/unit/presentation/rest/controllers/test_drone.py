@@ -153,7 +153,6 @@ def test_patch_drone_batch_error(test_client, mock_drone_service):
     response = test_client.patch("/drone", data=body)
 
     assert response.status_code == 200
-    print(response.json())
     assert response.json() == json.loads(expected)
 
     test_client.app.dependency_overrides.clear()
