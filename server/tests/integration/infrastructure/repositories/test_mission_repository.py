@@ -1,8 +1,8 @@
 from datetime import date
 
-from src.domain.mission.entities import BaseMission
-from src.infrastructure.db.orm import Mission as MissionModel
-from src.infrastructure.repositories.mission import MissionRepository
+from domain.mission.entities import BaseMission
+from infrastructure.db.orm import Mission as MissionModel
+from infrastructure.repositories.mission import MissionRepository
 
 
 def test_get_by_name(test_db_session):

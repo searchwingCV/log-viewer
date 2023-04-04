@@ -12,6 +12,9 @@
     "[typescriptreact]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "python.envFile": "${workspaceFolder}/server/.env",
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.python"
+    }
   }
-  

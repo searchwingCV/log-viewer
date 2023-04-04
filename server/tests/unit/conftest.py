@@ -5,12 +5,12 @@ from unittest.mock import Mock
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from infrastructure.db.session import SessionContextManager
 from sqlalchemy.orm import Session
-from src.infrastructure.db.session import SessionContextManager
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)))
 
-from src.presentation.rest.controllers import drone, flight, health, mission, root  # noqa
+from presentation.rest.controllers import drone, flight, health, mission, root  # noqa
 
 
 @pytest.fixture(scope="module")

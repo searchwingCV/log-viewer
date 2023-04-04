@@ -9,6 +9,7 @@ from infrastructure.repositories.base import BaseRepository
 class BaseCRUDService:
 
     _entity: Type[T_Model] = BaseEntity
+    _entity_type = "base"
 
     def __init__(
         self,
@@ -36,4 +37,9 @@ class BaseCRUDService:
     def get_all_with_pagination(self, page: int, size: int) -> Tuple[int, List[T_Model]]:
         with self._session as session:
             result = self._repository.get_with_pagination(session, page, size)
+        return result
+
+    def update(self, data: T_Model) -> Union[T_Model, None]:
+        with self._session as session:
+            result = self._repository.update(session, data.id, data)
         return result

@@ -7,6 +7,7 @@ from infrastructure.repositories import DroneRepository, FlightRepository, Missi
 
 class FlightService(BaseCRUDService):
     _entity = Flight
+    _entity_type = "flight"
 
     def __init__(
         self,

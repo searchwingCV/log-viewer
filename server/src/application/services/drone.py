@@ -4,3 +4,4 @@ from domain.drone.entities import Drone
 
 class DroneService(BaseCRUDService):
     _entity = Drone
+    _entity_type = "drone"

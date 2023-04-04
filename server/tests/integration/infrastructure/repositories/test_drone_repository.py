@@ -1,9 +1,9 @@
 from copy import deepcopy
 
 import pytest
-from src.common.exceptions.db import DuplicatedKeyError
-from src.domain.drone.entities import Drone
-from src.infrastructure.repositories.drone import DroneModel, DroneRepository
+from common.exceptions.db import DuplicatedKeyError
+from domain.drone.entities import Drone, DroneUpdate
+from infrastructure.repositories.drone import DroneModel, DroneRepository
 
 
 def test_upsert_new(test_db_session, get_sample_drone):
@@ -135,3 +135,39 @@ def test_get_with_pagination_filter(test_db_session, insert_drones):
 
     assert len(result) == expected_len
     assert total <= TOTAL_DRONES
+
+
+def test_update(add_sample_drone_to_db, test_db_session):
+
+    add_sample_drone_to_db()
+    update_data = DroneUpdate(name="NewName")
+    repository = DroneRepository()
+    drone_updated = repository.update(test_db_session, 1, update_data)
+
+    assert drone_updated.name == update_data.name
+
+    drone_db = test_db_session.query(DroneModel).filter_by(id=1).first()
+
+    first_updated_at = drone_db.updated_at
+    assert drone_db.name == drone_updated.name
+    assert drone_db.updated_at is not None
+
+    assert type(drone_updated) == Drone
+
+    update_data = DroneUpdate(name="NewName2")
+    drone_updated = repository.update(test_db_session, 1, update_data)
+    drone_db = test_db_session.query(DroneModel).filter_by(id=1).first()
+
+    assert drone_updated.name == update_data.name == drone_db.name
+    assert drone_updated.updated_at is not None
+    assert drone_updated.updated_at > first_updated_at
+
+
+def test_update_non_existing(add_sample_drone_to_db, test_db_session):
+
+    add_sample_drone_to_db()
+    update_data = DroneUpdate(name="NewName")
+    repository = DroneRepository()
+    drone_updated = repository.update(test_db_session, 2, update_data)
+
+    assert drone_updated is None

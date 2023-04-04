@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC
 from math import ceil
 from typing import Generic, Optional, Sequence, TypeVar
 
@@ -9,6 +10,7 @@ from fastapi_pagination.bases import AbstractPage, AbstractParams, RawParams
 from humps import camelize
 from presentation.rest.serializers.utils.pydantic_handle_geom import create_geom
 from pydantic import BaseModel, Field, conint, validator
+from pydantic.generics import GenericModel
 from shapely.geometry import Point
 
 T = TypeVar("T")
@@ -108,3 +110,13 @@ class GeoPoint(BaseModel):
     geo: Optional[Point] = Field(None, alias="point")
 
     _validate_geom = validator("geo", pre=True, always=True, allow_reuse=True)(create_geom)
+
+
+class UpdateSerializer(GenericModel, Generic[T], ABC):
+    items: Sequence[T]
+
+    @validator("items")
+    def num_items_should_be_nonzero(cls, v):
+        if len(v) < 1:
+            raise ValueError("number of items should be > 1")
+        return v

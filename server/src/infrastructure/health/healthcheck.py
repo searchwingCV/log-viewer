@@ -16,7 +16,7 @@ class Healthcheck:
         try:
             self.db_session.execute("SELECT 1")
         except Exception:
-            logger.exception("Database healåth failed")
+            logger.exception("Database healthcheck failed")
             return False
         return True
 

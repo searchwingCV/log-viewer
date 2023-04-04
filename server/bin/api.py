@@ -4,9 +4,10 @@ from argparse import ArgumentParser, Namespace
 import uvicorn
 from alembic.command import upgrade
 from alembic.config import Config as AlembicConfig
-from fastapi import FastAPI
-from src.common.logging import get_logger
-from src.presentation.rest.controllers import drone, flight, health, mission, root
+from common.logging import get_logger
+from fastapi import FastAPI, Request, Response, status
+from presentation.rest.controllers import drone, flight, health, mission, root
+from presentation.rest.serializers.errors import InternalServerError
 
 logger = get_logger(__name__)
 
@@ -43,6 +44,14 @@ def get_args() -> Namespace:
     return parser.parse_args()
 
 
+def log_exception_handler(request: Request, exc: Exception):
+    logger.exception(f"exception detected in request -> {request} ")
+    return Response(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content=InternalServerError(detail=str(exc)).json(),
+    )
+
+
 def build_api() -> FastAPI:
 
     app = FastAPI(
@@ -55,6 +64,8 @@ def build_api() -> FastAPI:
     app.include_router(drone.router)
     app.include_router(mission.router)
     app.include_router(flight.router)
+
+    app.add_exception_handler(Exception, log_exception_handler)
 
     return app
 

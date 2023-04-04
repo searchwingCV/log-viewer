@@ -1,6 +1,6 @@
 import pytest
+from domain.drone.entities import BaseDrone
 from faker import Faker
-from src.domain.drone.entities import BaseDrone
 
 fake = Faker()
 
@@ -12,6 +12,7 @@ def get_sample_drone():
             name=fake.first_name() + fake.last_name(),
             model=fake.domain_word(),
             sys_thismav=fake.pyint(min_value=1, max_value=3),
+            description=fake.paragraph(nb_sentences=1),
         )
 
     return _get_sample_drone
