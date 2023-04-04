@@ -16,9 +16,5 @@ class MissionSchemaGeo(MissionSerializer, GeoPoint):
     pass
 
 
-class MissionDeletion(APISerializer, EntityID):
-    msg: str
-
-
-class MissionUpdate(APISerializer, EntityID, IMissionUpdate):
+class MissionUpdate(APISerializer, IMissionUpdate, EntityID):
     pass
