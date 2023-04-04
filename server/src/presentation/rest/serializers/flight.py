@@ -1,6 +1,9 @@
 from typing import List
 
-from domain.flight.entities import Flight, FlightFile, IBaseFlight
+from domain import EntityID
+from domain.flight.entities import Flight, FlightFile
+from domain.flight.entities import FlightUpdate as IFlightUpdate
+from domain.flight.entities import IBaseFlight
 from presentation.rest.serializers import APISerializer
 
 
@@ -12,9 +15,8 @@ class FlightSerializer(Flight, APISerializer):
     pass
 
 
-class FlightDeletion(APISerializer):
-    msg: str
-    flight_id: int
+class FlightUpdate(IFlightUpdate, EntityID, APISerializer):
+    pass
 
 
 class FileUploadResponse(APISerializer, FlightFile):

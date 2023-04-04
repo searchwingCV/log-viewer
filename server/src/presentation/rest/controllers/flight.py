@@ -1,24 +1,25 @@
 from typing import Union
 
-from application.services.dependencies import get_flight_service
 from application.services.file import FileService
 from application.services.flight import FlightService
 from common.constants import DEFAULT_PAGE_LEN
 from common.exceptions.db import NotFoundException
 from common.logging import get_logger
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, UploadFile, status
-from fastapi_pagination import add_pagination
+from fastapi import APIRouter, Depends, Query, Request, Response, UploadFile, status
 from infrastructure.dependencies import get_db, get_storage
 from infrastructure.storage import Storage
-from presentation.rest.serializers import Page, Params
-from presentation.rest.serializers.errors import InvalidPayloadError, NotFoundError
+from presentation.rest.dependencies import get_flight_service
+from presentation.rest.mixins import CRUDMixin
+from presentation.rest.serializers import Page, Params, UpdateSerializer
+from presentation.rest.serializers.errors import EntityNotFoundError, InvalidPayloadError
 from presentation.rest.serializers.flight import (
     CreateFlightSerializer,
     FileUploadResponse,
-    FlightDeletion,
     FlightFilesListResponse,
     FlightSerializer,
+    FlightUpdate,
 )
+from presentation.rest.serializers.responses import BatchUpdateResponse
 from sqlalchemy.orm import Session
 
 ROUTE_PREFIX = "/flight"
@@ -42,9 +43,6 @@ async def add_flight(
     except NotFoundException as e:
         error = InvalidPayloadError(detail=str(e))
         return Response(status_code=status.HTTP_400_BAD_REQUEST, content=error.json())
-    except Exception as err:
-        logger.exception("Exception detected!")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
 @router.get("", response_model=Page[FlightSerializer], status_code=status.HTTP_200_OK)
@@ -63,43 +61,30 @@ async def retrieve_all_flights(
 
 @router.get("/{id}", response_model=FlightSerializer, status_code=status.HTTP_200_OK)
 async def retrieve_flight(id: int, flight_service: FlightService = Depends(get_flight_service)):
-    try:
-        flight = flight_service.get_by_id(id)
-        if not flight:
-            return Response(status_code=status.HTTP_404_NOT_FOUND, content=NotFoundError().json())
-        return flight
-    except Exception as err:
-        logger.exception("Exception detected!")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+    flight = flight_service.get_by_id(id)
+    if not flight:
+        return Response(status_code=status.HTTP_404_NOT_FOUND, content=EntityNotFoundError(id=id).json())
+    return flight
 
 
-@router.patch("", response_model=FlightSerializer, status_code=status.HTTP_200_OK)
+@router.patch(
+    "",
+    response_model=BatchUpdateResponse[FlightSerializer],
+    status_code=status.HTTP_200_OK,
+    description="Update flights in batch",
+)
 async def update_flight(
-    flight_to_update: FlightSerializer,
+    flights_to_update: UpdateSerializer[FlightUpdate],
     flight_service: FlightService = Depends(get_flight_service),
 ):
-    flight = flight_service.get_by_id(flight_to_update.id)
-    if flight:
-        try:
-            return flight_service.create(flight_to_update)
-        except Exception as e:
-            logger.exception(f"Exception detected: {e}")
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"The requested flight does not exist: {flight_to_update.id=}",
-        )
+    response = CRUDMixin.update_items(flights_to_update, flight_service)
+    return response
 
 
-@router.delete("/{id}", response_model=FlightDeletion, status_code=status.HTTP_200_OK)
-async def delete_mission(id: int, flight_service: FlightService = Depends(get_flight_service)):
-    try:
-        flight_service.delete_by_id(id)
-    except Exception as e:
-        logger.exception(f"Exception detected: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-    return FlightDeletion(msg="Deleted", flight_id=int).to_json()
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_flight(id: int, flight_service: FlightService = Depends(get_flight_service)):
+    flight_service.delete_by_id(id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.put("/{flight_id}/log-file", response_model=FileUploadResponse)
@@ -109,10 +94,7 @@ def upload_log_file(
     storage: Storage = Depends(get_storage),
     db: Session = Depends(get_db),
 ):
-    try:
-        return file_service.upload_log_file(flight_id, storage, file, db)
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+    return file_service.upload_log_file(flight_id, storage, file, db)
 
 
 @router.put("/{flight_id}/tlog-file", response_model=FileUploadResponse)
@@ -122,10 +104,7 @@ def upload_tlog_file(
     storage: Storage = Depends(get_storage),
     db: Session = Depends(get_db),
 ):
-    try:
-        return file_service.upload_tlog_file(flight_id, storage, file, db)
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+    return file_service.upload_tlog_file(flight_id, storage, file, db)
 
 
 @router.put("/{flight_id}/rosbag-file", response_model=FileUploadResponse)
@@ -135,10 +114,7 @@ def upload_rosbag_file(
     storage: Storage = Depends(get_storage),
     db: Session = Depends(get_db),
 ):
-    try:
-        return file_service.upload_rosbag_file(flight_id, storage, file, db)
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+    return file_service.upload_rosbag_file(flight_id, storage, file, db)
 
 
 @router.put("/{flight_id}/apm-file", response_model=FileUploadResponse)
@@ -148,10 +124,7 @@ def upload_apm_param_file(
     storage: Storage = Depends(get_storage),
     db: Session = Depends(get_db),
 ):
-    try:
-        return file_service.upload_apm_param_file(flight_id, storage, file, db)
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+    return file_service.upload_apm_param_file(flight_id, storage, file, db)
 
 
 @router.delete("/{flight_id}/apm-file", status_code=status.HTTP_204_NO_CONTENT)
@@ -160,11 +133,8 @@ def delete_apm_param_file(
     storage: Storage = Depends(get_storage),
     db: Session = Depends(get_db),
 ):
-    try:
-        file_service.delete_apm_param_file(file_id, storage, db)
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+    file_service.delete_apm_param_file(file_id, storage, db)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.delete("/{flight_id}/log-file", status_code=status.HTTP_204_NO_CONTENT)
@@ -173,11 +143,8 @@ def delete_log_file(
     storage: Storage = Depends(get_storage),
     db: Session = Depends(get_db),
 ):
-    try:
-        file_service.delete_log_file(file_id, storage, db)
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+    file_service.delete_log_file(file_id, storage, db)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.delete("/{flight_id}/tlog-file", status_code=status.HTTP_204_NO_CONTENT)
@@ -186,11 +153,8 @@ def delete_tlog_file(
     storage: Storage = Depends(get_storage),
     db: Session = Depends(get_db),
 ):
-    try:
-        file_service.delete_tlog_file(file_id, storage, db)
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+    file_service.delete_tlog_file(file_id, storage, db)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.delete("/{flight_id}/file/rosbag-file", status_code=status.HTTP_204_NO_CONTENT)
@@ -199,20 +163,10 @@ def delete_rosbag_file(
     storage: Storage = Depends(get_storage),
     db: Session = Depends(get_db),
 ):
-    try:
-        file_service.delete_rosbag_file(file_id, storage, db)
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+    file_service.delete_rosbag_file(file_id, storage, db)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/{flight_id}/files/list", response_model=FlightFilesListResponse)
 def list_files(flight_id: int, request: Request, db: Session = Depends(get_db)):
-    try:
-        return file_service.list_all_files(flight_id, db, request.base_url)
-    except Exception as err:
-        logger.exception("Exception detected!")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
-
-
-add_pagination(router)
+    return file_service.list_all_files(flight_id, db, request.base_url)

@@ -1,13 +1,15 @@
 from typing import Union
 
 from application.services import MissionService
-from application.services.dependencies import get_mission_service
 from common.constants import DEFAULT_PAGE_LEN
 from common.exceptions.db import DuplicatedKeyError
 from common.logging import get_logger
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from presentation.rest.serializers import Page, Params
-from presentation.rest.serializers.mission import CreateMissionSerializer, MissionDeletion, MissionSerializer
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from presentation.rest.dependencies import get_mission_service
+from presentation.rest.mixins import CRUDMixin
+from presentation.rest.serializers import Page, Params, UpdateSerializer
+from presentation.rest.serializers.mission import CreateMissionSerializer, MissionSerializer, MissionUpdate
+from presentation.rest.serializers.responses import BatchUpdateResponse
 
 logger = get_logger(__name__)
 ROUTE_PREFIX = "/mission"
@@ -30,28 +32,20 @@ async def add_mission(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"The following mission already exists: {mission.name}",
         )
-    except Exception as err:
-        logger.exception("Exception detected!")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
-@router.patch("", response_model=MissionSerializer, status_code=status.HTTP_200_OK)
-async def update_mission(
-    mission_to_update: MissionSerializer,
+@router.patch(
+    "",
+    response_model=BatchUpdateResponse[MissionSerializer],
+    status_code=status.HTTP_200_OK,
+    description="Update missions in batch",
+)
+async def update_missions(
+    missions_to_update: UpdateSerializer[MissionUpdate],
     mission_service: MissionService = Depends(get_mission_service),
 ):
-    mission = mission_service.get_by_id(mission_to_update.id)
-    if mission:
-        try:
-            return mission_service.upsert(mission_to_update)
-        except Exception as e:
-            logger.exception(f"Exception detected: {e}")
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"The following mission does not exists: {mission.name}",
-        )
+    response = CRUDMixin.update_items(missions_to_update, mission_service)
+    return response
 
 
 @router.get("", response_model=Page[MissionSerializer], status_code=status.HTTP_200_OK)
@@ -68,11 +62,7 @@ async def retrieve_all_missions(
     )
 
 
-@router.delete("/{id}", response_model=MissionDeletion, status_code=status.HTTP_200_OK)
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_mission(id: int, mission_service: MissionService = Depends(get_mission_service)):
-    try:
-        mission_service.delete_by_id(id)
-    except Exception as e:
-        logger.exception(f"Exception detected: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-    return MissionDeletion(msg="Deleted", mission_id=id).to_json()
+    mission_service.delete_by_id(id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
