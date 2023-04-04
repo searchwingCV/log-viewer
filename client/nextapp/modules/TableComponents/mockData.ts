@@ -8,7 +8,7 @@ export const flightData2 = [
         temperature: 339,
         flightId: 1,
         planeId: 1,
-        pilot: 'Max Mustermann',
+        pilot: 'Max Mustermann1',
         averageSpeed: 33838,
         longitude: 290.93,
         latitude: 320.32,
@@ -242,7 +242,7 @@ export const flightData: FlightSchemaTable[] = [
         //actual columns
         flightId: "123",
         description: "test",
-        pilot: "Max Mustermann",
+        pilot: "Max Mustermann1",
         location: "La Reunion",
         rating: "good",
         droneNeedsRepair: false,

@@ -2,7 +2,7 @@
   The following Component is currently not used
  */
 import { animated, useSpring } from '@react-spring/web'
-import { useQueryClient, useQuery } from 'react-query'
+import { useQueryClient, useQuery } from '@tanstack/react-query'
 import { DRAWER_EXTENDED } from 'lib/reactquery/keys'
 import CircleIconButton from '~/modules/CircleIconButton'
 import { NavItem } from './components/NavItem'
@@ -24,14 +24,14 @@ const navItemsPlaceholder = [
 ]
 
 export const SideNavigation = ({}: Props) => {
-  const { data: isExtended } = useQuery(DRAWER_EXTENDED, () => {
+  const { data: isExtended } = useQuery([DRAWER_EXTENDED], () => {
     return false
   })
 
   const queryClient = useQueryClient()
 
   const handleToggleSideNav = () => {
-    queryClient.setQueryData<boolean>(DRAWER_EXTENDED, (prev) => {
+    queryClient.setQueryData<boolean>([DRAWER_EXTENDED], (prev) => {
       return !prev
     })
   }

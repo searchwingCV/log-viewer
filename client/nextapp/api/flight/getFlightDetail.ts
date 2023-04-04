@@ -10,11 +10,11 @@ export const getFlights = async () => {
         })
 }
 
-export const getFlightsMock = (): FlightSchemaTable[] => {
+export const getFlightMock = (id: string): any[] => {
     return flightData
 }
 
-export const fetchAllFlights = () =>
-    useQuery<FlightSchemaTable[]>(['ALL_FLIGHTS'], () =>
-        getFlightsMock(),
+export const fetchFlight = (id: string) =>
+    useQuery<FlightSchemaTable[]>([`flight-${id}`], () =>
+        getFlightMock(id),
     )

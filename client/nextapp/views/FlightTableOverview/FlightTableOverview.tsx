@@ -1,12 +1,11 @@
 import 'regenerator-runtime/runtime'
 import React, { useMemo } from 'react'
+import { useRouter } from 'next/router'
 import clsx from 'clsx'
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ToastContainer, toast } from 'react-toastify'
 import { useTranslation } from 'next-i18next'
 import { animated, useSpring } from '@react-spring/web'
-
-import SideDrawer from 'modules/SideDrawer'
 
 import {
   useTable,
@@ -26,7 +25,7 @@ import {
 import { FormProvider, useForm } from 'react-hook-form'
 import Select from 'modules/Select'
 import Button from 'modules/Button'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { FlightSchemaTable } from '@schema/FlightSchema'
 import { putFlightsMock } from '~/api/flight/putFlights'
 import { DRAWER_EXTENDED } from 'lib/reactquery/keys'
@@ -38,11 +37,11 @@ import {
   ColumnFilter,
   TableBody,
   TableHead,
+  CustomizeColumnsDrawer,
 } from '~/modules/TableComponents'
 
 import { flightColumns } from './flightColumns'
 import { fetchAllMissions } from '~/api/mission/getMissions'
-import { CustomizeOrder } from '~/modules/TableComponents/CustomizeOrder'
 import { ToggleCustomizeOrder } from '~/modules/TableComponents/ToggleCustomizeOrder'
 
 export type PaginationTableInstance<T extends object> = TableInstance<T> &
@@ -51,8 +50,9 @@ export type PaginationTableInstance<T extends object> = TableInstance<T> &
   }
 
 export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => {
+  const router = useRouter()
   const { data: missions } = fetchAllMissions()
-  const { data: sideNavExtended } = useQuery(DRAWER_EXTENDED)
+  const { data: sideNavExtended } = useQuery([DRAWER_EXTENDED])
 
   const slideX = useSpring({
     transform: sideNavExtended ? 'translate3d(20px,0,0)' : `translate3d(-240px,0,0)`,
@@ -68,6 +68,7 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
     onSuccess: (data) => {
       toast('Data changed.', {
         type: 'success',
+        position: toast.POSITION.BOTTOM_CENTER,
       })
       methods.reset({})
       data.map((item) => methods.setValue(item, ''))
@@ -76,6 +77,7 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
     onError: (data) => {
       toast('Error submitting data.', {
         type: 'error',
+        position: toast.POSITION.BOTTOM_CENTER,
       })
       //TODO: implement scrolling to input if error from be
       //scrollInputIntoView(`input-${data[0]}`)
@@ -147,7 +149,7 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
     })
 
     if (!newFlights.length) {
-      toast('No new data inserted', { type: 'error' })
+      toast('No new data inserted', { type: 'error', position: toast.POSITION.BOTTOM_CENTER })
     } else {
       updateFlights.mutate({ flights: newFlights, changedIds: changedKeys })
     }
@@ -167,13 +169,15 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
     nextPage,
     previousPage,
     setPageSize,
-    state: { pageIndex, pageSize, globalFilter, selectedRowIds, groupBy },
+    state: { pageIndex, pageSize, globalFilter, groupBy },
     setGlobalFilter,
     rows,
     setGroupBy,
     preGlobalFilteredRows,
     allColumns,
     setColumnOrder,
+    selectedFlatRows,
+    toggleAllPageRowsSelected,
   } = useTable(
     {
       columns: columns,
@@ -193,18 +197,30 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
       hooks.visibleColumns.push((columns: any) => [
         {
           id: 'selection',
-          Header: ({ getToggleAllRowsSelectedProps }: any) => (
-            <SelectCheckbox
-              {...getToggleAllRowsSelectedProps()}
-              className={`mt-4
-                          ml-4`}
-            />
+          Header: ({}: any) => (
+            <a
+              type="button"
+              className={`
+                         mt-2
+                         ml-1
+                         -mr-3
+                         text-xs`}
+              onClick={() => toggleAllPageRowsSelected(false)}
+            >
+              <span className="block">Reset</span>
+              <span>Sel</span>
+            </a>
           ),
-          Cell: ({ row }: any) => (
-            <div>
-              <SelectCheckbox {...row.getToggleRowSelectedProps()} />
-            </div>
-          ),
+          Cell: ({ row }: any) => {
+            if (!row?.isGrouped) {
+              return (
+                <div>
+                  <SelectCheckbox {...row.getToggleRowSelectedProps()} />
+                </div>
+              )
+            }
+            return null
+          },
         },
         ...columns,
       ])
@@ -219,15 +235,23 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
     }
   }
 
+  const goToDetailView = async () => {
+    if (selectedFlatRows.length === 1) {
+      await router.push(`/flight-detail/${selectedFlatRows[0]?.original?.flightId}`)
+    } else if (selectedFlatRows.length > 1) {
+      await router.push(
+        `/compare-detail/${selectedFlatRows[0]?.original?.flightId}/${selectedFlatRows[1]?.original?.flightId}`,
+      )
+    }
+  }
+
   return (
     <div
       className={`flex-column
                   flex
                   min-h-screen`}
     >
-      <SideDrawer>
-        <CustomizeOrder allColumns={allColumns} setColumnOrder={setColumnOrder} />
-      </SideDrawer>
+      <CustomizeColumnsDrawer allColumns={allColumns} setColumnOrder={setColumnOrder} />
       <animated.div
         className={clsx(`ml-side-drawer-width
                           h-screen
@@ -287,10 +311,28 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
                     prepareRow={prepareRow}
                     firstColumnAccessor={columns[0].accessor as string}
                     hasRecords={!!rows?.length}
+                    selectedRows={selectedFlatRows}
+                    numberOfRows={rows.length}
                   ></TableBody>
                 </table>
               </div>
-              {!groupBy.length || groupBy?.[0] === '' ? (
+              {selectedFlatRows.length ? (
+                <Button
+                  buttonStyle="Main"
+                  type="button"
+                  className={`sticky
+                             left-[100vw]
+                             bottom-8
+                             w-[350px]
+                             p-4`}
+                  isSpecial
+                  onClick={() => {
+                    goToDetailView()
+                  }}
+                >
+                  {t('Go to detail view')}
+                </Button>
+              ) : !groupBy.length || groupBy?.[0] === '' ? (
                 <Button
                   disabled={!methods.formState.isDirty}
                   buttonStyle="Main"

@@ -1,5 +1,5 @@
-import { Tooltip } from 'react-tippy'
 import React, { memo, useEffect, useState } from 'react'
+import { Tooltip } from 'react-tippy'
 import clsx from 'clsx'
 import { useFormContext, UseFormReturn, FieldValues } from 'react-hook-form'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -59,7 +59,7 @@ const Input = memo(
               newValue === 'delete'
                 ? `bg-primary-red
                    text-primary-white`
-                : newValue !== '' && newValue !== defaultValue
+                : newValue !== '' && newValue !== defaultValue && newValue !== undefined
                 ? `bg-primary-dark-petrol
                    text-primary-white`
                 : `bg-grey-light`,
