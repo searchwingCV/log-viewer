@@ -19,11 +19,6 @@ class FlightUpdate(IFlightUpdate, EntityID, APISerializer):
     pass
 
 
-class FlightDeletion(APISerializer):
-    msg: str
-    flight_id: int
-
-
 class FileUploadResponse(APISerializer, FlightFile):
     pass
 

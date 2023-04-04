@@ -51,7 +51,9 @@ class BaseRepository:
     def delete_by_id(self, session: Session, id: ID_Type) -> None:
         try:
             session.query(self._model).filter_by(id=id).delete()
+            session.commit()
         except Exception as e:
+            session.rollback()
             raise DBException(self._model, e) from e
 
     def get_with_pagination(

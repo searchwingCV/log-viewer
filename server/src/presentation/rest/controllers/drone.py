@@ -32,9 +32,6 @@ async def add_drone(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"The following drone already exists: {drone.name}",
         )
-    except Exception as err:
-        logger.exception("Exception detected!")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
 @router.get("", response_model=Page[DroneSerializer], status_code=status.HTTP_200_OK)
