@@ -1,13 +1,15 @@
 from typing import Union
 
-from application.services.dependencies import get_drone_service
 from application.services.drone import DroneService
 from common.constants import DEFAULT_PAGE_LEN
 from common.exceptions.db import DuplicatedKeyError
 from common.logging import get_logger
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from presentation.rest.serializers import Page, Params
-from presentation.rest.serializers.drone import CreateDroneSerializer, DroneSerializer
+from presentation.rest.dependencies import get_drone_service
+from presentation.rest.mixins import CRUDMixin
+from presentation.rest.serializers import Page, Params, UpdateSerializer
+from presentation.rest.serializers.drone import CreateDroneSerializer, DroneSerializer, DroneUpdate
+from presentation.rest.serializers.responses import BatchUpdateResponse
 
 logger = get_logger(__name__)
 ROUTE_PREFIX = "/drone"
@@ -42,24 +44,22 @@ async def retrieve_drones(
     drone_service: DroneService = Depends(get_drone_service),
 ):
     total, drones = drone_service.get_all_with_pagination(page, size)
-    return Page.create(items=drones, total=total, params=Params(page=page, size=size, path=ROUTE_PREFIX))
+    return Page.create(
+        items=drones,
+        total=total,
+        params=Params(page=page, size=size, path=ROUTE_PREFIX),
+    )
 
 
-@router.patch("", response_model=DroneSerializer, status_code=status.HTTP_200_OK)
-async def update_drone(
-    drone_to_update: DroneSerializer,
+@router.patch(
+    "",
+    response_model=BatchUpdateResponse[DroneSerializer],
+    status_code=status.HTTP_200_OK,
+    description="Update drones in batch",
+)
+def update_drones(
+    drones_to_update: UpdateSerializer[DroneUpdate],
     drone_service: DroneService = Depends(get_drone_service),
 ):
-    drone = drone_service.get_by_id(drone_to_update.id)
-    if drone:
-        try:
-            updated_drone = drone_service.upsert(drone_to_update)
-            return DroneSerializer.from_orm(drone_service.upsert(updated_drone)).to_json()
-        except Exception as e:
-            logger.exception(f"Exception detected: {e}")
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"The following drone does not exist: {drone_to_update.name}",
-        )
+    response = CRUDMixin.update_items(drones_to_update, drone_service)
+    return response

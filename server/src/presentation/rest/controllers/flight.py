@@ -1,6 +1,5 @@
 from typing import Union
 
-from application.services.dependencies import get_flight_service
 from application.services.file import FileService
 from application.services.flight import FlightService
 from common.constants import DEFAULT_PAGE_LEN
@@ -10,7 +9,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response,
 from fastapi_pagination import add_pagination
 from infrastructure.dependencies import get_db, get_storage
 from infrastructure.storage import Storage
-from presentation.rest.serializers import Page, Params
+from presentation.rest.dependencies import get_flight_service
+from presentation.rest.mixins import CRUDMixin
+from presentation.rest.serializers import Page, Params, UpdateSerializer
 from presentation.rest.serializers.errors import InvalidPayloadError, NotFoundError
 from presentation.rest.serializers.flight import (
     CreateFlightSerializer,
@@ -18,7 +19,9 @@ from presentation.rest.serializers.flight import (
     FlightDeletion,
     FlightFilesListResponse,
     FlightSerializer,
+    FlightUpdate,
 )
+from presentation.rest.serializers.responses import BatchUpdateResponse
 from sqlalchemy.orm import Session
 
 ROUTE_PREFIX = "/flight"
@@ -66,30 +69,25 @@ async def retrieve_flight(id: int, flight_service: FlightService = Depends(get_f
     try:
         flight = flight_service.get_by_id(id)
         if not flight:
-            return Response(status_code=status.HTTP_404_NOT_FOUND, content=NotFoundError().json())
+            return Response(status_code=status.HTTP_404_NOT_FOUND, content=NotFoundError(id=id).json())
         return flight
     except Exception as err:
         logger.exception("Exception detected!")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
-@router.patch("", response_model=FlightSerializer, status_code=status.HTTP_200_OK)
+@router.patch(
+    "",
+    response_model=BatchUpdateResponse[FlightSerializer],
+    status_code=status.HTTP_200_OK,
+    description="Update flights in batch",
+)
 async def update_flight(
-    flight_to_update: FlightSerializer,
+    flights_to_update: UpdateSerializer[FlightUpdate],
     flight_service: FlightService = Depends(get_flight_service),
 ):
-    flight = flight_service.get_by_id(flight_to_update.id)
-    if flight:
-        try:
-            return flight_service.create(flight_to_update)
-        except Exception as e:
-            logger.exception(f"Exception detected: {e}")
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"The requested flight does not exist: {flight_to_update.id=}",
-        )
+    response = CRUDMixin.update_items(flights_to_update, flight_service)
+    return response
 
 
 @router.delete("/{id}", response_model=FlightDeletion, status_code=status.HTTP_200_OK)

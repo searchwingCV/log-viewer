@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Optional
 
-from domain import DomainEntity
+from domain import AllOptional, DomainEntity
 from domain.flight.value_objects import AllowedFiles, FlightPurpose, FlightRating, WindIntensity
 from domain.types import ID_Type
 from pydantic import BaseModel, Field
@@ -85,6 +85,10 @@ class BaseFlight(BaseComputedFields, IBaseFlight):
 
 
 class Flight(BaseFlight, DomainEntity):
+    pass
+
+
+class FlightUpdate(IBaseFlight, metaclass=AllOptional):
     pass
 
 

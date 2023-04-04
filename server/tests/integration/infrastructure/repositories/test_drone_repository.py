@@ -159,7 +159,7 @@ def test_update(add_sample_drone_to_db, test_db_session):
     drone_db = test_db_session.query(DroneModel).filter_by(id=1).first()
 
     assert drone_updated.name == update_data.name == drone_db.name
-    assert drone_updated.updated_at is None
+    assert drone_updated.updated_at is not None
     assert drone_updated.updated_at > first_updated_at
 
 
