@@ -22,7 +22,7 @@ module.exports = {
         rose: '#b86777',
       },
       grey: {
-        light: '#F4F4F4',
+        light: '#F8F8F8',
         medium: '#CACACA',
         dark: '#909090',
         'super-dark': '#2d2d2d',
@@ -53,6 +53,8 @@ module.exports = {
           'linear-gradient(171deg, rgba(113,107,221,1) 0%, rgba(51,37,156,1) 41%, rgba(3,100,119,1) 80%)',
         'x-indigo-to-petrol':
           'linear-gradient(130deg, rgba(113,107,221,1.0) 0%, rgba(3,100,119,1.0) 70%)',
+        'x-pink-to-blue':
+          'linear-gradient(133deg, rgba(154,16,112,1) 32%, rgba(8,167,208,1) 90%, rgba(153,202,214,1) 100%, rgba(13,80,94,1) 100%, rgba(147,218,232,1) 100%)',
       },
       boxShadow: {
         subtle: '2px 4px 15px 5px rgba(0,0,0,0.1)',

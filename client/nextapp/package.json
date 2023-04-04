@@ -8,7 +8,6 @@
     "start": "next start",
     "tsc": "tsc",
     "lint": "next lint",
-    "prepare": "husky install",
     "generate-client": "openapi --input http://localhost:8080/openapi.json --output ./types --client axios"
   },
   "dependencies": {
@@ -20,6 +19,8 @@
     "@hookform/error-message": "^2.0.0",
     "@hookform/resolvers": "^2.9.6",
     "@react-spring/web": "^9.4.4",
+    "@tanstack/react-query": "^4.28.0",
+    "@tanstack/react-query-devtools": "^4.29.0",
     "@typescript-eslint/eslint-plugin": "^5.57.0",
     "@use-gesture/react": "^10.2.16",
     "axios": "^1.2.0",
@@ -37,7 +38,6 @@
     "react-hook-form": "^7.28.1",
     "react-intersection-observer": "^9.1.0",
     "react-merge-refs": "^2.0.1",
-    "react-query": "^3.34.16",
     "react-responsive": "^9.0.0-beta.6",
     "react-table": "^7.8.0",
     "react-tippy": "^1.4.0",
@@ -62,7 +62,6 @@
     "eslint": "^8.12.0",
     "eslint-config-next": "^12.1.4",
     "eslint-config-prettier": "^8.5.0",
-    "husky": "^8.0.1",
     "jest-axe": "^6.0.0",
     "jest-watch-typeahead": "^1.0.0",
     "jsdom": "^20.0.0",
