@@ -1,7 +1,7 @@
 import typing as t
 from datetime import date
 
-from domain import DomainEntity
+from domain import AllOptional, DomainEntity
 from pydantic import BaseModel
 
 
@@ -18,4 +18,8 @@ class BaseMission(BaseModel):
 
 
 class Mission(BaseMission, DomainEntity):
+    pass
+
+
+class MissionUpdate(BaseMission, metaclass=AllOptional):
     pass

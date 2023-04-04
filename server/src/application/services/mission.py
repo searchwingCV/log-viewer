@@ -4,3 +4,4 @@ from domain.mission.entities import Mission
 
 class MissionService(BaseCRUDService):
     _entity = Mission
+    _entity_type = "mission"
