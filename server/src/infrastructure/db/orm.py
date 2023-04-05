@@ -113,12 +113,12 @@ class Flight(BaseModel):
     min_groundspeed_kmh = Column(Float)
     avg_groundspeed_kmh = Column(Float)
 
-    max_airspeed = Column(Float)
-    min_airspeed = Column(Float)
-    avg_airspeed = Column(Float)
+    max_airspeed_kmh = Column(Float)
+    min_airspeed_kmh = Column(Float)
+    avg_airspeed_kmh = Column(Float)
 
-    max_vertical_speed_up = Column(Float)
-    max_vertical_speed_down = Column(Float)
+    max_vertical_speed_up_km = Column(Float)
+    max_vertical_speed_down_km = Column(Float)
 
     max_telemetry_distance_km = Column(Float)
 
