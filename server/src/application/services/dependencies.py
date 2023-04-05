@@ -7,11 +7,7 @@ config = get_current_config()
 
 
 def get_file_service():
-    yield FileService(
-        repository=FlightFileRepository(),
-        flight_repository=FlightRepository(),
-        storage=Storage(config.STORAGE_ROOT, config.STORAGE_PROTOCOL),
-    )
+    yield FileService(repository=FlightFileRepository(), storage=Storage(config.STORAGE_ROOT, config.STORAGE_PROTOCOL))
 
 
 def get_drone_service():

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from domain import AllOptional, DomainEntity
-from domain.flight.value_objects import AllowedFiles, FlightPurpose, FlightRating, WindIntensity
+from domain.flight.value_objects import FlightPurpose, FlightRating, WindIntensity
 from domain.types import ID_Type
 from pydantic import BaseModel, Field
 
@@ -90,11 +90,3 @@ class Flight(BaseFlight, DomainEntity):
 
 class FlightUpdate(IBaseFlight, metaclass=AllOptional):
     pass
-
-
-class FlightFile(DomainEntity):
-    uri: str  # The full URI including storage scheme (sftp, s3, file...)
-    location: str  # The relative path in the default storage system
-    file_type: AllowedFiles
-    fk_flight: ID_Type
-    version: int = Field(default=1)

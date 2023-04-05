@@ -47,3 +47,7 @@ class Storage:
         with self.fs.open(fullpath, "rb") as f:
             buf = BytesIO(f.read())
         return buf
+
+    def delete(self, filepath: str) -> None:
+        fullpath = self.__merge_path(self.rootpath, filepath)
+        return self.fs.rm_file(fullpath)

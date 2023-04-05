@@ -15,7 +15,7 @@ class BaseConfig(object):
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     STORAGE_PROTOCOL = os.getenv("STORAGE_PROTOCOL", "file")
-    STORAGE_ROOT = os.getenv("STORAGE_PROTOCOL", "/data")
+    STORAGE_ROOT = os.getenv("STORAGE_ROOT", "/data")
 
 
 class Config(BaseConfig):
