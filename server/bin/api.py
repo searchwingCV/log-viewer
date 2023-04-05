@@ -41,6 +41,7 @@ def get_args() -> Namespace:
     )
     parser.add_argument("--debug", help="Activate debug", action="store_true")
     parser.add_argument("--reload", help="Activate reload (only for dev)", action="store_true")
+    parser.add_argument("--automigrate", help="Run migrations on startup", action="store_true")
     return parser.parse_args()
 
 
@@ -73,7 +74,8 @@ def build_api() -> FastAPI:
 if __name__ == "__main__":
     args = get_args()
 
-    migrate_db()
+    if args.automigrate:
+        migrate_db()
 
     uvicorn.run(
         "bin.api:build_api",

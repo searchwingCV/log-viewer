@@ -60,8 +60,8 @@ class BaseComputedFields(BaseModel):
     min_airspeed_kmh: Optional[float] = None
     avg_airspeed_kmh: Optional[float] = None
 
-    max_vertical_speed_up_km: Optional[float] = None
-    max_vertical_speed_down_km: Optional[float] = None
+    max_vertical_speed_up_kmh: Optional[float] = None
+    max_vertical_speed_down_kmh: Optional[float] = None
 
     max_telemetry_distance_km: Optional[float] = None
 
