@@ -239,8 +239,9 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
     if (selectedFlatRows.length === 1) {
       await router.push(`/flight-detail/${selectedFlatRows[0]?.original?.flightId}`)
     } else if (selectedFlatRows.length > 1) {
+      const originalRows = selectedFlatRows.filter((item) => !item.isGrouped)
       await router.push(
-        `/compare-detail/${selectedFlatRows[0]?.original?.flightId}/${selectedFlatRows[1]?.original?.flightId}`,
+        `/compare-detail/${originalRows[0]?.original?.flightId}/${originalRows[1]?.original?.flightId}`,
       )
     }
   }
