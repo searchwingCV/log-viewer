@@ -90,4 +90,3 @@ class Flight(BaseFlight, DomainEntity):
 
 class FlightUpdate(IBaseFlight, metaclass=AllOptional):
     pass
-
