@@ -109,9 +109,9 @@ class Flight(BaseModel):
 
     distance_km = Column(Float)
 
-    max_groundspeed = Column(Float)
-    min_groundspeed = Column(Float)
-    avg_groundspeed = Column(Float)
+    max_groundspeed_kmh = Column(Float)
+    min_groundspeed_kmh = Column(Float)
+    avg_groundspeed_kmh = Column(Float)
 
     max_airspeed = Column(Float)
     min_airspeed = Column(Float)
@@ -124,7 +124,12 @@ class Flight(BaseModel):
 
     max_battery_voltage = Column(Float)
     min_battery_voltage = Column(Float)
+    avg_battery_voltage = Column(Float)
     delta_battery_voltage = Column(Float)
+
+    max_battery_current_a = Column(Float)
+    min_battery_current_a = Column(Float)
+    avg_battery_current_a = Column(Float)
 
     max_power_w = Column(Float)
     min_power_w = Column(Float)
