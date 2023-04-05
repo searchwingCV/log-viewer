@@ -18,8 +18,8 @@ class IBaseFlight(BaseModel):
     location: str = Field(description="A short description of the location")
     pilot: Optional[str] = Field(default=None, description="The pilot reference (to be replaced with ID)")
     observer: Optional[str] = Field(default=None, description="The observer while flying")
-    rating: FlightRating = Field(description="A rating for the flight: good/problems/crash")
-    purpose: FlightPurpose = Field(description="The purpose of the flight: test/training/mission")
+    rating: Optional[FlightRating] = Field(description="A rating for the flight: good/problems/crash")
+    purpose: Optional[FlightPurpose] = Field(description="The purpose of the flight: test/training/mission")
     notes: Optional[str] = Field(default=None, description="Some notes about the flight")
     drone_needs_repair: bool = Field(default=False)
 

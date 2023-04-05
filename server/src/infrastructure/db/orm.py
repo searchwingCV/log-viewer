@@ -82,8 +82,8 @@ class Flight(BaseModel):
     location = Column(String, nullable=False)
     pilot = Column(String)
     observer = Column(String)
-    rating = Column(Enum(FlightRating), nullable=False)
-    purpose = Column(Enum(FlightPurpose), nullable=False)
+    rating = Column(Enum(FlightRating), nullable=True)
+    purpose = Column(Enum(FlightPurpose), nullable=True)
     notes = Column(Text)
     drone_needs_repair = Column(Boolean, default=False, nullable=False)
 
