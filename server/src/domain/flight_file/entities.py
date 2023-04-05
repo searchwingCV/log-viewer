@@ -1,3 +1,5 @@
+from io import BytesIO
+
 from domain import DomainEntity
 from domain.flight_file.value_objects import AllowedFiles
 from domain.types import ID_Type
@@ -13,3 +15,9 @@ class BaseFlightFile(BaseModel):
 
 class FlightFile(BaseFlightFile, DomainEntity):
     pass
+
+
+class IOFile(object):
+    def __init__(self, flight_file: FlightFile, io: BytesIO):
+        self.flight_file = flight_file
+        self.io = io

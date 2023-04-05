@@ -1,6 +1,6 @@
-from application.services import FileService, FlightService, MissionService, PlaneService
+from application.services import DroneService, FileService, FlightService, MissionService
 from common.config import get_current_config
-from infrastructure.repositories import FlightFileRepository, FlightRepository, MissionRepository, PlaneRepository
+from infrastructure.repositories import DroneRepository, FlightFileRepository, FlightRepository, MissionRepository
 from infrastructure.storage import Storage
 
 config = get_current_config()
@@ -10,13 +10,13 @@ def get_file_service():
     yield FileService(repository=FlightFileRepository(), storage=Storage(config.STORAGE_ROOT, config.STORAGE_PROTOCOL))
 
 
-def get_plane_service():
-    yield PlaneService(repository=PlaneRepository())
+def get_drone_service():
+    yield DroneService(repository=DroneRepository())
 
 
 def get_flight_service():
     yield FlightService(
-        plane_repository=PlaneRepository(), mission_repository=MissionRepository(), repository=FlightRepository()
+        drone_repository=DroneRepository(), mission_repository=MissionRepository(), repository=FlightRepository()
     )
 
 
