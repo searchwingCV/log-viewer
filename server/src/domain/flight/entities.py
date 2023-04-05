@@ -52,16 +52,16 @@ class BaseComputedFields(BaseModel):
 
     distance_km: Optional[float] = None
 
-    max_groundspeed: Optional[float] = None
-    min_groundspeed: Optional[float] = None
-    avg_groundspeed: Optional[float] = None
+    max_groundspeed_kmh: Optional[float] = None
+    min_groundspeed_kmh: Optional[float] = None
+    avg_groundspeed_kmh: Optional[float] = None
 
-    max_airspeed: Optional[float] = None
-    min_airspeed: Optional[float] = None
-    avg_airspeed: Optional[float] = None
+    max_airspeed_kmh: Optional[float] = None
+    min_airspeed_kmh: Optional[float] = None
+    avg_airspeed_kmh: Optional[float] = None
 
-    max_vertical_speed_up: Optional[float] = None
-    max_vertical_speed_down: Optional[float] = None
+    max_vertical_speed_up_km: Optional[float] = None
+    max_vertical_speed_down_km: Optional[float] = None
 
     max_telemetry_distance_km: Optional[float] = None
 
@@ -70,9 +70,9 @@ class BaseComputedFields(BaseModel):
     avg_battery_voltage: Optional[float]
     delta_battery_voltage: Optional[float]
 
-    max_battery_current_a = Optional(float)
-    min_battery_current_a = Optional(float)
-    avg_battery_current_a = Optional(float)
+    max_battery_current_a: Optional[float]
+    min_battery_current_a: Optional[float]
+    avg_battery_current_a: Optional[float]
 
     min_power_w: Optional[float]
     max_power_w: Optional[float]
