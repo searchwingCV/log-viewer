@@ -143,7 +143,7 @@ class Flight(BaseModel):
 
 
 class FlightFile(BaseModel):
-    __tablename__ = "flight_files"
+    __tablename__ = "flight_file"
     file_type = Column(String, nullable=False)
     location = Column(String, nullable=False)
     fk_flight = Column(Integer, ForeignKey("flight.id"))
