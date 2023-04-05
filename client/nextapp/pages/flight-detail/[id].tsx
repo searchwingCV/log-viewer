@@ -17,7 +17,7 @@ const FlightDetailScreen = ({}) => {
   )
 }
 
-export async function getStaticPaths() {
+export function getStaticPaths() {
   const data = getFlightsMock()
 
   const paths = data.map((item) => ({
