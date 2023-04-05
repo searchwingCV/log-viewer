@@ -13,6 +13,8 @@ export type Props = {
   buttonStyle: ButtonStyle
   title?: string
   href?: string
+  id?: string
+  isSpecial?: boolean
 }
 
 export const Button = ({
@@ -23,6 +25,8 @@ export const Button = ({
   title,
   children,
   type,
+  id,
+  isSpecial,
   href = '',
   ...rest
 }: Props) => {
@@ -39,6 +43,8 @@ export const Button = ({
             ? `bg-grey-dark
                cursor-not-allowed
              `
+            : isSpecial
+            ? 'bg-x-pink-to-blue'
             : 'bg-y-indigo-to-petrol',
         )
       case 'Secondary':
@@ -85,6 +91,7 @@ export const Button = ({
 
   return (
     <button
+      id={id}
       onClick={onClick}
       type={type}
       title={title}

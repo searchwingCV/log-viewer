@@ -1,6 +1,10 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
+import { animated, useSpring } from '@react-spring/web'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { ColumnInstance } from 'react-table'
+import { useQueryClient, useQuery } from '@tanstack/react-query'
+import { DRAWER_EXTENDED } from 'lib/reactquery/keys'
+import CircleIconButton from '~/modules/CircleIconButton'
 
 type CustomizeOrderProps = {
   allColumns: ColumnInstance<any>[]
@@ -69,5 +73,78 @@ export const CustomizeOrder = ({ allColumns, setColumnOrder }: CustomizeOrderPro
         </Droppable>
       </DragDropContext>
     </div>
+  )
+}
+
+export const CustomizeColumnsDrawer = ({ allColumns, setColumnOrder }: CustomizeOrderProps) => {
+  const ref = useRef<HTMLDivElement>(null)
+
+  const { data: isExtended } = useQuery([DRAWER_EXTENDED], () => {
+    return false
+  })
+  const queryClient = useQueryClient()
+
+  const closeDrawer = () => {
+    queryClient.setQueryData<boolean>([DRAWER_EXTENDED], () => {
+      return false
+    })
+  }
+
+  const slideX = useSpring({
+    transform: isExtended ? 'translate3d(0px,0,0)' : `translate3d(-280px,0,0)`,
+  })
+
+  useEffect(() => {
+    const handleClick = (event: MouseEvent) => {
+      if (
+        ref &&
+        ref.current &&
+        !ref.current.contains(event.target as Node) &&
+        (event.target as HTMLElement).id !== 'toggleCustomizeOrder'
+      ) {
+        closeDrawer()
+      }
+    }
+
+    document.addEventListener('click', handleClick)
+
+    return () => {
+      document.removeEventListener('click', handleClick)
+    }
+  }, [ref])
+
+  return (
+    <animated.div
+      className={`fixed
+                  top-0
+                  bottom-0
+                  z-10
+                  h-full
+                  w-side-drawer
+                  `}
+      style={slideX}
+      ref={ref}
+    >
+      {isExtended ? (
+        <CircleIconButton
+          addClasses={`fixed
+                     top-[50px]
+                     -right-6
+                     z-30`}
+          iconClassName={isExtended ? 'chevron-left' : 'chevron-right'}
+          onClick={() => {
+            closeDrawer()
+          }}
+        />
+      ) : null}
+      <div
+        className={`h-screen
+                    overflow-y-scroll`}
+      >
+        <div className={`relative`}>
+          <CustomizeOrder allColumns={allColumns} setColumnOrder={setColumnOrder} />
+        </div>
+      </div>
+    </animated.div>
   )
 }
