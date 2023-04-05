@@ -118,7 +118,7 @@ class Flight(BaseModel):
     avg_airspeed = Column(Float)
 
     max_vertical_speed_up = Column(Float)
-    min_vertical_speed_down = Column(Float)
+    max_vertical_speed_down = Column(Float)
 
     max_telemetry_distance_km = Column(Float)
 
@@ -132,17 +132,17 @@ class Flight(BaseModel):
 
     max_windspeed_kmh = Column(Float)
     min_windspeed_kmh = Column(Float)
-    avg_windspeed_kmg = Column(Float)
+    avg_windspeed_kmh = Column(Float)
 
     energy_consumed_wh = Column(Float)
 
     # relations
     drone = relationship("Drone", secondary=drone_flight_association)
     mission = relationship("Mission", secondary=misssion_flight_association)
-    files = relationship("FlightFiles")
+    files = relationship("FlightFile")
 
 
-class FlightFiles(BaseModel):
+class FlightFile(BaseModel):
     __tablename__ = "flight_files"
     file_type = Column(String, nullable=False)
     location = Column(String, nullable=False)

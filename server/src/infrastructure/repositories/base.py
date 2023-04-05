@@ -1,6 +1,6 @@
 from typing import Any, List, Tuple, Type, Union
 
-from common.exceptions.db import DataToORMSerializationException, DBException, DuplicatedKeyError
+from common.exceptions.db import DataToORMSerializationException, DBException, DuplicatedKeyError, NotFoundException
 from domain.types import ID_Type, T_Model
 from infrastructure.db.orm import BaseModel
 from pydantic import BaseModel as BaseEntity
@@ -39,10 +39,12 @@ class BaseRepository:
             session.rollback()
             raise DBException(self._model, e) from e
 
-    def get_by_id(self, session: Session, id: ID_Type) -> Union[T_Model, None]:
+    def get_by_id(self, session: Session, id: ID_Type, raise_not_found_exc: bool = False) -> Union[T_Model, None]:
         try:
             model = session.query(self._model).filter_by(id=id).first()
             if model is None:
+                if raise_not_found_exc:
+                    raise NotFoundException(id=id, table_name=self._model)
                 return model
         except Exception as e:
             raise DBException(self._model, e) from e

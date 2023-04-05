@@ -1,9 +1,17 @@
 from application.services import DroneService, FileService, FlightService, MissionService
-from infrastructure.repositories import DroneRepository, FlightRepository, MissionRepository
+from common.config import get_current_config
+from infrastructure.repositories import DroneRepository, FlightFileRepository, FlightRepository, MissionRepository
+from infrastructure.storage import Storage
+
+config = get_current_config()
 
 
 def get_file_service():
-    yield FileService()
+    yield FileService(
+        repository=FlightFileRepository(),
+        flight_repository=FlightRepository(),
+        storage=Storage(config.STORAGE_ROOT, config.STORAGE_PROTOCOL),
+    )
 
 
 def get_drone_service():
