@@ -21,7 +21,7 @@ RUN npm run build
 
 
 # Production image, copy all the files and run next
-FROM node:18-alpine AS production
+FROM node:18-alpine AS prod
 WORKDIR /nextapp
 
 ENV NODE_ENV production
@@ -52,4 +52,3 @@ ENV PORT 3000
 
 
 CMD ["node_modules/.bin/next", "start"]
-
