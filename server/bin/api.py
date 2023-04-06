@@ -6,7 +6,7 @@ from alembic.command import upgrade
 from alembic.config import Config as AlembicConfig
 from common.logging import get_logger
 from fastapi import FastAPI, Request, Response, status
-from presentation.rest.controllers import drone, flight, health, mission, root
+from presentation.rest.controllers import drone, file, flight, health, mission, root
 from presentation.rest.serializers.errors import InternalServerError
 
 logger = get_logger(__name__)
@@ -65,6 +65,7 @@ def build_api() -> FastAPI:
     app.include_router(drone.router)
     app.include_router(mission.router)
     app.include_router(flight.router)
+    app.include_router(file.router)
 
     app.add_exception_handler(Exception, log_exception_handler)
 
