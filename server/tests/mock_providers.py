@@ -76,7 +76,6 @@ class FlightLogProvider(BaseProvider):
             max_telemetry_distance_km=fake.pyfloat(right_digits=2, min_value=10.0, max_value=20.0),
             max_battery_voltage=max_battery_voltage,
             min_battery_voltage=min_battery_voltage,
-            avg_battery_voltage=(max_battery_voltage + min_battery_voltage) / 2,
             delta_battery_voltage=max_battery_voltage - min_battery_voltage,
             min_power_w=fake.pyfloat(right_digits=2, min_value=0, max_value=12.0),
             max_power_w=fake.pyfloat(right_digits=2, min_value=12, max_value=30.0),

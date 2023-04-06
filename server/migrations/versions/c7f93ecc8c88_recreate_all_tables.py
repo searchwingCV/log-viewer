@@ -116,7 +116,6 @@ def upgrade():
         sa.Column("max_telemetry_distance_km", sa.Float(), nullable=True),
         sa.Column("max_battery_voltage", sa.Float(), nullable=True),
         sa.Column("min_battery_voltage", sa.Float(), nullable=True),
-        sa.Column("avg_battery_voltage", sa.Float(), nullable=True),
         sa.Column("delta_battery_voltage", sa.Float(), nullable=True),
         sa.Column("max_battery_current_a", sa.Float(), nullable=True),
         sa.Column("min_battery_current_a", sa.Float(), nullable=True),

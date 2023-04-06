@@ -124,7 +124,6 @@ class Flight(BaseModel):
 
     max_battery_voltage = Column(Float)
     min_battery_voltage = Column(Float)
-    avg_battery_voltage = Column(Float)
     delta_battery_voltage = Column(Float)
 
     max_battery_current_a = Column(Float)

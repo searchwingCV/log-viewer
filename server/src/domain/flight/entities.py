@@ -67,7 +67,6 @@ class BaseComputedFields(BaseModel):
 
     max_battery_voltage: Optional[float]
     min_battery_voltage: Optional[float]
-    avg_battery_voltage: Optional[float]
     delta_battery_voltage: Optional[float]
 
     max_battery_current_a: Optional[float]
