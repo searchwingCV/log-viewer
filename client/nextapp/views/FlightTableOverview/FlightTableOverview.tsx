@@ -1,5 +1,5 @@
 import 'regenerator-runtime/runtime'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -26,7 +26,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import Select from 'modules/Select'
 import Button from 'modules/Button'
 import { useQuery } from '@tanstack/react-query'
-import { FlightSchemaTable } from '@schema/FlightSchema'
+import { FlightSerializer } from '@schema/FlightSerializer'
 import { putFlightsMock } from '~/api/flight/putFlights'
 import { DRAWER_EXTENDED } from 'lib/reactquery/keys'
 
@@ -41,7 +41,6 @@ import {
 } from '~/modules/TableComponents'
 
 import { flightColumns } from './flightColumns'
-import { fetchAllMissions } from '~/api/mission/getMissions'
 import { ToggleCustomizeOrder } from '~/modules/TableComponents/ToggleCustomizeOrder'
 
 export type PaginationTableInstance<T extends object> = TableInstance<T> &
@@ -49,15 +48,25 @@ export type PaginationTableInstance<T extends object> = TableInstance<T> &
     state: UsePaginationState<T>
   }
 
-export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => {
+export const FlightTableOverview = ({
+  data,
+  totalNumber,
+  missionOptions,
+  droneOptions,
+}: {
+  data: FlightSerializer[]
+  totalNumber: number
+  missionOptions?: { name: string; value: number }[]
+  droneOptions?: { name: string; value: number }[]
+}) => {
   const router = useRouter()
-  const { data: missions } = fetchAllMissions()
   const { data: sideNavExtended } = useQuery([DRAWER_EXTENDED])
 
   const slideX = useSpring({
     transform: sideNavExtended ? 'translate3d(20px,0,0)' : `translate3d(-240px,0,0)`,
     minWidth: sideNavExtended ? 'calc(100vw - 270px)' : `calc(100vw - 0px)`,
   })
+  const { pagesize: queryPageSize } = router.query
 
   const queryClient = useQueryClient()
 
@@ -83,7 +92,6 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
       //scrollInputIntoView(`input-${data[0]}`)
     },
   })
-
   //TODO: find type
   const methods = useForm<any>({
     criteriaMode: 'all',
@@ -100,43 +108,20 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
   )
 
   const { t } = useTranslation()
-  const columns = useMemo<Column<FlightSchemaTable>[]>(
-    () =>
-      flightColumns(
-        missions?.map((mission) => {
-          return {
-            value: mission.missionId,
-            name: `${mission.missionAlias} - ${mission.missionId}`,
-          }
-        }),
-      ),
-    [missions],
-  )
-  const sortedData = useMemo(
-    () =>
-      data.sort((a, b) => {
-        if (a.flightId < b.flightId) {
-          return -1
-        }
-        if (a.flightId > b.flightId) {
-          return 1
-        }
-        return 0
-      }),
-    [],
+  const columns = useMemo<Column<FlightSerializer>[]>(
+    () => flightColumns(missionOptions, droneOptions),
+    [missionOptions, droneOptions],
   )
 
   const onSubmit = methods.handleSubmit(async (formData) => {
     const changedKeys = Object.keys(formData).filter((item) => formData[item] !== '')
     const changedIds = changedKeys.map((key) => key.split('-')[1])
     const changedFlights = data.filter((flight) => {
-      return changedIds.includes(flight.flightId.toString())
+      return changedIds.includes(flight.id.toString())
     })
 
     const newFlights = changedFlights.map((flight) => {
-      const keysBelongingToFlight = changedKeys.filter((key) =>
-        key.includes(flight.flightId.toString()),
-      )
+      const keysBelongingToFlight = changedKeys.filter((key) => key.includes(flight.id.toString()))
       const changedProps = keysBelongingToFlight
         .map((key) => {
           return { [key.split('-')[0]]: formData[key] === 'delete' ? '' : formData[key] }
@@ -181,9 +166,11 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
   } = useTable(
     {
       columns: columns,
-      data: sortedData,
+      data: data,
       defaultColumn,
       initialState: {},
+      pageCount: Math.ceil(totalNumber / (parseInt(queryPageSize as string) || 10)),
+      manualPagination: true,
     },
     useFilters,
     useColumnOrder,
@@ -193,6 +180,7 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
     useExpanded,
     usePagination,
     useRowSelect,
+
     (hooks) => {
       hooks.visibleColumns.push((columns: any) => [
         {
@@ -225,7 +213,7 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
         ...columns,
       ])
     },
-  ) as PaginationTableInstance<FlightSchemaTable>
+  ) as PaginationTableInstance<FlightSerializer>
 
   const scrollInputIntoView = (id: string) => {
     var element = document.getElementById(id)
@@ -237,11 +225,11 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
 
   const goToDetailView = async () => {
     if (selectedFlatRows.length === 1) {
-      await router.push(`/flight-detail/${selectedFlatRows[0]?.original?.flightId}`)
+      await router.push(`/flight-detail/${selectedFlatRows[0]?.original?.id}`)
     } else if (selectedFlatRows.length > 1) {
       const originalRows = selectedFlatRows.filter((item) => !item.isGrouped)
       await router.push(
-        `/compare-detail/${originalRows[0]?.original?.flightId}/${originalRows[1]?.original?.flightId}`,
+        `/compare-detail/${originalRows[0]?.original?.id}/${originalRows[1]?.original?.id}`,
       )
     }
   }
@@ -306,7 +294,7 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
                     allColumns={allColumns}
                     setColumnOrder={setColumnOrder}
                   ></TableHead>
-                  <TableBody<FlightSchemaTable>
+                  <TableBody<FlightSerializer>
                     getTableBodyProps={getTableBodyProps}
                     page={page}
                     prepareRow={prepareRow}
@@ -352,16 +340,11 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
             </form>
           </FormProvider>
           <Pagination
-            gotoPage={gotoPage}
-            previousPage={previousPage}
-            nextPage={nextPage}
-            canPreviousPage={canPreviousPage}
             pageSize={pageSize}
-            canNextPage={canNextPage}
             pageCount={pageCount}
             pageIndex={pageIndex}
             pageOptions={pageOptions}
-            setPageSize={setPageSize}
+            totalNumber={totalNumber}
           />
         </div>
       </animated.div>

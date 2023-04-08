@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type LogFileDownload = {
-    logFileId: number;
+export type FileDownloadResponse = {
+    fileId: number;
     downloadLink: string;
 };
 

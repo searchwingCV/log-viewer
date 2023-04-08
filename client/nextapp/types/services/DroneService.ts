@@ -1,39 +1,35 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { BasePlaneSchema } from '../models/BasePlaneSchema';
-import type { Page_PlaneDetailsSchema_ } from '../models/Page_PlaneDetailsSchema_';
-import type { PlaneDetailsSchema } from '../models/PlaneDetailsSchema';
+import type { BatchUpdateResponse_DroneSerializer_ } from '../models/BatchUpdateResponse_DroneSerializer_';
+import type { CreateDroneSerializer } from '../models/CreateDroneSerializer';
+import type { DroneSerializer } from '../models/DroneSerializer';
+import type { Page_DroneSerializer_ } from '../models/Page_DroneSerializer_';
+import type { UpdateSerializer_DroneUpdate_ } from '../models/UpdateSerializer_DroneUpdate_';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 
-export class PlaneService {
+export class DroneService {
 
     /**
-     * Retrieve Plane
-     * @param planeAlias
+     * Retrieve Drones
      * @param page
      * @param size
-     * @param path
-     * @returns Page_PlaneDetailsSchema_ Successful Response
+     * @returns Page_DroneSerializer_ Successful Response
      * @throws ApiError
      */
-    public static retrievePlanePlaneGet(
-        planeAlias?: string,
+    public static retrieveDronesDroneGet(
         page: number = 1,
-        size: number = 50,
-        path: string = '/base',
-    ): CancelablePromise<Page_PlaneDetailsSchema_> {
+        size: number = 20,
+    ): CancelablePromise<Page_DroneSerializer_> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/plane',
+            url: '/drone',
             query: {
-                'plane_alias': planeAlias,
                 'page': page,
                 'size': size,
-                'path': path,
             },
             errors: {
                 404: `Not found`,
@@ -43,17 +39,17 @@ export class PlaneService {
     }
 
     /**
-     * Add Plane
+     * Add Drone
      * @param requestBody
-     * @returns PlaneDetailsSchema Successful Response
+     * @returns DroneSerializer Successful Response
      * @throws ApiError
      */
-    public static addPlanePlanePost(
-        requestBody: BasePlaneSchema,
-    ): CancelablePromise<PlaneDetailsSchema> {
+    public static addDroneDronePost(
+        requestBody: CreateDroneSerializer,
+    ): CancelablePromise<DroneSerializer> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/plane',
+            url: '/drone',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -64,22 +60,18 @@ export class PlaneService {
     }
 
     /**
-     * Update Plane
-     * @param planeId
+     * Update Drones
+     * Update drones in batch
      * @param requestBody
-     * @returns PlaneDetailsSchema Successful Response
+     * @returns BatchUpdateResponse_DroneSerializer_ Successful Response
      * @throws ApiError
      */
-    public static updatePlanePlanePlaneIdPatch(
-        planeId: number,
-        requestBody: BasePlaneSchema,
-    ): CancelablePromise<PlaneDetailsSchema> {
+    public static updateDronesDronePatch(
+        requestBody: UpdateSerializer_DroneUpdate_,
+    ): CancelablePromise<BatchUpdateResponse_DroneSerializer_> {
         return __request(OpenAPI, {
             method: 'PATCH',
-            url: '/plane/<plane_id>',
-            query: {
-                'plane_id': planeId,
-            },
+            url: '/drone',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

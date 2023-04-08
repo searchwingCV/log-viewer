@@ -1,6 +1,8 @@
 import { format, parseISO, isValid } from 'date-fns'
 import { Column } from 'react-table'
-import { FlightSchemaTable } from '@schema/FlightSchema'
+// import { FlightSchemaTable } from '@schema/FlightSchema'
+
+import { FlightSerializer } from '@schema/FlightSerializer'
 import { DateInputCell, TextInputCell } from '~/modules/TableComponents'
 import { SelectInputCell } from '~/modules/TableComponents'
 
@@ -38,31 +40,32 @@ export const determineWidth = (columnType: ColumnType) => {
 }
 
 export const flightColumns = (
-  missionOptions?: { name: string; value: string }[],
-): Column<FlightSchemaTable>[] => [
+  missionOptions?: { name: string; value: number }[],
+  droneOptions?: { name: string; value: number }[],
+): Column<FlightSerializer>[] => [
   {
     Header: 'Flight Id',
-    accessor: 'flightId',
+    accessor: 'id',
     width: determineWidth('number'),
   },
 
   {
     Header: 'Drone',
-    accessor: 'planeId',
+    accessor: 'fkDrone',
     Cell: (props: any) => {
       if (props.cell.isGrouped || props.onlyGroupedFlatRows.length) {
-        return <div>{props.row.values.planeId}</div>
+        return <div>{props.row.values.fkDrone}</div>
       }
       if (props.onlyGroupedFlatRows.length) {
-        return props.row.values.mission
+        return props.row.values.fkDrone
       }
-      if (missionOptions && missionOptions.length) {
+      if (droneOptions && droneOptions.length) {
         return (
           <div>
             <SelectInputCell
-              name={`planeId-${props.row.values.flightId}-${props.row.index}`}
-              options={missionOptions}
-              defaultValue={props.row.values.planeId || undefined}
+              name={`fkDronwe-${props.row.values.id}-${props.row.index}`}
+              options={droneOptions}
+              defaultValue={props.row.values.fkDrone || undefined}
             />
           </div>
         )
@@ -72,22 +75,22 @@ export const flightColumns = (
     width: determineWidth('selectInput'),
   },
   {
-    accessor: 'missionId',
+    accessor: 'fkMission',
     Header: 'Mission',
     Cell: (props: any) => {
       if (props.cell.isGrouped || props.onlyGroupedFlatRows.length) {
-        return <div>{props.row.values.missionId}</div>
+        return <div>{props.row.values.fkMission}</div>
       }
 
       if (props.onlyGroupedFlatRows.length) {
-        return props.row.values.mission
+        return props.row.values.fkMission
       }
       if (missionOptions && missionOptions.length) {
         return (
           <SelectInputCell
-            name={`missionId-${props.row.values.flightId}-${props.row.index}`}
+            name={`fkMission-${props.row.values.id}-${props.row.index}`}
             options={missionOptions}
-            defaultValue={props.row.values.missionId || undefined}
+            defaultValue={props.row.values.fkMission || undefined}
           />
         )
       }
@@ -110,33 +113,54 @@ export const flightColumns = (
 
       return (
         <TextInputCell
-          name={`pilot-${props.row.values.flightId}-${props.row.index}`}
+          name={`pilot-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.pilot}
         />
       )
     },
     width: determineWidth('textInputSmall'),
   },
+
   {
-    Header: 'Description',
-    accessor: 'description',
+    Header: 'Observer',
+    accessor: 'observer',
     Aggregated: () => {
       return null
     },
     Cell: (props: any) => {
       if (props.cell.isGrouped || props.onlyGroupedFlatRows.length) {
-        return <div>{props.row.values.description}</div>
+        return <div>{props.row.values.pilot}</div>
       }
 
       return (
         <TextInputCell
-          name={`description-${props.row.values.flightId}-${props.row.index}`}
-          defaultValue={props.row.values.description}
+          name={`pilot-${props.row.values.id}-${props.row.index}`}
+          defaultValue={props.row.values.pilot}
         />
       )
     },
-    width: determineWidth('textInputLong'),
+    width: determineWidth('textInputSmall'),
   },
+  // {
+  //   Header: 'Description',
+  //   accessor: 'description',
+  //   Aggregated: () => {
+  //     return null
+  //   },
+  //   Cell: (props: any) => {
+  //     if (props.cell.isGrouped || props.onlyGroupedFlatRows.length) {
+  //       return <div>{props.row.values.description}</div>
+  //     }
+
+  //     return (
+  //       <TextInputCell
+  //         name={`description-${props.row.values.id}-${props.row.index}`}
+  //         defaultValue={props.row.values.description}
+  //       />
+  //     )
+  //   },
+  //   width: determineWidth('textInputLong'),
+  // },
 
   {
     Header: 'Location',
@@ -151,7 +175,7 @@ export const flightColumns = (
 
       return (
         <TextInputCell
-          name={`location-${props.row.values.flightId}-${props.row.index}`}
+          name={`location-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.location}
         />
       )
@@ -172,7 +196,7 @@ export const flightColumns = (
 
       return (
         <SelectInputCell
-          name={`rating-${props.row.values.flightId}-${props.row.index}`}
+          name={`rating-${props.row.values.id}-${props.row.index}`}
           options={[
             { name: 'Good flight', value: 'good' },
             { name: 'Problems', value: 'problems' },
@@ -198,7 +222,7 @@ export const flightColumns = (
 
       return (
         <SelectInputCell
-          name={`rating-${props.row.values.flightId}-${props.row.index}`}
+          name={`rating-${props.row.values.id}-${props.row.index}`}
           options={[
             { name: 'Yes', value: 'yes' },
             { name: 'No', value: 'no' },
@@ -222,7 +246,7 @@ export const flightColumns = (
 
       return (
         <SelectInputCell
-          name={`purpose-${props.row.values.flightId}-${props.row.index}`}
+          name={`purpose-${props.row.values.id}-${props.row.index}`}
           options={[
             { name: 'Mission', value: 'mission' },
             { name: 'Pilot Training', value: 'pilot-training' },
@@ -246,7 +270,7 @@ export const flightColumns = (
       }
       return (
         <TextInputCell
-          name={`notes-${props.row.values.flightId}-${props.row.index}`}
+          name={`notes-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.notes}
         />
       )
@@ -256,31 +280,36 @@ export const flightColumns = (
 
   //weather api /computed
 
-  {
-    Header: 'Weather Conditions',
-    accessor: 'weatherConditions',
-    Cell: (props: any) => {
-      if (props.row.values.weatherConditions && props.row.values.weatherConditions.length) {
-        return props.row.values.weatherConditions.join(', ')
-      }
-      return null
-    },
+  // {
+  //   Header: 'Weather Conditions',
+  //   accessor: 'weatherConditions',
+  //   Cell: (props: any) => {
+  //     if (props.row.values.weatherConditions && props.row.values.weatherConditions.length) {
+  //       return props.row.values.weatherConditions.join(', ')
+  //     }
+  //     return null
+  //   },
 
+  //   width: determineWidth('text'),
+  // },
+  {
+    Header: 'Wind',
+    accessor: 'wind',
     width: determineWidth('text'),
   },
   {
     Header: 'Temperature',
-    accessor: 'temperature',
+    accessor: 'temperatureCelsius',
     width: determineWidth('number'),
   },
 
   //from log
   {
     Header: 'Start Time',
-    accessor: 'startTime',
+    accessor: 'logStartTime',
     Cell: (props: any) => {
       if (isValid(parseISO(props.row.values.startTime))) {
-        return <div>{format(parseISO(props.row.values.startTime), 'dd.MM.yyyy')}</div>
+        return <div>{format(parseISO(props.row.values.startTime), 'hh:ss:mm dd.MM.yyyy')}</div>
       } else {
         return <div></div>
       }
@@ -288,144 +317,188 @@ export const flightColumns = (
     width: determineWidth('date'),
   },
   {
-    Header: 'CreatedAt',
-    accessor: 'createdAt',
+    Header: 'End Time',
+    accessor: 'logEndTime',
     Cell: (props: any) => {
-      if (isValid(parseISO(props.row.values.createdAt))) {
-        return <div>{format(parseISO(props.row.values.createdAt), 'dd.MM.yyyy')}</div>
+      if (isValid(parseISO(props.row.values.startTime))) {
+        return <div>{format(parseISO(props.row.values.startTime), 'hh:ss:mm dd.MM.yyyy')}</div>
       } else {
         return <div></div>
       }
     },
     width: determineWidth('date'),
-  },
-
-  {
-    Header: 'Energy consumed in Wh',
-    accessor: 'energyConsumed',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Min Power in W',
-    accessor: 'minPower',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Max Power in W',
-    accessor: 'maxPower',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Avg Power in W',
-    accessor: 'avgPower',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Min Battery Voltage in V',
-    accessor: 'minBatVoltage',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Max Battery Voltage in V',
-    accessor: 'maxBatVoltage',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Avg Battery Voltage in V',
-    accessor: 'avgBatVoltage',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Delta Battery Voltage in V',
-    accessor: 'deltaBatVoltage',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Min Battery Current in A',
-    accessor: 'minBatCurrent',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Max Battery Current in A',
-    accessor: 'maxBatCurrent',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Avg Battery Current in A',
-    accessor: 'avgBatCurrent',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Min Ground Speed in km/h',
-    accessor: 'minGroundSpeed',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Max Ground Speed in km/h',
-    accessor: 'maxGroundSpeed',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Avg Ground Speed in km/h',
-    accessor: 'avgGroundSpeed',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Min Air Speed in km/h',
-    accessor: 'minAirSpeed',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Max Air Speed in km/h',
-    accessor: 'maxAirSpeed',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Avg Air Speed in km/h',
-    accessor: 'avgAirSpeed',
-    width: determineWidth('number'),
-  },
-
-  {
-    Header: 'Avg Wind Speed in km/h',
-    accessor: 'avgWindSpeed',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Max Speed Upwards in km/h',
-    accessor: 'maxSpeedUp',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Max Speed Downwards km/h',
-    accessor: 'maxSpeedDown',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Max Speed Horizontal in km/h',
-    accessor: 'maxSpeedHorizontal',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Max Telemetary Distance in km',
-    accessor: 'maxTelemetaryDistance',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Total Distance in km',
-    accessor: 'totalDistance',
-    width: determineWidth('number'),
-  },
-  {
-    Header: 'Flight Duration in hh:mm:ss',
-    accessor: 'flightDuration',
-    width: determineWidth('number'),
   },
   {
     Header: 'Log Duration in hh:mm:ss',
     accessor: 'logDuration',
     width: determineWidth('number'),
   },
+  {
+    Header: 'CreatedAt',
+    accessor: 'createdAt',
+    Cell: (props: any) => {
+      if (isValid(parseISO(props.row.values.createdAt))) {
+        return <div>{format(parseISO(props.row.values.createdAt), 'hh:ss:mm dd.MM.yyyy')}</div>
+      } else {
+        return <div></div>
+      }
+    },
+    width: determineWidth('date'),
+  },
+  {
+    Header: 'UpdatedAt',
+    accessor: 'updatedAt',
+    Cell: (props: any) => {
+      if (isValid(parseISO(props.row.values.createdAt))) {
+        return <div>{format(parseISO(props.row.values.createdAt), 'hh:ss:mm dd.MM.yyyy')}</div>
+      } else {
+        return <div></div>
+      }
+    },
+    width: determineWidth('date'),
+  },
+  {
+    Header: 'Start Latitude',
+    accessor: 'startLatitude',
+    width: determineWidth('text'),
+  },
+  {
+    Header: 'Start Longitufe',
+    accessor: 'startLongitude',
+    width: determineWidth('text'),
+  },
+  {
+    Header: 'End Latitude',
+    accessor: 'endLatitude',
+    width: determineWidth('text'),
+  },
+  {
+    Header: 'End Longitude',
+    accessor: 'endLongitude',
+    width: determineWidth('text'),
+  },
+  {
+    Header: 'Energy consumed in Wh',
+    accessor: 'energyConsumedWh',
+    width: determineWidth('number'),
+  },
+  {
+    Header: 'Min Power in W',
+    accessor: 'minPowerW',
+    width: determineWidth('number'),
+  },
+  {
+    Header: 'Max Power in W',
+    accessor: 'maxPowerW',
+    width: determineWidth('number'),
+  },
+  {
+    Header: 'Avg Power in W',
+    accessor: 'avgPowerW',
+    width: determineWidth('number'),
+  },
+  {
+    Header: 'Min Battery Voltage in V',
+    accessor: 'minBatteryVoltage',
+    width: determineWidth('number'),
+  },
+  {
+    Header: 'Max Battery Voltage in V',
+    accessor: 'maxBatteryVoltage',
+    width: determineWidth('number'),
+  },
+  // {
+  //   Header: 'Avg Battery Voltage in V',
+  //   accessor: 'avgBatteryVoltage',
+  //   width: determineWidth('number'),
+  // },
+  {
+    Header: 'Delta Battery Voltage in V',
+    accessor: 'deltaBatteryVoltage',
+    width: determineWidth('number'),
+  },
+  // {
+  //   Header: 'Min Battery Current in A',
+  //   accessor: 'minBatteryCurrent',
+  //   width: determineWidth('number'),
+  // },
+  // {
+  //   Header: 'Max Battery Current in A',
+  //   accessor: 'maxBatCurrent',
+  //   width: determineWidth('number'),
+  // },
+  // {
+  //   Header: 'Avg Battery Current in A',
+  //   accessor: 'avgBatCurrent',
+  //   width: determineWidth('number'),
+  // },
+  {
+    Header: 'Min Ground Speed in km/h',
+    accessor: 'minGroundspeed',
+    width: determineWidth('number'),
+  },
+  {
+    Header: 'Max Ground Speed in km/h',
+    accessor: 'maxGroundspeed',
+    width: determineWidth('number'),
+  },
+  {
+    Header: 'Avg Ground Speed in km/h',
+    accessor: 'avgGroundspeed',
+    width: determineWidth('number'),
+  },
+  {
+    Header: 'Min Air Speed in km/h',
+    accessor: 'minAirspeed',
+    width: determineWidth('number'),
+  },
+  {
+    Header: 'Max Air Speed in km/h',
+    accessor: 'maxAirspeed',
+    width: determineWidth('number'),
+  },
+  {
+    Header: 'Avg Air Speed in km/h',
+    accessor: 'avgAirspeed',
+    width: determineWidth('number'),
+  },
+
+  {
+    Header: 'Avg Wind Speed in km/h',
+    accessor: 'avgWindspeedKmh',
+    width: determineWidth('number'),
+  },
+  {
+    Header: 'Max Vertical Speed Upwards in km/h',
+    accessor: 'maxVerticalSpeedUp',
+    width: determineWidth('number'),
+  },
+  {
+    Header: 'Max Vertical Speed Downwards km/h',
+    accessor: 'maxVerticalSpeedDown',
+    width: determineWidth('number'),
+  },
+  // {
+  //   Header: 'Max Speed Horizontal in km/h',
+  //   accessor: 'maxSpeedHorizontal',
+  //   width: determineWidth('number'),
+  // },
+  {
+    Header: 'Max Telemetry Distance in km',
+    accessor: 'maxTelemetryDistanceKm',
+    width: determineWidth('number'),
+  },
+  {
+    Header: 'Total Distance in km',
+    accessor: 'distanceKm',
+    width: determineWidth('number'),
+  },
+  // {
+  //   Header: 'Flight Duration in hh:mm:ss',
+  //   accessor: 'flightDuration',
+  //   width: determineWidth('number'),
+  // },
+
   {
     Header: 'Hardware Version',
     accessor: 'hardwareVersion',

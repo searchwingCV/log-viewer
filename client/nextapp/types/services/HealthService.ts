@@ -1,22 +1,24 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AppHealth } from '../models/AppHealth';
+
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 
-export class StatusService {
+export class HealthService {
 
     /**
      * Liveness Probe
      * Indicates the status of the service
-     * @returns any Successful Response
+     * @returns AppHealth Successful Response
      * @throws ApiError
      */
-    public static livenessProbeStatusGet(): CancelablePromise<any> {
+    public static livenessProbeHealthGet(): CancelablePromise<AppHealth> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/status',
+            url: '/health',
             errors: {
                 404: `Not found`,
             },

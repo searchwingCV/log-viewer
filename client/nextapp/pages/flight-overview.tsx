@@ -1,16 +1,65 @@
+import React, { useEffect, useMemo } from 'react'
 import type { GetStaticProps } from 'next'
-import { QueryClient, dehydrate } from '@tanstack/react-query'
-import { NextPageWithLayout } from './_app'
-import { fetchAllFlights, getFlightsMock } from '~/api/flight/getFlights'
+import { QueryClient, dehydrate, useQueries } from '@tanstack/react-query'
+import { useRouter } from 'next/router'
+import { fetchAllFlightsQuery, getFlights, ALl_FLIGHTS_KEY } from '~/api/flight/getFlights'
+import { getDrones, ALL_DRONES_KEY } from '~/api/drone/getDrones'
+import { getMissions, ALL_MISSIONS_KEY } from '~/api/mission/getMissions'
+
 import { Layout } from '~/modules/Layout/Layout'
 import FlightTableOverview from '~/views/FlightTableOverview'
+import { NextPageWithLayout } from './_app'
 
 const FlightOverviewPage: NextPageWithLayout = () => {
-  const { data } = fetchAllFlights()
-  if (!data) {
+  const router = useRouter()
+  const { page: queryPage, pagesize: queryPageSize } = router.query
+  const { data } = fetchAllFlightsQuery(
+    parseInt(queryPage as string) || 1,
+    parseInt(queryPageSize as string) || 10,
+  )
+
+  const selectFieldData = useQueries({
+    queries: [
+      { queryKey: [ALL_DRONES_KEY, 1, 100], queryFn: () => getDrones(1, 100) },
+      { queryKey: [ALL_MISSIONS_KEY, 1, 100], queryFn: () => getMissions(1, 100) },
+    ],
+  })
+
+  const drones = selectFieldData?.[0]?.data?.items?.map((drone) => {
+    return {
+      value: drone.id,
+      name: `${drone.name} - ${drone.id}`,
+    }
+  })
+
+  const missions = selectFieldData?.[1]?.data?.items?.map((mission) => {
+    return {
+      value: mission.id,
+      name: `${mission.name} - ${mission.id}`,
+    }
+  })
+
+  useEffect(() => {
+    if (!queryPageSize && !queryPage) {
+      router.push({ query: { page: 1, pagesize: '10' } }, undefined, {
+        shallow: true,
+      })
+    }
+  }, [queryPageSize, queryPage])
+
+  if (!data || !data.items) {
     return null
   }
-  return <FlightTableOverview data={data} />
+  return (
+    <FlightTableOverview
+      data={data.items}
+      totalNumber={data.total}
+      missionOptions={missions}
+      droneOptions={drones}
+    />
+  )
+
+  return null
 }
 
 FlightOverviewPage.getLayout = (page) => <Layout>{page}</Layout>
@@ -18,7 +67,11 @@ FlightOverviewPage.getLayout = (page) => <Layout>{page}</Layout>
 export const getStaticProps: GetStaticProps = async () => {
   //Incremental static regeneration with react-query's prefetch query
   const queryClient = new QueryClient()
-  await queryClient.prefetchQuery(['ALL_FLIGHTS'], () => getFlightsMock())
+  await queryClient.prefetchQuery([ALl_FLIGHTS_KEY, 1, 10], () => getFlights(1, 10))
+  //TODO: manage case where total number of saved drones and missions is more than 100
+  //but in that case, it would mean: building a more elaborate select field
+  await queryClient.prefetchQuery([ALL_DRONES_KEY, 1, 100], () => getDrones(1, 100))
+  await queryClient.prefetchQuery([ALL_MISSIONS_KEY, 1, 100], () => getMissions(1, 100))
 
   return {
     props: {

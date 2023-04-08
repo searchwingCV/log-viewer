@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import { TableBodyPropGetter, TableBodyProps as ReactTableBodyProps, Row } from 'react-table'
-import { FlightSchemaTable } from '@schema/FlightSchema'
+import { FlightSerializer } from '@schema/FlightSerializer'
 
 export type TestProps<TColumnProps extends object> = {
   getTableBodyProps: (
@@ -10,7 +10,7 @@ export type TestProps<TColumnProps extends object> = {
   prepareRow: (row: Row<TColumnProps>) => void
   firstColumnAccessor: string
   hasRecords: boolean
-  selectedRows: Row<FlightSchemaTable>[]
+  selectedRows: Row<FlightSerializer>[]
   numberOfRows: number
 }
 

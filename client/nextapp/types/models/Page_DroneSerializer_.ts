@@ -2,10 +2,10 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { PlaneDetailsSchema } from './PlaneDetailsSchema';
+import type { DroneSerializer } from './DroneSerializer';
 
-export type Page_PlaneDetailsSchema_ = {
-    items: Array<PlaneDetailsSchema>;
+export type Page_DroneSerializer_ = {
+    items: Array<DroneSerializer>;
     total: number;
     page: number;
     size: number;
