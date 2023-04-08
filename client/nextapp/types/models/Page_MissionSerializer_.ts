@@ -2,10 +2,10 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { FlightSchema } from './FlightSchema';
+import type { MissionSerializer } from './MissionSerializer';
 
-export type Page_FlightSchema_ = {
-    items: Array<FlightSchema>;
+export type Page_MissionSerializer_ = {
+    items: Array<MissionSerializer>;
     total: number;
     page: number;
     size: number;

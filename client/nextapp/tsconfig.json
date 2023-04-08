@@ -18,6 +18,7 @@
     "paths": {
       "@schema/*": ["./types/models/*"],
       "@lib/*": ["./lib/*"],
+      "@constants": ["./lib/constants"],
       "~/*": ["./*"]
     }
   },

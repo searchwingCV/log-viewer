@@ -111,16 +111,7 @@ export const TableHead = ({ headerGroups, allColumns, setColumnOrder }: TableHea
                                   {column.isSorted ? (column.isSortedDesc ? '▼' : '▲') : ''}
                                 </div>
                               </button>
-                              <div
-                                className="min-h-[30px] min-w-full"
-                                // className={clsx(
-                                //   toggleMatrix.find((col) => col.propName === column.id)?.visible
-                                //     ? 'visible'
-                                //     : 'invisible',
-                                // )}
-                              >
-                                {/* {column.canFilter ? column.render('Filter') : null} */}
-                              </div>
+                              <div className="min-h-[30px] min-w-full"></div>
                             </div>
                           )}
                         </Draggable>
