@@ -6,7 +6,7 @@ from alembic.command import upgrade
 from alembic.config import Config as AlembicConfig
 from common.logging import get_logger
 from fastapi import FastAPI, Request, Response, status
-from presentation.rest.controllers import drone, flight, health, mission, root
+from presentation.rest.controllers import drone, file, flight, health, mission, root
 from presentation.rest.serializers.errors import InternalServerError
 
 logger = get_logger(__name__)
@@ -41,6 +41,7 @@ def get_args() -> Namespace:
     )
     parser.add_argument("--debug", help="Activate debug", action="store_true")
     parser.add_argument("--reload", help="Activate reload (only for dev)", action="store_true")
+    parser.add_argument("--automigrate", help="Run migrations on startup", action="store_true")
     return parser.parse_args()
 
 
@@ -64,6 +65,7 @@ def build_api() -> FastAPI:
     app.include_router(drone.router)
     app.include_router(mission.router)
     app.include_router(flight.router)
+    app.include_router(file.router)
 
     app.add_exception_handler(Exception, log_exception_handler)
 
@@ -73,7 +75,8 @@ def build_api() -> FastAPI:
 if __name__ == "__main__":
     args = get_args()
 
-    migrate_db()
+    if args.automigrate:
+        migrate_db()
 
     uvicorn.run(
         "bin.api:build_api",

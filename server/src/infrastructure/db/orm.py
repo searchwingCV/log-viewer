@@ -82,8 +82,8 @@ class Flight(BaseModel):
     location = Column(String, nullable=False)
     pilot = Column(String)
     observer = Column(String)
-    rating = Column(Enum(FlightRating), nullable=False)
-    purpose = Column(Enum(FlightPurpose), nullable=False)
+    rating = Column(Enum(FlightRating), nullable=True)
+    purpose = Column(Enum(FlightPurpose), nullable=True)
     notes = Column(Text)
     drone_needs_repair = Column(Boolean, default=False, nullable=False)
 
@@ -109,16 +109,16 @@ class Flight(BaseModel):
 
     distance_km = Column(Float)
 
-    max_groundspeed = Column(Float)
-    min_groundspeed = Column(Float)
-    avg_groundspeed = Column(Float)
+    max_groundspeed_kmh = Column(Float)
+    min_groundspeed_kmh = Column(Float)
+    avg_groundspeed_kmh = Column(Float)
 
-    max_airspeed = Column(Float)
-    min_airspeed = Column(Float)
-    avg_airspeed = Column(Float)
+    max_airspeed_kmh = Column(Float)
+    min_airspeed_kmh = Column(Float)
+    avg_airspeed_kmh = Column(Float)
 
-    max_vertical_speed_up = Column(Float)
-    min_vertical_speed_down = Column(Float)
+    max_vertical_speed_up_kmh = Column(Float)
+    max_vertical_speed_down_kmh = Column(Float)
 
     max_telemetry_distance_km = Column(Float)
 
@@ -126,28 +126,31 @@ class Flight(BaseModel):
     min_battery_voltage = Column(Float)
     delta_battery_voltage = Column(Float)
 
+    max_battery_current_a = Column(Float)
+    min_battery_current_a = Column(Float)
+    avg_battery_current_a = Column(Float)
+
     max_power_w = Column(Float)
     min_power_w = Column(Float)
     avg_power_w = Column(Float)
 
     max_windspeed_kmh = Column(Float)
     min_windspeed_kmh = Column(Float)
-    avg_windspeed_kmg = Column(Float)
+    avg_windspeed_kmh = Column(Float)
 
     energy_consumed_wh = Column(Float)
 
     # relations
     drone = relationship("Drone", secondary=drone_flight_association)
     mission = relationship("Mission", secondary=misssion_flight_association)
-    files = relationship("FlightFiles")
+    files = relationship("FlightFile")
 
 
-class FlightFiles(Base):
-    __tablename__ = "flight_files"
+class FlightFile(BaseModel):
+    __tablename__ = "flight_file"
     file_type = Column(String, nullable=False)
     location = Column(String, nullable=False)
-    file_uri = Column(String, unique=True, primary_key=True)
-    flight_id = Column(Integer, ForeignKey("flight.id"))
+    fk_flight = Column(Integer, ForeignKey("flight.id"))
     version = Column(Integer, nullable=False, default=1)
 
 
