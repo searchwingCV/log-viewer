@@ -23,7 +23,7 @@ test-server:
       - venv/
   before_script:
   - apt update -y && apt install make -y
-  - apt-get update && apt-get -y install libpq-dev gcc
+  - apt-get update && apt-get -y install libpq-dev gcc curl
   - make --version
   - python --version
   - pip install virtualenv
@@ -34,6 +34,9 @@ test-server:
   script:
   - make lint-server
   - make test-server
+  - curl -Os https://uploader.codecov.io/latest/linux/codecov
+  - chmod +x codecov
+  - ./codecov -t $CODECOV_TOKEN -R $CI_PROJECT_DIR
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     reports:
