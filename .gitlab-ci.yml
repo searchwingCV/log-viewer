@@ -23,7 +23,7 @@ test-server:
       - venv/
   before_script:
   - apt update -y && apt install make -y
-  - apt-get update && apt-get -y install libpq-dev gcc
+  - apt-get update && apt-get -y install libpq-dev gcc curl
   - make --version
   - python --version
   - pip install virtualenv
