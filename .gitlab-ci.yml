@@ -36,7 +36,7 @@ test-server:
   - make test-server
   - curl -Os https://uploader.codecov.io/latest/linux/codecov
   - chmod +x codecov
-  - ./codecov -t $CODECOV_TOKEN -R $CI_PROJECT_DI
+  - ./codecov -t $CODECOV_TOKEN -R $CI_PROJECT_DIR
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     reports:
