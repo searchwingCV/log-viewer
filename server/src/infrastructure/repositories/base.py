@@ -65,6 +65,7 @@ class BaseRepository:
             query = session.query(self._model).filter(query_filters)
         else:
             query = session.query(self._model)
+        query = query.order_by(self._model.id)
         total = query.count()
         if total == 0:
             return 0, []
