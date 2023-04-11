@@ -17,6 +17,16 @@ class DuplicatedKeyError(Exception):
         super().__init__(self.message)
 
 
+class ForeignKeyNotFound(Exception):
+    def __init__(self, table_name, data, pgdetail) -> None:
+        self.table = table_name
+        self.data = data
+        self.pgdetail = pgdetail
+
+    def __str__(self) -> str:
+        return f"Referenced Foreign Key in {self.table} was not found. Detail: {self.pgdetail}"
+
+
 class NonRetryableException(Exception):
     ...
 
