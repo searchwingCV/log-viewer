@@ -1,8 +1,15 @@
 from typing import Any, List, Tuple, Type, Union
 
-from common.exceptions.db import DataToORMSerializationException, DBException, DuplicatedKeyError, NotFoundException
+from common.exceptions.db import (
+    DataToORMSerializationException,
+    DBException,
+    DuplicatedKeyError,
+    ForeignKeyNotFound,
+    NotFoundException,
+)
 from domain.types import ID_Type, T_Model
 from infrastructure.db.orm import BaseModel
+from psycopg2.errors import ForeignKeyViolation, UniqueViolation
 from pydantic import BaseModel as BaseEntity
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -18,9 +25,11 @@ class BaseRepository:
             model_data = session.merge(model_data)
             session.commit()
             return self._entity.from_orm(model_data)
-        except IntegrityError:
-            session.rollback()
-            raise DuplicatedKeyError(data.dict())
+        except IntegrityError as e:
+            if isinstance(e.orig, ForeignKeyViolation):
+                raise ForeignKeyNotFound(self._model.__table__, data.dict(), e.orig.pgerror) from e
+            if isinstance(e.orig, UniqueViolation):
+                raise DuplicatedKeyError(data.dict()) from e
         except Exception as e:
             session.rollback()
             raise DBException(self._model, e) from e
@@ -35,6 +44,11 @@ class BaseRepository:
             session.commit()
             model_data = query.first()
             return self._entity.from_orm(model_data)
+        except IntegrityError as e:
+            if isinstance(e.orig, ForeignKeyViolation):
+                raise ForeignKeyNotFound(self._model.__table__, data.dict(), e.orig.pgerror) from e
+            if isinstance(e.orig, UniqueViolation):
+                raise DuplicatedKeyError(data.dict()) from e
         except Exception as e:
             session.rollback()
             raise DBException(self._model, e) from e

@@ -28,7 +28,13 @@ class InternalServerError(APIError):
 
 
 class UnprocessableEntityError(APIError, EntityID):
-    pass
+    title: str = "Unprocessable entity error"
+    code: ErrorCodes = ErrorCodes.invalid_payload
+
+
+class UniqueViolationError(APIError, EntityID):
+    title: str = "An invalid payload was sent"
+    code: ErrorCodes = ErrorCodes.invalid_payload
 
 
 class EntityNotFoundError(NotFoundError, EntityID):
