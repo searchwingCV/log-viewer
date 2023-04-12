@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 export type FileDownloadResponse = {
-    fileId: number;
+    id: number;
     downloadLink: string;
 };
 

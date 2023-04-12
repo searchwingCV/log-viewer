@@ -1,43 +1,12 @@
 import { format, parseISO, isValid } from 'date-fns'
 import { Column } from 'react-table'
-// import { FlightSchemaTable } from '@schema/FlightSchema'
-
-import { FlightSerializer } from '@schema/FlightSerializer'
-import { DateInputCell, TextInputCell } from '~/modules/TableComponents'
-import { SelectInputCell } from '~/modules/TableComponents'
-
-type ColumnType =
-  | 'number'
-  | 'text'
-  | 'textInputLong'
-  | 'textInputSmall'
-  | 'selectInput'
-  | 'date'
-  | 'dateInput'
-  | 'numberInput'
-
-export const determineWidth = (columnType: ColumnType) => {
-  switch (columnType) {
-    case 'number':
-      return 'w-[80px]'
-    case 'text':
-      return 'w-[100px]'
-    case 'date':
-      return 'w-[120px]'
-    case 'dateInput':
-      return 'w-[200px]'
-    case 'textInputLong':
-      return 'w-[250px]'
-    case 'textInputSmall':
-      return 'w-[200px]'
-    case 'numberInput':
-      return 'w-[150px]'
-    case 'selectInput':
-      return 'w-[200px]'
-    default:
-      return 'w-[150px]'
-  }
-}
+import { FlightSerializer, FlightRating, FlightPurpose } from '@schema'
+import {
+  DateInputCell,
+  TextInputCell,
+  SelectInputCell,
+  determineWidth,
+} from '~/modules/TableComponents'
 
 export const flightColumns = (
   missionOptions?: { name: string; value: number }[],
@@ -63,9 +32,10 @@ export const flightColumns = (
         return (
           <div>
             <SelectInputCell
-              name={`fkDronwe-${props.row.values.id}-${props.row.index}`}
+              name={`fkDrone-${props.row.values.id}-${props.row.index}`}
               options={droneOptions}
               defaultValue={props.row.values.fkDrone || undefined}
+              required
             />
           </div>
         )
@@ -129,13 +99,13 @@ export const flightColumns = (
     },
     Cell: (props: any) => {
       if (props.cell.isGrouped || props.onlyGroupedFlatRows.length) {
-        return <div>{props.row.values.pilot}</div>
+        return <div>{props.row.values.observer}</div>
       }
 
       return (
         <TextInputCell
-          name={`pilot-${props.row.values.id}-${props.row.index}`}
-          defaultValue={props.row.values.pilot}
+          name={`observer-${props.row.values.id}-${props.row.index}`}
+          defaultValue={props.row.values.observer}
         />
       )
     },
@@ -194,14 +164,16 @@ export const flightColumns = (
         return <div>{props.row.values.rating}</div>
       }
 
+      if (props.onlyGroupedFlatRows.length) {
+        return props.row.values.rating
+      }
+
       return (
         <SelectInputCell
           name={`rating-${props.row.values.id}-${props.row.index}`}
-          options={[
-            { name: 'Good flight', value: 'good' },
-            { name: 'Problems', value: 'problems' },
-            { name: 'Crash', value: 'crash' },
-          ]}
+          options={(Object.keys(FlightRating) as Array<keyof typeof FlightRating>).map((key) => {
+            return { name: FlightRating[key], value: FlightRating[key] }
+          })}
           defaultValue={props.row.values.rating || undefined}
         />
       )
@@ -222,7 +194,7 @@ export const flightColumns = (
 
       return (
         <SelectInputCell
-          name={`rating-${props.row.values.id}-${props.row.index}`}
+          name={`droneNeedsRepair-${props.row.values.id}-${props.row.index}`}
           options={[
             { name: 'Yes', value: 'yes' },
             { name: 'No', value: 'no' },
@@ -247,11 +219,9 @@ export const flightColumns = (
       return (
         <SelectInputCell
           name={`purpose-${props.row.values.id}-${props.row.index}`}
-          options={[
-            { name: 'Mission', value: 'mission' },
-            { name: 'Pilot Training', value: 'pilot-training' },
-            { name: 'Test', value: 'test' },
-          ]}
+          options={(Object.keys(FlightPurpose) as Array<keyof typeof FlightPurpose>).map((key) => {
+            return { name: FlightPurpose[key], value: FlightPurpose[key] }
+          })}
           defaultValue={props.row.values.purpose || undefined}
         />
       )
@@ -434,32 +404,32 @@ export const flightColumns = (
   // },
   {
     Header: 'Min Ground Speed in km/h',
-    accessor: 'minGroundspeed',
+    accessor: 'minGroundspeedKmh',
     width: determineWidth('number'),
   },
   {
     Header: 'Max Ground Speed in km/h',
-    accessor: 'maxGroundspeed',
+    accessor: 'maxGroundspeedKmh',
     width: determineWidth('number'),
   },
   {
     Header: 'Avg Ground Speed in km/h',
-    accessor: 'avgGroundspeed',
+    accessor: 'avgGroundspeedKmh',
     width: determineWidth('number'),
   },
   {
     Header: 'Min Air Speed in km/h',
-    accessor: 'minAirspeed',
+    accessor: 'minAirspeedKmh',
     width: determineWidth('number'),
   },
   {
     Header: 'Max Air Speed in km/h',
-    accessor: 'maxAirspeed',
+    accessor: 'maxAirspeedKmh',
     width: determineWidth('number'),
   },
   {
     Header: 'Avg Air Speed in km/h',
-    accessor: 'avgAirspeed',
+    accessor: 'avgAirspeedKmh',
     width: determineWidth('number'),
   },
 
@@ -470,12 +440,12 @@ export const flightColumns = (
   },
   {
     Header: 'Max Vertical Speed Upwards in km/h',
-    accessor: 'maxVerticalSpeedUp',
+    accessor: 'maxVerticalSpeedUpKmh',
     width: determineWidth('number'),
   },
   {
     Header: 'Max Vertical Speed Downwards km/h',
-    accessor: 'maxVerticalSpeedDown',
+    accessor: 'maxVerticalSpeedDownKmh',
     width: determineWidth('number'),
   },
   // {

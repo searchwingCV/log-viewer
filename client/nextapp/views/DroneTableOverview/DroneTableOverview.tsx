@@ -12,7 +12,6 @@ import {
   useTable,
   Column,
   usePagination,
-  useRowSelect,
   TableInstance,
   UsePaginationInstanceProps,
   UsePaginationState,
@@ -26,14 +25,12 @@ import {
 import { FormProvider, useForm } from 'react-hook-form'
 import Select from 'modules/Select'
 import Button from 'modules/Button'
-import { ALl_FLIGHTS_KEY } from '~/api/flight/getFlights'
-import { FlightSerializer, FlightUpdate } from '@schema'
-import { patchFlights } from '~/api/flight/patchFlights'
+import { DroneSerializer, DroneUpdate } from '@schema'
+import { patchDrones } from '~/api/drone/patchDrones'
 
 import {
   GlobalTextFilter,
   Pagination,
-  SelectCheckbox,
   ColumnFilter,
   TableBody,
   TableHead,
@@ -41,40 +38,34 @@ import {
   ToggleCustomizeOrder,
   DrawerExtensionTypes,
 } from '~/modules/TableComponents'
-
-import { flightColumns } from './flightColumns'
-
+import { droneColumns } from './droneColumns'
+import { ALL_DRONES_KEY } from '~/api/drone/getDrones'
 export type PaginationTableInstance<T extends object> = TableInstance<T> &
   UsePaginationInstanceProps<T> & {
     state: UsePaginationState<T>
   }
 
-export const FlightTableOverview = ({
+export const DroneTableOverview = ({
   data,
   totalNumber,
-  missionOptions,
-  droneOptions,
 }: {
-  data: FlightSerializer[]
+  data: DroneSerializer[]
   totalNumber: number
-  missionOptions?: { name: string; value: number }[]
-  droneOptions?: { name: string; value: number }[]
 }) => {
   const router = useRouter()
+  const { pagesize: queryPageSize } = router.query
   const queryClient = useQueryClient()
 
-  const { data: sideNavExtended } = useQuery([DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED], () => {
-    return false
-  })
+  const { data: sideNavExtended } = useQuery([DrawerExtensionTypes.DRONE_DRAWER_EXTENDED])
 
   const slideX = useSpring({
     transform: sideNavExtended ? 'translate3d(20px,0,0)' : `translate3d(-240px,0,0)`,
     minWidth: sideNavExtended ? 'calc(100vw - 270px)' : `calc(100vw - 0px)`,
   })
-  const { pagesize: queryPageSize } = router.query
-
-  const updateFlights = useMutation(patchFlights, {
-    onSettled: () => {},
+  const updateDrones = useMutation(patchDrones, {
+    onSettled: (data) => {
+      queryClient.invalidateQueries([ALL_DRONES_KEY])
+    },
     onSuccess: (data) => {
       toast('Data changed.', {
         type: 'success',
@@ -82,7 +73,7 @@ export const FlightTableOverview = ({
       })
       methods.reset()
 
-      queryClient.invalidateQueries([ALl_FLIGHTS_KEY])
+      queryClient.invalidateQueries([ALL_DRONES_KEY])
     },
     onError: (data) => {
       toast('Error submitting data.', {
@@ -109,21 +100,18 @@ export const FlightTableOverview = ({
   )
 
   const { t } = useTranslation()
-  const columns = useMemo<Column<FlightSerializer>[]>(
-    () => flightColumns(missionOptions, droneOptions),
-    [missionOptions, droneOptions, data],
-  )
+  const columns = useMemo<Column<DroneSerializer>[]>(() => droneColumns(), [data])
 
   const onSubmit = methods.handleSubmit(async (formData) => {
     const changedKeys = Object.keys(formData).filter((item) => formData[item] !== '')
     const changedIds = changedKeys.map((key) => key.split('-')[1])
-    const changedFlights = data.filter((flight) => {
-      return changedIds.includes(flight.id.toString())
+    const changedDrones = data.filter((drone) => {
+      return changedIds.includes(drone.id.toString())
     })
 
-    const newFlights: FlightUpdate[] = changedFlights.map((flight) => {
-      const keysBelongingToFlight = changedKeys.filter((key) => key.includes(flight.id.toString()))
-      const changedProps = keysBelongingToFlight
+    const newDrones: DroneUpdate[] = changedDrones.map((drone) => {
+      const keysBelongingToDrones = changedKeys.filter((key) => key.includes(drone.id.toString()))
+      const changedProps = keysBelongingToDrones
         .map((key) => {
           return { [key.split('-')[0]]: formData[key] === 'delete' ? undefined : formData[key] }
         })
@@ -131,16 +119,16 @@ export const FlightTableOverview = ({
           return { ...prev, ...cur }
         })
 
-      const { id } = flight
-      const newFlight = { ...changedProps, id }
+      const { id } = drone
+      const newDrone = { ...changedProps, id }
 
-      return newFlight
+      return newDrone
     })
 
-    if (!newFlights.length) {
+    if (!newDrones.length) {
       toast('No new data inserted', { type: 'error', position: toast.POSITION.BOTTOM_CENTER })
     } else {
-      updateFlights.mutate(newFlights)
+      updateDrones.mutate(newDrones)
     }
   })
 
@@ -160,7 +148,6 @@ export const FlightTableOverview = ({
     allColumns,
     setColumnOrder,
     selectedFlatRows,
-    toggleAllPageRowsSelected,
   } = useTable(
     {
       columns: columns,
@@ -177,58 +164,13 @@ export const FlightTableOverview = ({
     useSortBy,
     useExpanded,
     usePagination,
-    useRowSelect,
-
-    (hooks) => {
-      hooks.visibleColumns.push((columns: any) => [
-        {
-          id: 'selection',
-          Header: ({}: any) => (
-            <a
-              type="button"
-              className={`
-                         mt-2
-                         ml-1
-                         -mr-3
-                         text-xs`}
-              onClick={() => toggleAllPageRowsSelected(false)}
-            >
-              <span className="block">Reset</span>
-              <span>Sel</span>
-            </a>
-          ),
-          Cell: ({ row }: any) => {
-            if (!row?.isGrouped) {
-              return (
-                <div>
-                  <SelectCheckbox {...row.getToggleRowSelectedProps()} />
-                </div>
-              )
-            }
-            return null
-          },
-        },
-        ...columns,
-      ])
-    },
-  ) as PaginationTableInstance<FlightSerializer>
+  ) as PaginationTableInstance<DroneSerializer>
 
   const scrollInputIntoView = (id: string) => {
     var element = document.getElementById(id)
 
     if (element) {
       element.scrollIntoView()
-    }
-  }
-
-  const goToDetailView = async () => {
-    if (selectedFlatRows.length === 1) {
-      await router.push(`/flight-detail/${selectedFlatRows[0]?.original?.id}`)
-    } else if (selectedFlatRows.length > 1) {
-      const originalRows = selectedFlatRows.filter((item) => !item.isGrouped)
-      await router.push(
-        `/compare-detail/${originalRows[0]?.original?.id}/${originalRows[1]?.original?.id}`,
-      )
     }
   }
 
@@ -241,12 +183,13 @@ export const FlightTableOverview = ({
       <CustomizeColumnsDrawer
         allColumns={allColumns}
         setColumnOrder={setColumnOrder}
-        drawerKey={DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED}
+        drawerKey={DrawerExtensionTypes.DRONE_DRAWER_EXTENDED}
       />
       <animated.div
-        className={clsx(`ml-side-drawer-width
+        className={clsx(` ml-side-drawer-width
                           h-screen
-                          overflow-x-hidden`)}
+                          overflow-x-hidden
+                          `)}
         style={slideX}
       >
         <div
@@ -264,7 +207,8 @@ export const FlightTableOverview = ({
                         grid-cols-[minmax(700px,_1fr)_200px]
                         grid-rows-2
                         items-end
-                        gap-y-2 gap-x-8`}
+                        gap-y-2
+                        gap-x-8`}
           >
             <GlobalTextFilter
               preGlobalFilteredRows={preGlobalFilteredRows}
@@ -277,8 +221,7 @@ export const FlightTableOverview = ({
               placeholder="Group by"
               options={[
                 { name: 'None', value: '' },
-                { name: 'Pilot', value: 'pilot' },
-                { name: 'Mission Id', value: 'missionId' },
+                { name: 'Partner Organization', value: 'partnerOrganization' },
               ]}
               onSetValue={setGroupBy}
               defaultValue="None"
@@ -286,7 +229,7 @@ export const FlightTableOverview = ({
               resetButtonText={'Reset Group'}
             />
           </div>
-          <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED} />
+          <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.DRONE_DRAWER_EXTENDED} />
           <FormProvider {...methods}>
             <form onSubmit={onSubmit}>
               <div className="overflow-x-scroll">
@@ -296,7 +239,8 @@ export const FlightTableOverview = ({
                     allColumns={allColumns}
                     setColumnOrder={setColumnOrder}
                   ></TableHead>
-                  <TableBody<FlightSerializer>
+                  <TableBody<DroneSerializer>
+                    hasNoSelection
                     getTableBodyProps={getTableBodyProps}
                     page={page}
                     prepareRow={prepareRow}
@@ -311,23 +255,7 @@ export const FlightTableOverview = ({
                   ></TableBody>
                 </table>
               </div>
-              {selectedFlatRows.length ? (
-                <Button
-                  buttonStyle="Main"
-                  type="button"
-                  className={`sticky
-                             left-[100vw]
-                             bottom-8
-                             w-[350px]
-                             p-4`}
-                  isSpecial
-                  onClick={() => {
-                    goToDetailView()
-                  }}
-                >
-                  {t('Go to detail view')}
-                </Button>
-              ) : !groupBy.length || groupBy?.[0] === '' ? (
+              {!groupBy.length || groupBy?.[0] === '' ? (
                 <Button
                   disabled={!methods.formState.isDirty}
                   buttonStyle="Main"

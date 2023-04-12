@@ -1,6 +1,5 @@
 import clsx from 'clsx'
 import { TableBodyPropGetter, TableBodyProps as ReactTableBodyProps, Row } from 'react-table'
-import { FlightSerializer } from '@schema/FlightSerializer'
 
 export type TestProps<TColumnProps extends object> = {
   getTableBodyProps: (
@@ -10,8 +9,9 @@ export type TestProps<TColumnProps extends object> = {
   prepareRow: (row: Row<TColumnProps>) => void
   firstColumnAccessor: string
   hasRecords: boolean
-  selectedRows: Row<FlightSerializer>[]
   numberOfRows: number
+  selectedOriginalRows: { id: string; index: number }[]
+  hasNoSelection?: boolean
 }
 
 export const TableBody = <TColumnProps extends object>({
@@ -20,15 +20,14 @@ export const TableBody = <TColumnProps extends object>({
   prepareRow,
   firstColumnAccessor,
   hasRecords,
-  selectedRows,
   numberOfRows,
+  selectedOriginalRows,
+  hasNoSelection,
 }: TestProps<TColumnProps>) => {
-  const selectedOriginalRows = selectedRows?.filter((item) => !item.isGrouped)
-
   const rowsNotInFirstTwoSelected = Array.from(Array(numberOfRows).keys()).filter(
-    (number) => !selectedOriginalRows.map((item) => item.index).includes(number),
+    (number) => !selectedOriginalRows?.map((item) => item.index).includes(number),
   )
-  const maxNumberOfSelectedRowsReached = selectedOriginalRows.length >= 2
+  const maxNumberOfSelectedRowsReached = selectedOriginalRows?.length >= 2
 
   if (!hasRecords) {
     return (
@@ -51,7 +50,6 @@ export const TableBody = <TColumnProps extends object>({
       {page.map((row, indexRow) => {
         prepareRow(row)
         const { key, ...restRowProps } = row.getRowProps()
-
         const isEven = indexRow % 2 === 0
 
         return (
@@ -83,6 +81,7 @@ export const TableBody = <TColumnProps extends object>({
                      items-center
                      justify-center
                      text-center`,
+
                     cell.column.id === firstColumnAccessor
                       ? `flex 
                          rounded-r-[0px]
@@ -100,10 +99,13 @@ export const TableBody = <TColumnProps extends object>({
                     !row.isGrouped &&
                       `justify-center
                        text-center`,
-                    cellIndex === 0 &&
-                      `ml-3
-                       w-[22px]`,
-                    selectedOriginalRows.length &&
+
+                    hasNoSelection && cellIndex === 0
+                      ? '-ml-3'
+                      : cellIndex === 0 &&
+                          `ml-3
+                           w-[22px]`,
+                    selectedOriginalRows?.length &&
                       cellIndex !== 0 &&
                       !row?.isGrouped &&
                       `row-pointer-events-none

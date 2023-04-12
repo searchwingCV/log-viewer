@@ -27,11 +27,11 @@ export type FlightSerializer = {
     /**
      * A rating for the flight: good/problems/crash
      */
-    rating: FlightRating;
+    rating?: FlightRating;
     /**
      * The purpose of the flight: test/training/mission
      */
-    purpose: FlightPurpose;
+    purpose?: FlightPurpose;
     /**
      * Some notes about the flight
      */
@@ -55,18 +55,21 @@ export type FlightSerializer = {
     hardwareVersion?: string;
     firmwareVersion?: string;
     distanceKm?: number;
-    maxGroundspeed?: number;
-    minGroundspeed?: number;
-    avgGroundspeed?: number;
-    maxAirspeed?: number;
-    minAirspeed?: number;
-    avgAirspeed?: number;
-    maxVerticalSpeedUp?: number;
-    maxVerticalSpeedDown?: number;
+    maxGroundspeedKmh?: number;
+    minGroundspeedKmh?: number;
+    avgGroundspeedKmh?: number;
+    maxAirspeedKmh?: number;
+    minAirspeedKmh?: number;
+    avgAirspeedKmh?: number;
+    maxVerticalSpeedUpKmh?: number;
+    maxVerticalSpeedDownKmh?: number;
     maxTelemetryDistanceKm?: number;
     maxBatteryVoltage?: number;
     minBatteryVoltage?: number;
     deltaBatteryVoltage?: number;
+    maxBatteryCurrentA?: number;
+    minBatteryCurrentA?: number;
+    avgBatteryCurrentA?: number;
     minPowerW?: number;
     maxPowerW?: number;
     avgPowerW?: number;

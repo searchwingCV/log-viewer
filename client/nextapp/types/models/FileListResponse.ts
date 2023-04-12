@@ -5,7 +5,7 @@
 import type { FileDownloadResponse } from './FileDownloadResponse';
 
 export type FileListResponse = {
-    count: number;
-    data: Array<FileDownloadResponse>;
+    count?: number;
+    data?: Array<FileDownloadResponse>;
 };
 
