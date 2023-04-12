@@ -1,10 +1,9 @@
 import { GetStaticProps, GetStaticPaths } from 'next'
-import { getFlightsMock } from '~/api/flight/getFlights'
+import { getFlights } from '~/api/flight/getFlights'
 import { QueryClient, dehydrate } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 
 import { Layout } from 'modules/Layout/Layout'
-import { getFlightMock } from '~/api/flight/getFlightDetail'
 
 const FlightDetailScreen = ({}) => {
   const router = useRouter()
@@ -17,22 +16,25 @@ const FlightDetailScreen = ({}) => {
   )
 }
 
-export function getStaticPaths() {
-  const data = getFlightsMock()
+export const getStaticPaths = async () => {
+  const data = await getFlights(1, 10)
 
-  const paths = data.map((item) => ({
-    params: { id: item.flightId },
-  }))
+  const paths = Array.from(Array(data.total).keys())
+    .map((x) => x + 1)
+    .map((item) => ({
+      params: { id: item.toString() },
+    }))
 
-  return { paths, fallback: 'blocking' }
+  return { paths, fallback: false }
 }
 
 // This also gets called at build time
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const queryClient = new QueryClient()
-  await queryClient.prefetchQuery(
-    [`flight-${params?.id}`],
-    () => params?.id && getFlightMock(params?.id as string),
+  await queryClient.prefetchQuery([`flight-${params?.id}`], () =>
+    params?.id && parseInt(params?.id as string) > 0
+      ? getFlights(parseInt(params?.id as string), 10)
+      : null,
   )
 
   return {
