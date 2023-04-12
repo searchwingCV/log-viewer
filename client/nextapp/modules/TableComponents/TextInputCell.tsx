@@ -46,7 +46,6 @@ const Input = memo(
                 setNewValue(defaultValue)
               }
             }}
-            value={newValue || defaultValue || ''}
             min={min}
             max={max}
             type={type || 'text'}
@@ -54,6 +53,7 @@ const Input = memo(
               onChange: (e) => {
                 if (e.target.value === defaultValue) {
                   setNewValue('')
+                  setValue(name, '')
                 } else {
                   setNewValue(e.target.value)
                 }
