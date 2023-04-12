@@ -1,8 +1,9 @@
+//TODO: Refactor code of FlightTableOverview, MissionTableOverview & DroneTableOverview to avoid duplicate code
 import 'regenerator-runtime/runtime'
 import React, { useMemo } from 'react'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { ToastContainer, toast } from 'react-toastify'
 import { useTranslation } from 'next-i18next'
 import { animated, useSpring } from '@react-spring/web'
@@ -25,10 +26,9 @@ import {
 import { FormProvider, useForm } from 'react-hook-form'
 import Select from 'modules/Select'
 import Button from 'modules/Button'
-import { useQuery } from '@tanstack/react-query'
-import { FlightSchemaTable } from '@schema/FlightSchema'
-import { putFlightsMock } from '~/api/flight/putFlights'
-import { DRAWER_EXTENDED } from 'lib/reactquery/keys'
+import { ALl_FLIGHTS_KEY } from '~/api/flight/getFlights'
+import { FlightSerializer, FlightUpdate } from '@schema'
+import { patchFlights } from '~/api/flight/patchFlights'
 
 import {
   GlobalTextFilter,
@@ -38,41 +38,51 @@ import {
   TableBody,
   TableHead,
   CustomizeColumnsDrawer,
+  ToggleCustomizeOrder,
+  DrawerExtensionTypes,
 } from '~/modules/TableComponents'
 
 import { flightColumns } from './flightColumns'
-import { fetchAllMissions } from '~/api/mission/getMissions'
-import { ToggleCustomizeOrder } from '~/modules/TableComponents/ToggleCustomizeOrder'
 
 export type PaginationTableInstance<T extends object> = TableInstance<T> &
   UsePaginationInstanceProps<T> & {
     state: UsePaginationState<T>
   }
 
-export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => {
+export const FlightTableOverview = ({
+  data,
+  totalNumber,
+  missionOptions,
+  droneOptions,
+}: {
+  data: FlightSerializer[]
+  totalNumber: number
+  missionOptions?: { name: string; value: number }[]
+  droneOptions?: { name: string; value: number }[]
+}) => {
   const router = useRouter()
-  const { data: missions } = fetchAllMissions()
-  const { data: sideNavExtended } = useQuery([DRAWER_EXTENDED])
+  const queryClient = useQueryClient()
+
+  const { data: sideNavExtended } = useQuery([DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED], () => {
+    return false
+  })
 
   const slideX = useSpring({
     transform: sideNavExtended ? 'translate3d(20px,0,0)' : `translate3d(-240px,0,0)`,
     minWidth: sideNavExtended ? 'calc(100vw - 270px)' : `calc(100vw - 0px)`,
   })
+  const { pagesize: queryPageSize } = router.query
 
-  const queryClient = useQueryClient()
-
-  const updateFlights = useMutation(putFlightsMock, {
-    onSettled: () => {
-      queryClient.invalidateQueries(['ALL_FLIGHTS'])
-    },
+  const updateFlights = useMutation(patchFlights, {
+    onSettled: () => {},
     onSuccess: (data) => {
       toast('Data changed.', {
         type: 'success',
         position: toast.POSITION.BOTTOM_CENTER,
       })
-      methods.reset({})
-      data.map((item) => methods.setValue(item, ''))
-      queryClient.invalidateQueries(['ALL_FLIGHTS'])
+      methods.reset()
+
+      queryClient.invalidateQueries([ALl_FLIGHTS_KEY])
     },
     onError: (data) => {
       toast('Error submitting data.', {
@@ -83,7 +93,6 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
       //scrollInputIntoView(`input-${data[0]}`)
     },
   })
-
   //TODO: find type
   const methods = useForm<any>({
     criteriaMode: 'all',
@@ -100,58 +109,38 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
   )
 
   const { t } = useTranslation()
-  const columns = useMemo<Column<FlightSchemaTable>[]>(
-    () =>
-      flightColumns(
-        missions?.map((mission) => {
-          return {
-            value: mission.missionId,
-            name: `${mission.missionAlias} - ${mission.missionId}`,
-          }
-        }),
-      ),
-    [missions],
-  )
-  const sortedData = useMemo(
-    () =>
-      data.sort((a, b) => {
-        if (a.flightId < b.flightId) {
-          return -1
-        }
-        if (a.flightId > b.flightId) {
-          return 1
-        }
-        return 0
-      }),
-    [],
+  const columns = useMemo<Column<FlightSerializer>[]>(
+    () => flightColumns(missionOptions, droneOptions),
+    [missionOptions, droneOptions, data],
   )
 
   const onSubmit = methods.handleSubmit(async (formData) => {
     const changedKeys = Object.keys(formData).filter((item) => formData[item] !== '')
     const changedIds = changedKeys.map((key) => key.split('-')[1])
     const changedFlights = data.filter((flight) => {
-      return changedIds.includes(flight.flightId.toString())
+      return changedIds.includes(flight.id.toString())
     })
 
-    const newFlights = changedFlights.map((flight) => {
-      const keysBelongingToFlight = changedKeys.filter((key) =>
-        key.includes(flight.flightId.toString()),
-      )
+    const newFlights: FlightUpdate[] = changedFlights.map((flight) => {
+      const keysBelongingToFlight = changedKeys.filter((key) => key.includes(flight.id.toString()))
       const changedProps = keysBelongingToFlight
         .map((key) => {
-          return { [key.split('-')[0]]: formData[key] === 'delete' ? '' : formData[key] }
+          return { [key.split('-')[0]]: formData[key] === 'delete' ? undefined : formData[key] }
         })
         .reduce((prev, cur) => {
           return { ...prev, ...cur }
         })
-      const newFlight = { ...flight, ...changedProps }
+
+      const { id } = flight
+      const newFlight = { ...changedProps, id }
+
       return newFlight
     })
 
     if (!newFlights.length) {
       toast('No new data inserted', { type: 'error', position: toast.POSITION.BOTTOM_CENTER })
     } else {
-      updateFlights.mutate({ flights: newFlights, changedIds: changedKeys })
+      updateFlights.mutate(newFlights)
     }
   })
 
@@ -161,14 +150,8 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
     headerGroups,
     prepareRow,
     page,
-    canPreviousPage,
-    canNextPage,
     pageOptions,
     pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize,
     state: { pageIndex, pageSize, globalFilter, groupBy },
     setGlobalFilter,
     rows,
@@ -181,9 +164,11 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
   } = useTable(
     {
       columns: columns,
-      data: sortedData,
+      data: data,
       defaultColumn,
       initialState: {},
+      pageCount: Math.ceil(totalNumber / (parseInt(queryPageSize as string) || 10)),
+      manualPagination: true,
     },
     useFilters,
     useColumnOrder,
@@ -193,6 +178,7 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
     useExpanded,
     usePagination,
     useRowSelect,
+
     (hooks) => {
       hooks.visibleColumns.push((columns: any) => [
         {
@@ -225,7 +211,7 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
         ...columns,
       ])
     },
-  ) as PaginationTableInstance<FlightSchemaTable>
+  ) as PaginationTableInstance<FlightSerializer>
 
   const scrollInputIntoView = (id: string) => {
     var element = document.getElementById(id)
@@ -237,11 +223,11 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
 
   const goToDetailView = async () => {
     if (selectedFlatRows.length === 1) {
-      await router.push(`/flight-detail/${selectedFlatRows[0]?.original?.flightId}`)
+      await router.push(`/flight-detail/${selectedFlatRows[0]?.original?.id}`)
     } else if (selectedFlatRows.length > 1) {
       const originalRows = selectedFlatRows.filter((item) => !item.isGrouped)
       await router.push(
-        `/compare-detail/${originalRows[0]?.original?.flightId}/${originalRows[1]?.original?.flightId}`,
+        `/compare-detail/${originalRows[0]?.original?.id}/${originalRows[1]?.original?.id}`,
       )
     }
   }
@@ -252,7 +238,11 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
                   flex
                   min-h-screen`}
     >
-      <CustomizeColumnsDrawer allColumns={allColumns} setColumnOrder={setColumnOrder} />
+      <CustomizeColumnsDrawer
+        allColumns={allColumns}
+        setColumnOrder={setColumnOrder}
+        drawerKey={DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED}
+      />
       <animated.div
         className={clsx(`ml-side-drawer-width
                           h-screen
@@ -296,7 +286,7 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
               resetButtonText={'Reset Group'}
             />
           </div>
-          <ToggleCustomizeOrder />
+          <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED} />
           <FormProvider {...methods}>
             <form onSubmit={onSubmit}>
               <div className="overflow-x-scroll">
@@ -306,13 +296,17 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
                     allColumns={allColumns}
                     setColumnOrder={setColumnOrder}
                   ></TableHead>
-                  <TableBody<FlightSchemaTable>
+                  <TableBody<FlightSerializer>
                     getTableBodyProps={getTableBodyProps}
                     page={page}
                     prepareRow={prepareRow}
                     firstColumnAccessor={columns[0].accessor as string}
                     hasRecords={!!rows?.length}
-                    selectedRows={selectedFlatRows}
+                    selectedOriginalRows={selectedFlatRows
+                      ?.filter((item) => !item.isGrouped)
+                      ?.map((item) => {
+                        return { id: item.id, index: item.index }
+                      })}
                     numberOfRows={rows.length}
                   ></TableBody>
                 </table>
@@ -352,16 +346,11 @@ export const FlightTableOverview = ({ data }: { data: FlightSchemaTable[] }) => 
             </form>
           </FormProvider>
           <Pagination
-            gotoPage={gotoPage}
-            previousPage={previousPage}
-            nextPage={nextPage}
-            canPreviousPage={canPreviousPage}
             pageSize={pageSize}
-            canNextPage={canNextPage}
             pageCount={pageCount}
             pageIndex={pageIndex}
             pageOptions={pageOptions}
-            setPageSize={setPageSize}
+            totalNumber={totalNumber}
           />
         </div>
       </animated.div>

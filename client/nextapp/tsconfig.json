@@ -17,11 +17,13 @@
     "resolveJsonModule": true,
     "paths": {
       "@schema/*": ["./types/models/*"],
+      "@schema": ["./types/index"],
       "@lib/*": ["./lib/*"],
+      "@constants": ["./lib/constants"],
       "~/*": ["./*"]
     }
   },
 
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/index.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.ts", "**/*.ts", "pages/index.js"],
   "exclude": ["node_modules", "__generated__"]
 }

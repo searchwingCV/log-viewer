@@ -1,15 +1,16 @@
 import { useQueryClient, useQuery } from '@tanstack/react-query'
 import Button from 'modules/Button'
-import { DRAWER_EXTENDED } from 'lib/reactquery/keys'
+import { DrawerExtensionTypes } from './CustomizeColumnsDrawer'
 
-export const ToggleCustomizeOrder = ({}) => {
-  const { data: isExtended } = useQuery([DRAWER_EXTENDED], () => {
+export const ToggleCustomizeOrder = ({ drawerKey }: { drawerKey: DrawerExtensionTypes }) => {
+  const { data: isExtended } = useQuery([drawerKey], () => {
     return false
   })
+
   const queryClient = useQueryClient()
 
   const handleToggleDrawer = () => {
-    queryClient.setQueryData<boolean>([DRAWER_EXTENDED], (prev) => {
+    queryClient.setQueryData<boolean>([drawerKey], (prev) => {
       return !prev
     })
   }

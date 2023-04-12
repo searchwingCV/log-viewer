@@ -3,12 +3,18 @@ import { animated, useSpring } from '@react-spring/web'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { ColumnInstance } from 'react-table'
 import { useQueryClient, useQuery } from '@tanstack/react-query'
-import { DRAWER_EXTENDED } from 'lib/reactquery/keys'
 import CircleIconButton from '~/modules/CircleIconButton'
+
+export enum DrawerExtensionTypes {
+  FLIGHT_DRAWER_EXTENDED = 'flight-drawer-extended',
+  MISSION_DRAWER_EXTENDED = 'mission-drawer-extended',
+  DRONE_DRAWER_EXTENDED = 'drone-drawer-extended',
+}
 
 type CustomizeOrderProps = {
   allColumns: ColumnInstance<any>[]
   setColumnOrder: (updater: string[] | ((columnOrder: string[]) => string[])) => void
+  drawerKey: DrawerExtensionTypes
 }
 
 export const CustomizeOrder = ({ allColumns, setColumnOrder }: CustomizeOrderProps) => {
@@ -76,16 +82,18 @@ export const CustomizeOrder = ({ allColumns, setColumnOrder }: CustomizeOrderPro
   )
 }
 
-export const CustomizeColumnsDrawer = ({ allColumns, setColumnOrder }: CustomizeOrderProps) => {
+export const CustomizeColumnsDrawer = ({
+  allColumns,
+  setColumnOrder,
+  drawerKey,
+}: CustomizeOrderProps) => {
   const ref = useRef<HTMLDivElement>(null)
+  const { data: isExtended } = useQuery([drawerKey])
 
-  const { data: isExtended } = useQuery([DRAWER_EXTENDED], () => {
-    return false
-  })
   const queryClient = useQueryClient()
 
   const closeDrawer = () => {
-    queryClient.setQueryData<boolean>([DRAWER_EXTENDED], () => {
+    queryClient.setQueryData<boolean>([drawerKey], () => {
       return false
     })
   }
@@ -139,10 +147,15 @@ export const CustomizeColumnsDrawer = ({ allColumns, setColumnOrder }: Customize
       ) : null}
       <div
         className={`h-screen
-                    overflow-y-scroll`}
+                    overflow-y-scroll
+                    bg-grey-super-dark`}
       >
         <div className={`relative`}>
-          <CustomizeOrder allColumns={allColumns} setColumnOrder={setColumnOrder} />
+          <CustomizeOrder
+            allColumns={allColumns}
+            setColumnOrder={setColumnOrder}
+            drawerKey={drawerKey}
+          />
         </div>
       </div>
     </animated.div>

@@ -1,3 +1,6 @@
+/* 
+  The following Component is currently not used
+ */
 import { useState } from 'react'
 import NextLink from 'next/link'
 import { animated, useSpring } from '@react-spring/web'
