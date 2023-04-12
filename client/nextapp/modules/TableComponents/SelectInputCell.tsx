@@ -3,14 +3,17 @@ import React, { memo, useState, useEffect } from 'react'
 import clsx from 'clsx'
 import { useFormContext, UseFormReturn, FieldValues } from 'react-hook-form'
 
-interface InputProps extends UseFormReturn<FieldValues, any> {
+type SelectInputCellProps = {
   name: string
   options: { name: string; value: string | number }[]
   defaultValue?: string
+  required?: boolean
 }
 
+interface InputProps extends UseFormReturn<FieldValues, any>, SelectInputCellProps {}
+
 const Select = memo(
-  ({ register, name, options, defaultValue = '', getValues }: InputProps) => {
+  ({ register, name, options, defaultValue = '', getValues, required }: InputProps) => {
     const [selectedValue, setValue] = useState(getValues(name))
 
     useEffect(() => {
@@ -64,8 +67,7 @@ const Select = memo(
             )}
           >
             <option></option>
-
-            {defaultValue !== '' ? (
+            {!required ? (
               <option key="delete" value="delete">
                 delete / no value
               </option>
@@ -108,14 +110,21 @@ const Select = memo(
   (prevProps, nextProps) => prevProps.formState.isDirty === nextProps.formState.isDirty,
 )
 
-type SelectInputCellProps = {
-  name: string
-  options: { name: string; value: string | number }[]
-  defaultValue?: string
-}
-
-export const SelectInputCell = ({ name, options, defaultValue }: SelectInputCellProps) => {
+export const SelectInputCell = ({
+  name,
+  options,
+  defaultValue,
+  required,
+}: SelectInputCellProps) => {
   const methods = useFormContext()
 
-  return <Select {...methods} name={name} options={options} defaultValue={defaultValue} />
+  return (
+    <Select
+      {...methods}
+      name={name}
+      options={options}
+      defaultValue={defaultValue}
+      required={required}
+    />
+  )
 }

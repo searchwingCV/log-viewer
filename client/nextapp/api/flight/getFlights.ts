@@ -1,7 +1,6 @@
-//TODO: Exchange mock request with real one
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import { Page_FlightSerializer_ } from '@schema/Page_FlightSerializer_'
+import { Page_FlightSerializer_ } from '@schema'
 
 export const ALl_FLIGHTS_KEY = "ALL_FLIGHTS"
 
@@ -18,5 +17,6 @@ export const fetchAllFlightsQuery = (page: number, size: number) =>
         getFlights(page, size),
 
         {
-            keepPreviousData: true
+            keepPreviousData: true,
+            staleTime: 10 * (60 * 100), // 1 mins
         })

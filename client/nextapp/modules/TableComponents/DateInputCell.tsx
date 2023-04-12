@@ -4,10 +4,12 @@ import { useFormContext, UseFormReturn, FieldValues } from 'react-hook-form'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { format, parseISO, isValid } from 'date-fns'
 
-interface InputProps extends UseFormReturn<FieldValues, any> {
+type DateInputCellProps = {
   name: string
   defaultValue?: string
 }
+
+interface InputProps extends UseFormReturn<FieldValues, any>, DateInputCellProps {}
 
 const Input = memo(
   ({ register, name, defaultValue = '', setValue, setError, getValues }: InputProps) => {
@@ -146,13 +148,8 @@ const Input = memo(
     return prevProps.formState.isDirty === nextProps.formState.isDirty
   },
 )
-type DateInputCellProps = {
-  name: string
-  type?: 'text' | 'date'
-  defaultValue?: string
-}
 
-export const DateInputCell = ({ name, defaultValue, type }: DateInputCellProps) => {
+export const DateInputCell = ({ name, defaultValue }: DateInputCellProps) => {
   const methods = useFormContext()
 
   return <Input {...methods} name={name} defaultValue={defaultValue} />

@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react'
 import { useTranslation } from 'next-i18next'
 import CircleIconButton from '~/modules/CircleIconButton'
 import { useRouter } from 'next/router'
@@ -20,6 +21,14 @@ export const Pagination = ({
   const { t } = useTranslation()
   const router = useRouter()
   const { page: queryPage, pagesize: queryPageSize } = router.query
+
+  useEffect(() => {
+    if (!router.asPath.includes('page') && !router.asPath.includes('pagesize')) {
+      router.push({ query: { page: 1, pagesize: '10' } }, undefined, {
+        shallow: true,
+      })
+    }
+  }, [queryPageSize, queryPage])
 
   return (
     <div
@@ -117,7 +126,7 @@ export const Pagination = ({
         />
       </span>
       <select
-        defaultValue={queryPageSize}
+        defaultValue={parseInt(queryPageSize as string)}
         className={`rounded-md
                     border-0
                     bg-primary-white
@@ -138,12 +147,16 @@ export const Pagination = ({
         }}
       >
         {[5, 10, 15, 20].map((pageSize) => (
-          <option key={pageSize} value={pageSize}>
+          <option
+            key={pageSize}
+            value={pageSize}
+            selected={parseInt(queryPageSize as string) === pageSize}
+            disabled={totalNumber / pageSize < 1}
+          >
             Show {pageSize}
           </option>
         ))}
       </select>
-      <pre></pre>
     </div>
   )
 }

@@ -23,11 +23,11 @@ export type CreateFlightSerializer = {
     /**
      * A rating for the flight: good/problems/crash
      */
-    rating: FlightRating;
+    rating?: FlightRating;
     /**
      * The purpose of the flight: test/training/mission
      */
-    purpose: FlightPurpose;
+    purpose?: FlightPurpose;
     /**
      * Some notes about the flight
      */

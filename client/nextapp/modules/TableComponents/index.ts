@@ -1,4 +1,3 @@
-import { flightData } from './mockData'
 import { GlobalTextFilter } from './GlobalTextFilter'
 import { Pagination } from './Pagination'
 import { SelectCheckbox } from './SelectCheckbox'
@@ -8,7 +7,7 @@ import { TableBody } from './TableBody'
 import { TextInputCell } from './TextInputCell'
 import { DateInputCell } from './DateInputCell'
 import { SelectInputCell } from './SelectInputCell'
-import { CustomizeColumnsDrawer } from './CustomizeColumnsDrawer'
-
-
-export { flightData, GlobalTextFilter, Pagination, SelectCheckbox, ColumnFilter, TableBody, TableHead, TextInputCell, SelectInputCell, DateInputCell, CustomizeColumnsDrawer }
+import { CustomizeColumnsDrawer, DrawerExtensionTypes } from './CustomizeColumnsDrawer'
+import { determineWidth } from './determineWidth'
+import { ToggleCustomizeOrder } from './ToggleCustomizeOrder'
+export { DrawerExtensionTypes, ToggleCustomizeOrder, GlobalTextFilter, Pagination, SelectCheckbox, ColumnFilter, TableBody, TableHead, TextInputCell, SelectInputCell, DateInputCell, CustomizeColumnsDrawer, determineWidth }

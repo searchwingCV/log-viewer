@@ -2,7 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type Body_upload_log_file_flight__flight_id__log_file_put = {
+export type Body_upload_file_flight__id__file_put = {
     file: Blob;
 };
 

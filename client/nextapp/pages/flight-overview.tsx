@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'
+import React from 'react'
 import type { GetStaticProps } from 'next'
 import { QueryClient, dehydrate, useQueries } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
@@ -13,6 +13,7 @@ import { NextPageWithLayout } from './_app'
 const FlightOverviewPage: NextPageWithLayout = () => {
   const router = useRouter()
   const { page: queryPage, pagesize: queryPageSize } = router.query
+
   const { data } = fetchAllFlightsQuery(
     parseInt(queryPage as string) || 1,
     parseInt(queryPageSize as string) || 10,
@@ -20,8 +21,16 @@ const FlightOverviewPage: NextPageWithLayout = () => {
 
   const selectFieldData = useQueries({
     queries: [
-      { queryKey: [ALL_DRONES_KEY, 1, 100], queryFn: () => getDrones(1, 100) },
-      { queryKey: [ALL_MISSIONS_KEY, 1, 100], queryFn: () => getMissions(1, 100) },
+      {
+        queryKey: [ALL_DRONES_KEY, 1, 100],
+        queryFn: () => getDrones(1, 100),
+        staleTime: 10 * (60 * 1000), // 10 mins
+      },
+      {
+        queryKey: [ALL_MISSIONS_KEY, 1, 100],
+        queryFn: () => getMissions(1, 100),
+        staleTime: 10 * (60 * 1000), // 10 mins
+      },
     ],
   })
 
@@ -39,14 +48,6 @@ const FlightOverviewPage: NextPageWithLayout = () => {
     }
   })
 
-  useEffect(() => {
-    if (!queryPageSize && !queryPage) {
-      router.push({ query: { page: 1, pagesize: '10' } }, undefined, {
-        shallow: true,
-      })
-    }
-  }, [queryPageSize, queryPage])
-
   if (!data || !data.items) {
     return null
   }
@@ -58,8 +59,6 @@ const FlightOverviewPage: NextPageWithLayout = () => {
       droneOptions={drones}
     />
   )
-
-  return null
 }
 
 FlightOverviewPage.getLayout = (page) => <Layout>{page}</Layout>

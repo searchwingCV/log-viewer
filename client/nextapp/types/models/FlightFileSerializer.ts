@@ -4,11 +4,10 @@
 
 import type { AllowedFiles } from './AllowedFiles';
 
-export type FileUploadResponse = {
+export type FlightFileSerializer = {
     id: number;
     createdAt: string;
     updatedAt?: string;
-    uri: string;
     location: string;
     fileType: AllowedFiles;
     fkFlight: number;

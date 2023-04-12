@@ -3,7 +3,6 @@
  */
 import { animated, useSpring } from '@react-spring/web'
 import { useQueryClient, useQuery } from '@tanstack/react-query'
-import { DRAWER_EXTENDED } from 'lib/reactquery/keys'
 import CircleIconButton from '~/modules/CircleIconButton'
 import { NavItem } from './components/NavItem'
 
@@ -23,6 +22,7 @@ const navItemsPlaceholder = [
   { name: 'Something', href: '/something', iconName: 'calendar' },
 ]
 
+const DRAWER_EXTENDED = 'drawer-extended'
 export const SideNavigation = ({}: Props) => {
   const { data: isExtended } = useQuery([DRAWER_EXTENDED], () => {
     return false
