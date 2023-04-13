@@ -44,6 +44,20 @@ test-server:
         coverage_format: cobertura
         path: coverage.xml
 
+build:
+  only:
+    - merge_requests
+  tags:
+    - flight-log
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - apk update
+    - apk add bash
+  script:
+    - ./scripts/build.sh
+
 deploy-dev:
   only:
     - dev

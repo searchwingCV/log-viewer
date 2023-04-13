@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'
 import { getMissions, ALL_MISSIONS_KEY, fetchAllMissionsQuery } from '~/api/mission/getMissions'
 import { Layout } from '~/modules/Layouts/Layout'
 import { NextPageWithLayout } from './_app'
-import { MissionTableOverview } from '~/views/MissionTableOverview/MissionTableOberview'
+import MissionTableOverview from '~/views/MissionTableOverview'
 
 const MissionOverviewPage: NextPageWithLayout = () => {
   const router = useRouter()
