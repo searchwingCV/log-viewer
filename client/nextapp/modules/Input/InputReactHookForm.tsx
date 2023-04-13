@@ -80,26 +80,26 @@ export const InputReactHookForm = <TFormValues extends FieldValues>({
           autoComplete={autoComplete}
           className={clsx(
             `!focus:outline-none
-              appearane-none
-              peer
-              absolute
-              top-6
-              bottom-0
-              z-10
-              h-10
-              w-full
-              border-0
-              border-b
-              border-solid
-              bg-transparent
-              pl-0
-              pt-1
-              pb-3
-              caret-grey-dark
-              !outline-none
-              outline-0
-              transition-all
-              focus:ring-0`,
+            appearane-none
+            peer
+            absolute
+            top-6
+            bottom-0
+            z-10
+            h-10
+            w-full
+            border-0
+            border-b
+            border-solid
+            bg-transparent
+            pl-0
+            pt-1
+            pb-3
+            caret-grey-dark
+            !outline-none
+            outline-0
+            transition-all
+            focus:ring-0`,
             disabled ? 'pointer-events-none' : 'border-grey-medium',
           )}
           onFocus={(e) => {
@@ -122,24 +122,37 @@ export const InputReactHookForm = <TFormValues extends FieldValues>({
         <label
           className={clsx(
             `height-5
-             absolute
-             left-0
-             z-0
-             text-grey-dark
-             transition-all
-             peer-focus:top-0
-             peer-focus:text-xs`,
+               absolute
+               left-0
+               z-0
+               text-grey-dark
+               transition-all
+               peer-focus:top-0
+               peer-focus:text-xs`,
             value
               ? `top-0
-                 text-xs`
+                   text-xs`
               : 'top-7',
             disabled && 'text-grey-medium',
           )}
         >
           {placeholder}
-          {!rules.required ? ` (${t('Optional')})` : ''}
+          {!rules?.required ? ` (${t('Optional')})` : ''}
         </label>
-        <div className={clsx(!hasError && styles.inputBorder)}></div>
+        <div
+          className={`absolute
+                        bottom-0
+                        left-0
+                        h-px
+                        w-0
+                        bg-grey-medium
+                        opacity-0
+                        peer-hover:z-20
+                        peer-hover:w-full
+                        peer-hover:bg-primary-black
+                        peer-hover:opacity-100
+                        peer-hover:duration-500`}
+        ></div>
       </div>
 
       {!disabled && (
