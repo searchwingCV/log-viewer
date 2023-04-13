@@ -6,9 +6,10 @@ import { animated, useSpring } from '@react-spring/web'
 import clsx from 'clsx'
 import { useTranslation } from 'next-i18next'
 import { useQuery } from '@tanstack/react-query'
-import { DRAWER_EXTENDED } from 'lib/reactquery/keys'
 import SideNavigation from 'modules/SideNavigation'
 import Header from '~/modules/Header'
+
+const DRAWER_EXTENDED = 'drawer-extended'
 
 export type Props = { children: ReactNode }
 
