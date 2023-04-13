@@ -74,11 +74,14 @@ export const MissionTableOverview = ({
 
       queryClient.invalidateQueries([ALL_MISSIONS_KEY])
     },
-    onError: (data) => {
+    onError: async (data) => {
       toast('Error submitting data.', {
         type: 'error',
         position: toast.POSITION.BOTTOM_CENTER,
       })
+      //TODO find out why error message disappears immediately without a timeout
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
       //TODO: implement scrolling to input if error from be
       //scrollInputIntoView(`input-${data[0]}`)
     },
@@ -181,6 +184,7 @@ export const MissionTableOverview = ({
                   flex
                   min-h-screen`}
     >
+      <ToastContainer />
       <CustomizeColumnsDrawer
         allColumns={allColumns}
         setColumnOrder={setColumnOrder}
@@ -201,7 +205,6 @@ export const MissionTableOverview = ({
                       pt-20
                       pb-12`}
         >
-          <ToastContainer />
           <div
             className={`mb-8
                         grid

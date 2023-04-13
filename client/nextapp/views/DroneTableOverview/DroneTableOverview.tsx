@@ -1,6 +1,8 @@
 //TODO: Refactor code of FlightTableOverview, MissionTableOverview & DroneTableOverview to avoid duplicate code
 import 'regenerator-runtime/runtime'
 import React, { useMemo } from 'react'
+import useElementSize from '@charlietango/use-element-size'
+import useMedia from '@charlietango/use-media'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
@@ -52,9 +54,12 @@ export const DroneTableOverview = ({
   data: DroneSerializer[]
   totalNumber: number
 }) => {
+  const matches = useMedia({ minWidth: 1920 })
+
   const router = useRouter()
   const { pagesize: queryPageSize } = router.query
   const queryClient = useQueryClient()
+  const [ref, size] = useElementSize()
 
   const { data: sideNavExtended } = useQuery([DrawerExtensionTypes.DRONE_DRAWER_EXTENDED])
 
@@ -178,29 +183,39 @@ export const DroneTableOverview = ({
     <div
       className={`flex-column
                   flex
-                  min-h-screen`}
+                  min-h-screen
+                 `}
     >
+      <ToastContainer />
       <CustomizeColumnsDrawer
         allColumns={allColumns}
         setColumnOrder={setColumnOrder}
         drawerKey={DrawerExtensionTypes.DRONE_DRAWER_EXTENDED}
       />
+
       <animated.div
         className={clsx(` ml-side-drawer-width
+                          flex
                           h-screen
+                          flex-col
+                          items-center
                           overflow-x-hidden
+                          px-12
                           `)}
         style={slideX}
       >
         <div
+          style={{
+            maxWidth: matches ? size.width + 40 : '100%',
+          }}
           className={`relative
                       mb-40
                       pl-2
                       pr-8
                       pt-20
-                      pb-12`}
+                      pb-12
+                      `}
         >
-          <ToastContainer />
           <div
             className={`mb-8
                         grid
@@ -221,7 +236,7 @@ export const DroneTableOverview = ({
               placeholder="Group by"
               options={[
                 { name: 'None', value: '' },
-                { name: 'Partner Organization', value: 'partnerOrganization' },
+                { name: 'Partner Organizat+ion', value: 'partnerOrganization' },
               ]}
               onSetValue={setGroupBy}
               defaultValue="None"
@@ -229,11 +244,25 @@ export const DroneTableOverview = ({
               resetButtonText={'Reset Group'}
             />
           </div>
-          <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.DRONE_DRAWER_EXTENDED} />
+          <div className="flex">
+            <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.DRONE_DRAWER_EXTENDED} />
+            <div className="py-8 px-4">
+              <Button
+                isSpecial={true}
+                buttonStyle="Main"
+                className="w-[200px] px-6 py-4"
+                onClick={async () => {
+                  await router.push('/add/drone')
+                }}
+              >
+                Add new drone +
+              </Button>
+            </div>
+          </div>
           <FormProvider {...methods}>
             <form onSubmit={onSubmit}>
               <div className="overflow-x-scroll">
-                <table {...getTableProps()} className={`roundex-xl`}>
+                <table {...getTableProps()} className={`roundex-xl`} ref={ref}>
                   <TableHead
                     headerGroups={headerGroups}
                     allColumns={allColumns}

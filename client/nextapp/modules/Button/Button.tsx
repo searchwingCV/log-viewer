@@ -52,6 +52,7 @@ export const Button = ({
           `button
            text-primary-white
            decoration-primary-white
+
            rounded-xl
            shadow-subtle`,
           disabled
@@ -62,14 +63,11 @@ export const Button = ({
         )
       case 'Link':
         return clsx(
-          'button',
+          'underline underline-offset-8	text-grey-dark',
           disabled
             ? `bg-transparent
                cursor-not-allowed`
-            : `hover:border-secondary-soft-black
-               hover:bg-secondary-soft-black
-               hover:text-primary-white
-               hover:decoration-primary-white`,
+            : ``,
         )
       default:
         return ''

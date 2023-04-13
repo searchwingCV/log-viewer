@@ -1,40 +1,44 @@
 import { useForm } from 'react-hook-form'
 import type { AxiosError } from 'axios'
+import { useRouter } from 'next/router'
 import { ToastContainer, toast } from 'react-toastify'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { CreateDroneSerializer, DroneStatus } from '@schema'
+import { CreateMissionSerializer, DroneStatus } from '@schema'
 import Button from '~/modules/Button'
 import { InputReactHookForm } from '~/modules/Input/InputReactHookForm'
 import { SelectReactHookForm } from '~/modules/Select/SelectReactHookForm'
-import { postDrone } from '~/api/drone/postDrone'
-import { useRouter } from 'next/router'
+import { postMission } from '~/api/mission/postMission'
 
-export const AddDroneView = () => {
+export const AddMissionView = () => {
   const router = useRouter()
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<CreateDroneSerializer>({
+  } = useForm<CreateMissionSerializer>({
     criteriaMode: 'all',
     mode: 'onBlur',
   })
 
-  const addDrone = useMutation(postDrone, {
+  const addMission = useMutation(postMission, {
+    onSettled: () => {},
     onSuccess: async (data) => {
-      toast('Data changed.', {
+      toast('Mission added.', {
         type: 'success',
       })
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      reset()
 
-      await reset()
-      await router.push('/drone-overview')
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await router.push('/mission-overview')
     },
     onError: async (data: AxiosError) => {
-      toast(((data?.response?.data as any).detail || 'error submitting data') as string, {
-        type: 'error',
-      })
+      toast(
+        (JSON.stringify((data?.response?.data as any).detail) || 'error submitting data') as string,
+        {
+          type: 'error',
+        },
+      )
       //TODO find out why error message disappears immediately without a timeout
       await new Promise((resolve) => setTimeout(resolve, 100))
     },
@@ -42,16 +46,15 @@ export const AddDroneView = () => {
 
   const onSubmit = handleSubmit(async (data, e) => {
     e?.preventDefault()
-    addDrone.mutate(data)
+
+    addMission.mutate(data)
   })
 
   return (
     <>
       <ToastContainer />
-
       <form className="w-[600px] [&>div]:mt-8" onSubmit={onSubmit}>
-        <ToastContainer autoClose={5000} />
-        <InputReactHookForm<CreateDroneSerializer>
+        <InputReactHookForm<CreateMissionSerializer>
           name="name"
           register={register}
           rules={{
@@ -60,42 +63,51 @@ export const AddDroneView = () => {
           errors={errors}
           placeholder="Name"
         ></InputReactHookForm>
-        <InputReactHookForm<CreateDroneSerializer>
-          name="model"
-          register={register}
-          rules={{
-            required: 'Model required',
-          }}
-          errors={errors}
-          placeholder="Model"
-        ></InputReactHookForm>
-        <InputReactHookForm<CreateDroneSerializer>
+        <InputReactHookForm<CreateMissionSerializer>
           name="description"
           register={register}
-          rules={{}}
+          rules={{
+            required: 'Description required',
+          }}
           errors={errors}
           placeholder="Description"
         ></InputReactHookForm>
-        <InputReactHookForm<CreateDroneSerializer>
-          name="sysThismav"
+        <InputReactHookForm<CreateMissionSerializer>
+          name="location"
           register={register}
           rules={{}}
-          type="number"
           errors={errors}
-          placeholder="Systhismav"
+          placeholder="Location"
         ></InputReactHookForm>
-        <SelectReactHookForm
+        <InputReactHookForm<CreateMissionSerializer>
+          name="startDate"
+          register={register}
+          rules={{
+            required: 'Start Date required',
+          }}
+          type="date"
+          errors={errors}
+          placeholder="Start Date"
+        ></InputReactHookForm>
+        <InputReactHookForm<CreateMissionSerializer>
+          name="endDate"
+          register={register}
+          rules={{
+            required: 'End Date required',
+          }}
+          type="date"
+          errors={errors}
+          placeholder="End Date"
+        ></InputReactHookForm>
+        <InputReactHookForm<CreateMissionSerializer>
+          name="partnerOrganization"
           register={register}
           rules={{}}
           errors={errors}
-          name="status"
-          options={(Object.keys(DroneStatus) as Array<keyof typeof DroneStatus>).map((key) => {
-            return { name: DroneStatus[key], value: DroneStatus[key] }
-          })}
-          placeholder="Status"
-        ></SelectReactHookForm>
+          placeholder="Partner Organization"
+        ></InputReactHookForm>
         <Button buttonStyle="Main" className="mt-12 h-16 w-full" type="submit">
-          Create new Drone
+          Create new Mission
         </Button>
       </form>
     </>

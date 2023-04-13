@@ -23,7 +23,7 @@ export const CircleIconButton = ({ iconClassName, disabled, onClick, addClasses 
         className={clsx(
           `h-12
            w-12
-           rounded-3xl
+           rounded-full
          bg-primary-white
            shadow-subtle`,
           addClasses,

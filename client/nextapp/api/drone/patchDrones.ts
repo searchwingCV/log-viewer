@@ -1,6 +1,5 @@
 
 
-//TODO: Exchange mock request with real one
 import axios from "axios";
 import { BatchUpdateResponse_DroneSerializer_, DroneUpdate } from '@schema'
 

@@ -45,8 +45,8 @@ export const Pagination = ({
             })
           }}
           iconClassName={'angle-double-left'}
-          addClasses={`w-8
-                       h-8
+          addClasses={`!w-8
+                       !h-8
                        mr-2`}
         />
         <CircleIconButton
@@ -61,8 +61,8 @@ export const Pagination = ({
             )
           }}
           iconClassName={'angle-left'}
-          addClasses={`w-8
-                       h-8
+          addClasses={`!w-8
+                       !h-8
                        mr-2`}
         ></CircleIconButton>
         <CircleIconButton
@@ -77,8 +77,8 @@ export const Pagination = ({
               },
             )
           }}
-          addClasses={`w-8
-                       h-8
+          addClasses={`!w-8
+                       !h-8
                        ml`}
         ></CircleIconButton>
         <CircleIconButton
@@ -89,8 +89,8 @@ export const Pagination = ({
           }}
           iconClassName={'angle-double-right'}
           disabled={parseInt(queryPage as string) === pageCount}
-          addClasses={`w-8
-                       h-8
+          addClasses={`!w-8
+                       !h-8
                        ml-2`}
         />
       </span>

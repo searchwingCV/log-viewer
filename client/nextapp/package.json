@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@charlietango/hooks": "^1.10.3",
+    "@charlietango/use-element-size": "^2.2.0",
+    "@charlietango/use-media": "^1.6.0",
     "@fortawesome/fontawesome-free": "^6.1.1",
     "@fortawesome/fontawesome-svg-core": "^6.1.1",
     "@fortawesome/free-solid-svg-icons": "^6.1.1",

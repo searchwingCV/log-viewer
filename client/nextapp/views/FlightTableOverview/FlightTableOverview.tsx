@@ -238,6 +238,7 @@ export const FlightTableOverview = ({
                   flex
                   min-h-screen`}
     >
+      <ToastContainer />
       <CustomizeColumnsDrawer
         allColumns={allColumns}
         setColumnOrder={setColumnOrder}
@@ -246,7 +247,8 @@ export const FlightTableOverview = ({
       <animated.div
         className={clsx(`ml-side-drawer-width
                           h-screen
-                          overflow-x-hidden`)}
+                          overflow-x-hidden
+                          px-12`)}
         style={slideX}
       >
         <div
@@ -257,7 +259,6 @@ export const FlightTableOverview = ({
                       pt-20
                       pb-12`}
         >
-          <ToastContainer />
           <div
             className={`mb-8
                         grid

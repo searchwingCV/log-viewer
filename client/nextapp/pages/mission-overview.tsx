@@ -3,7 +3,7 @@ import type { GetStaticProps } from 'next'
 import { QueryClient, dehydrate } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 import { getMissions, ALL_MISSIONS_KEY, fetchAllMissionsQuery } from '~/api/mission/getMissions'
-import { Layout } from '~/modules/Layout/Layout'
+import { Layout } from '~/modules/Layouts/Layout'
 import { NextPageWithLayout } from './_app'
 import { MissionTableOverview } from '~/views/MissionTableOverview/MissionTableOberview'
 

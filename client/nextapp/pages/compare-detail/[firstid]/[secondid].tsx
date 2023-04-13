@@ -2,7 +2,7 @@ import { GetStaticProps } from 'next'
 import { QueryClient, dehydrate } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 
-import { Layout } from 'modules/Layout/Layout'
+import { Layout } from '~/modules/Layouts/Layout'
 import { getFlights } from '~/api/flight/getFlights'
 
 const FlightCompareScreen = ({}) => {

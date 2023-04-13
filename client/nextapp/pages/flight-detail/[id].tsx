@@ -3,7 +3,7 @@ import { getFlights } from '~/api/flight/getFlights'
 import { QueryClient, dehydrate } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 
-import { Layout } from 'modules/Layout/Layout'
+import { Layout } from '~/modules/Layouts/Layout'
 
 const FlightDetailScreen = ({}) => {
   const router = useRouter()

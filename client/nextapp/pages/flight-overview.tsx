@@ -6,7 +6,7 @@ import { fetchAllFlightsQuery, getFlights, ALl_FLIGHTS_KEY } from '~/api/flight/
 import { getDrones, ALL_DRONES_KEY } from '~/api/drone/getDrones'
 import { getMissions, ALL_MISSIONS_KEY } from '~/api/mission/getMissions'
 
-import { Layout } from '~/modules/Layout/Layout'
+import { Layout } from '~/modules/Layouts/Layout'
 import FlightTableOverview from '~/views/FlightTableOverview'
 import { NextPageWithLayout } from './_app'
 
