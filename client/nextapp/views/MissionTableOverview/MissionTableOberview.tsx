@@ -233,7 +233,21 @@ export const MissionTableOverview = ({
               resetButtonText={'Reset Group'}
             />
           </div>
-          <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.MISSION_DRAWER_EXTENDED} />
+          <div className="flex">
+            <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.MISSION_DRAWER_EXTENDED} />
+            <div className="py-8 px-4">
+              <Button
+                isSpecial={true}
+                buttonStyle="Main"
+                className="w-[200px] px-6 py-4"
+                onClick={async () => {
+                  await router.push('/add/mission')
+                }}
+              >
+                Add new mission +
+              </Button>
+            </div>
+          </div>{' '}
           <FormProvider {...methods}>
             <form onSubmit={onSubmit}>
               <div className="overflow-x-scroll">

@@ -48,7 +48,6 @@ export const AddDroneView = () => {
   return (
     <>
       <ToastContainer />
-
       <form className="w-[600px] [&>div]:mt-8" onSubmit={onSubmit}>
         <ToastContainer autoClose={5000} />
         <InputReactHookForm<CreateDroneSerializer>
