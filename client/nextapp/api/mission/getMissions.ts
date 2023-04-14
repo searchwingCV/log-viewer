@@ -8,7 +8,9 @@ export const getMissions = async (page: number, size: number) => {
     const data: Page_MissionSerializer_ = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/mission?page=${page}&size=${size}`)
         .then((res) => {
             return res.data
-        })
+        }).catch((e) =>
+            console.error(e)
+        )
 
     return data
 }

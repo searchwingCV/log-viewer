@@ -15,7 +15,7 @@ const nextConfig = {
     // formats: [],
   },
   i18n,
-  async rewrites() {
+  rewrites() {
     return [
       {
         source: '/',
