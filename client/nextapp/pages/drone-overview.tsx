@@ -1,5 +1,5 @@
 import React from 'react'
-import type { GetStaticProps } from 'next'
+import type { GetServerSideProps } from 'next'
 import { QueryClient, dehydrate } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 import { getDrones, ALL_DRONES_KEY, fetchAllDronesQuery } from '~/api/drone/getDrones'
@@ -24,8 +24,7 @@ const DroneTablePage: NextPageWithLayout = () => {
 
 DroneTablePage.getLayout = (page) => <Layout>{page}</Layout>
 
-export const getStaticProps: GetStaticProps = async () => {
-  //Incremental static regeneration with react-query's prefetch query
+export const getServerSideProps: GetServerSideProps = async () => {
   const queryClient = new QueryClient()
   await queryClient.prefetchQuery([ALL_DRONES_KEY, 1, 10], () => getDrones(1, 10))
 
@@ -33,7 +32,7 @@ export const getStaticProps: GetStaticProps = async () => {
     props: {
       dehydratedState: dehydrate(queryClient),
     },
-    revalidate: 60 * 5, // 5 minutes
+    //revalidate: 60 * 5, // 5 minutes
   }
 }
 
