@@ -1,5 +1,5 @@
 import React from 'react'
-import type { GetStaticProps } from 'next'
+import type { GetStaticProps, GetServerSideProps } from 'next'
 import { QueryClient, dehydrate } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 import { getMissions, ALL_MISSIONS_KEY, fetchAllMissionsQuery } from '~/api/mission/getMissions'
@@ -23,8 +23,7 @@ const MissionOverviewPage: NextPageWithLayout = () => {
 
 MissionOverviewPage.getLayout = (page) => <Layout>{page}</Layout>
 
-export const getStaticProps: GetStaticProps = async () => {
-  //Incremental static regeneration with react-query's prefetch query
+export const getServerSideProps: GetServerSideProps = async () => {
   const queryClient = new QueryClient()
   await queryClient.prefetchQuery([ALL_MISSIONS_KEY, 1, 10], () => getMissions(1, 10))
 
@@ -32,7 +31,7 @@ export const getStaticProps: GetStaticProps = async () => {
     props: {
       dehydratedState: dehydrate(queryClient),
     },
-    revalidate: 60 * 5, // 5 minutes
+    // revalidate: 60 * 5, // 5 minutes
   }
 }
 

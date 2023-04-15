@@ -1,10 +1,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export { ApiError } from './core/ApiError';
-export { CancelablePromise, CancelError } from './core/CancelablePromise';
-export { OpenAPI } from './core/OpenAPI';
-export type { OpenAPIConfig } from './core/OpenAPI';
+
 
 export { AllowedFiles } from './models/AllowedFiles';
 export type { AppHealth } from './models/AppHealth';
@@ -39,8 +36,3 @@ export type { UpdateSerializer_FlightUpdate_ } from './models/UpdateSerializer_F
 export type { UpdateSerializer_MissionUpdate_ } from './models/UpdateSerializer_MissionUpdate_';
 export type { ValidationError } from './models/ValidationError';
 export { WindIntensity } from './models/WindIntensity';
-export { DroneService } from './services/DroneService';
-export { FileService } from './services/FileService';
-export { FlightService } from './services/FlightService';
-export { HealthService } from './services/HealthService';
-export { MissionService } from './services/MissionService';
