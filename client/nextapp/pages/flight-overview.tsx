@@ -1,5 +1,5 @@
 import React from 'react'
-import type { GetStaticProps } from 'next'
+import type { GetServerSideProps } from 'next'
 import { QueryClient, dehydrate, useQueries } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 import { fetchAllFlightsQuery, getFlights, ALl_FLIGHTS_KEY } from '~/api/flight/getFlights'
@@ -63,8 +63,7 @@ const FlightOverviewPage: NextPageWithLayout = () => {
 
 FlightOverviewPage.getLayout = (page) => <Layout>{page}</Layout>
 
-export const getStaticProps: GetStaticProps = async () => {
-  //Incremental static regeneration with react-query's prefetch query
+export const getServerSideProps: GetServerSideProps = async () => {
   const queryClient = new QueryClient()
   await queryClient.prefetchQuery([ALl_FLIGHTS_KEY, 1, 10], () => getFlights(1, 10))
   //TODO: manage case where total number of saved drones and missions is more than 100
@@ -76,7 +75,7 @@ export const getStaticProps: GetStaticProps = async () => {
     props: {
       dehydratedState: dehydrate(queryClient),
     },
-    revalidate: 60 * 5, // 5 minutes
+    //revalidate: 60 * 5, // 5 minutes
   }
 }
 
