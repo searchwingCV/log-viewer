@@ -1,5 +1,4 @@
 import { ReactNode } from 'react'
-import Header from '~/modules/Header'
 import Button from '~/modules/Button'
 import { useRouter } from 'next/router'
 
@@ -16,6 +15,7 @@ export const CreateObjectLayout = ({ children }: Props) => {
                 flex-col
                 items-center
                 justify-center
+                pb-16
                 `}
     >
       <div className="max-w-[600px] pt-16">

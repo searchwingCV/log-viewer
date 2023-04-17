@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import type { AxiosError } from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { CreateDroneSerializer, DroneStatus } from '@schema'
 import Button from '~/modules/Button'
 import { InputReactHookForm } from '~/modules/Input/InputReactHookForm'
@@ -32,9 +32,11 @@ export const AddDroneView = () => {
       await router.push('/drone-overview')
     },
     onError: async (data: AxiosError) => {
-      toast(((data?.response?.data as any).detail || 'error submitting data') as string, {
+      //TODO: better error messages
+      toast('error submitting data' as string, {
         type: 'error',
       })
+
       //TODO find out why error message disappears immediately without a timeout
       await new Promise((resolve) => setTimeout(resolve, 100))
     },

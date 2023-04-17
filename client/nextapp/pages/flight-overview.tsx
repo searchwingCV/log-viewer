@@ -19,6 +19,7 @@ const FlightOverviewPage: NextPageWithLayout = () => {
     parseInt(queryPageSize as string) || 10,
   )
 
+  //TODO: Turn into hook to avoid duplicate code
   const selectFieldData = useQueries({
     queries: [
       {

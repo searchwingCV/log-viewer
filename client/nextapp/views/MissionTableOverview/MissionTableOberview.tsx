@@ -1,8 +1,11 @@
 //TODO: Refactor code of FlightTableOverview, MissionTableOverview & DroneTableOverview to avoid duplicate code
 import 'regenerator-runtime/runtime'
+import useElementSize from '@charlietango/use-element-size'
 import React, { useMemo } from 'react'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
+import useMedia from '@charlietango/use-media'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { ToastContainer, toast } from 'react-toastify'
 import { useTranslation } from 'next-i18next'
@@ -53,6 +56,8 @@ export const MissionTableOverview = ({
   data: MissionSerializer[]
   totalNumber: number
 }) => {
+  const [ref, size] = useElementSize()
+  const matches = useMedia({ minWidth: 1920 })
   const router = useRouter()
   const { pagesize: queryPageSize } = router.query
   const queryClient = useQueryClient()
@@ -192,12 +197,18 @@ export const MissionTableOverview = ({
       />
       <animated.div
         className={clsx(` ml-side-drawer-width
+                          flex
                           h-screen
+                          flex-col
+                          items-center
                           overflow-x-hidden
                           `)}
         style={slideX}
       >
         <div
+          style={{
+            maxWidth: matches ? size.width + 40 : '100%',
+          }}
           className={`relative
                       mb-40
                       pl-2
@@ -244,14 +255,15 @@ export const MissionTableOverview = ({
                   await router.push('/add/mission')
                 }}
               >
-                Add new mission +
+                <FontAwesomeIcon icon={'plus-circle'} height="32" className="scale-150" />
+                <span className="ml-3">Add new mission</span>
               </Button>
             </div>
           </div>{' '}
           <FormProvider {...methods}>
             <form onSubmit={onSubmit}>
               <div className="overflow-x-scroll">
-                <table {...getTableProps()} className={`roundex-xl`}>
+                <table {...getTableProps()} className={`roundex-xl`} ref={ref}>
                   <TableHead
                     headerGroups={headerGroups}
                     allColumns={allColumns}

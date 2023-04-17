@@ -24,6 +24,7 @@ import {
   useGlobalFilter,
   useColumnOrder,
 } from 'react-table'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FormProvider, useForm } from 'react-hook-form'
 import Select from 'modules/Select'
 import Button from 'modules/Button'
@@ -55,7 +56,6 @@ export const DroneTableOverview = ({
   totalNumber: number
 }) => {
   const matches = useMedia({ minWidth: 1920 })
-
   const router = useRouter()
   const { pagesize: queryPageSize } = router.query
   const queryClient = useQueryClient()
@@ -236,7 +236,7 @@ export const DroneTableOverview = ({
               placeholder="Group by"
               options={[
                 { name: 'None', value: '' },
-                { name: 'Partner Organizat+ion', value: 'partnerOrganization' },
+                { name: 'Partner Organization', value: 'partnerOrganization' },
               ]}
               onSetValue={setGroupBy}
               defaultValue="None"
@@ -255,7 +255,8 @@ export const DroneTableOverview = ({
                   await router.push('/add/drone')
                 }}
               >
-                Add new drone +
+                <FontAwesomeIcon icon={'plus-circle'} height="32" className="scale-150" />
+                <span className="ml-3">Add new drone</span>{' '}
               </Button>
             </div>
           </div>

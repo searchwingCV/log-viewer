@@ -1,8 +1,8 @@
 import { GetStaticProps } from 'next'
 import { useRouter } from 'next/router'
-import Button from '~/modules/Button'
 import { CreateObjectLayout } from '~/modules/Layouts/CreateObjectLayout'
 import { AddDroneView } from '~/views/AddDroneView/AddDroneView'
+import AddFlightView from '~/views/AddFlightView'
 import AddMissionView from '~/views/AddMissionView'
 import { NextPageWithLayout } from '../_app'
 
@@ -15,7 +15,8 @@ export const AddInstanceScreen: NextPageWithLayout = ({}) => {
   const renderForm = () => {
     switch (model) {
       case 'flight':
-
+        return <AddFlightView />
+        return
       case 'drone':
         return <AddDroneView />
       case 'mission':
@@ -24,22 +25,19 @@ export const AddInstanceScreen: NextPageWithLayout = ({}) => {
         return null
     }
   }
-
-  return renderForm()
+  return <>{renderForm()}</>
 }
 
 AddInstanceScreen.getLayout = (page) => <CreateObjectLayout>{page}</CreateObjectLayout>
 
-export const getStaticPaths = async () => {
+export const getStaticPaths = () => {
   const paths = models.map((item) => ({
     params: { model: item },
   }))
 
   return { paths, fallback: false }
 }
-
-// This also gets called at build time
-export const getStaticProps: GetStaticProps = async () => {
+export const getStaticProps: GetStaticProps = () => {
   return {
     props: {},
   }
