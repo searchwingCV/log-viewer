@@ -8,7 +8,7 @@ services:
       target: dev
     stdin_open: true
     tty: true
-    command: sh -c "alembic upgrade head && python scripts/fill_up_db.py && python bin/api.py"
+    command: sh -c "alembic upgrade head && python scripts/fill_up_db.py && python bin/api.py --reload"
     volumes:
       - ./server:/searchwing
       - ./storage:/data/
