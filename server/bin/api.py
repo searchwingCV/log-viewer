@@ -62,8 +62,8 @@ def build_api() -> FastAPI:
     origins = [
         "http://localhost",
         "http://localhost:3000",
-        "http://staging.flight-data.searchwing.org",
-        "http://flight-data.searchwing.org",
+        "https://staging.flight-data.searchwing.org",
+        "https://flight-data.searchwing.org",
     ]
     app.add_middleware(
         CORSMiddleware,
