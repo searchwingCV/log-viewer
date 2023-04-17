@@ -1,10 +1,10 @@
 import '../styles/globals.css'
 import 'react-tippy/dist/tippy.css'
 import 'react-toastify/dist/ReactToastify.css'
-import type { AppProps } from 'next/app'
-import { Hydrate, QueryClientProvider, QueryClient } from 'react-query'
-import { ReactQueryDevtools } from 'react-query/devtools'
 import { ReactElement, ReactNode, useState } from 'react'
+import type { AppProps } from 'next/app'
+import { QueryClient, QueryClientProvider, Hydrate } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { appWithTranslation } from 'next-i18next'
 import { NextPage } from 'next'
 import { config, library } from '@fortawesome/fontawesome-svg-core'
@@ -28,6 +28,8 @@ import {
   faAngleRight,
   faCircleXmark,
   faUndo,
+  faAdd,
+  faPlusCircle,
 } from '@fortawesome/free-solid-svg-icons'
 
 config.autoAddCss = false
@@ -50,6 +52,8 @@ library.add(
   faAngleRight,
   faCircleXmark,
   faUndo,
+  faAdd,
+  faPlusCircle,
 )
 
 export type NextPageWithLayout<Props = object> = NextPage<Props> & {
@@ -64,11 +68,10 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   // Use the layout defined at the page level, if available
   // https://nextjs.org/docs/basic-features/layouts#with-typescript
   const getLayout = Component.getLayout ?? ((page) => page)
-
   const [queryClient] = useState(() => new QueryClient())
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient} contextSharing={false}>
       <Hydrate state={pageProps.dehydratedState}>{getLayout(<Component {...pageProps} />)}</Hydrate>
       <ReactQueryDevtools />
     </QueryClientProvider>

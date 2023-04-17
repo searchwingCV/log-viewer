@@ -6,7 +6,8 @@ from alembic.command import upgrade
 from alembic.config import Config as AlembicConfig
 from common.logging import get_logger
 from fastapi import FastAPI, Request, Response, status
-from presentation.rest.controllers import drone, flight, health, mission, root
+from fastapi.middleware.cors import CORSMiddleware
+from presentation.rest.controllers import drone, file, flight, health, mission, root
 from presentation.rest.serializers.errors import InternalServerError
 
 logger = get_logger(__name__)
@@ -41,6 +42,7 @@ def get_args() -> Namespace:
     )
     parser.add_argument("--debug", help="Activate debug", action="store_true")
     parser.add_argument("--reload", help="Activate reload (only for dev)", action="store_true")
+    parser.add_argument("--automigrate", help="Run migrations on startup", action="store_true")
     return parser.parse_args()
 
 
@@ -53,10 +55,22 @@ def log_exception_handler(request: Request, exc: Exception):
 
 
 def build_api() -> FastAPI:
-
     app = FastAPI(
         title="Searchwing flight log data API",
         description="An API to keep log files organized and analyze them",
+    )
+    origins = [
+        "http://localhost",
+        "http://localhost:3000",
+        "https://staging.flight-data.searchwing.org",
+        "https://flight-data.searchwing.org",
+    ]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
     app.include_router(root.router)
@@ -64,6 +78,7 @@ def build_api() -> FastAPI:
     app.include_router(drone.router)
     app.include_router(mission.router)
     app.include_router(flight.router)
+    app.include_router(file.router)
 
     app.add_exception_handler(Exception, log_exception_handler)
 
@@ -73,7 +88,8 @@ def build_api() -> FastAPI:
 if __name__ == "__main__":
     args = get_args()
 
-    migrate_db()
+    if args.automigrate:
+        migrate_db()
 
     uvicorn.run(
         "bin.api:build_api",

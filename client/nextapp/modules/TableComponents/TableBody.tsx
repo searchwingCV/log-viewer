@@ -9,6 +9,9 @@ export type TestProps<TColumnProps extends object> = {
   prepareRow: (row: Row<TColumnProps>) => void
   firstColumnAccessor: string
   hasRecords: boolean
+  numberOfRows: number
+  selectedOriginalRows: { id: string; index: number }[]
+  hasNoSelection?: boolean
 }
 
 export const TableBody = <TColumnProps extends object>({
@@ -17,7 +20,15 @@ export const TableBody = <TColumnProps extends object>({
   prepareRow,
   firstColumnAccessor,
   hasRecords,
+  numberOfRows,
+  selectedOriginalRows,
+  hasNoSelection,
 }: TestProps<TColumnProps>) => {
+  const rowsNotInFirstTwoSelected = Array.from(Array(numberOfRows).keys()).filter(
+    (number) => !selectedOriginalRows?.map((item) => item.index).includes(number),
+  )
+  const maxNumberOfSelectedRowsReached = selectedOriginalRows?.length >= 2
+
   if (!hasRecords) {
     return (
       <div
@@ -36,11 +47,10 @@ export const TableBody = <TColumnProps extends object>({
 
   return (
     <tbody {...getTableBodyProps()} className="min-w-full">
-      {page.map((row, index) => {
+      {page.map((row, indexRow) => {
         prepareRow(row)
         const { key, ...restRowProps } = row.getRowProps()
-
-        const isEven = index % 2 === 0
+        const isEven = indexRow % 2 === 0
 
         return (
           <tr
@@ -59,7 +69,7 @@ export const TableBody = <TColumnProps extends object>({
               isEven ? `border-l-primary-dark-petrol` : 'border-l-primary-indigo-blue',
             )}
           >
-            {row.cells.map((cell: any, index: number) => {
+            {row.cells.map((cell: any, cellIndex: number) => {
               const { key, ...restCellProps } = cell.getCellProps()
 
               return (
@@ -71,6 +81,7 @@ export const TableBody = <TColumnProps extends object>({
                      items-center
                      justify-center
                      text-center`,
+
                     cell.column.id === firstColumnAccessor
                       ? `flex 
                          rounded-r-[0px]
@@ -88,10 +99,24 @@ export const TableBody = <TColumnProps extends object>({
                     !row.isGrouped &&
                       `justify-center
                        text-center`,
-                    index === 0
-                      ? `ml-4
-                         w-[22px]`
-                      : '',
+
+                    hasNoSelection && cellIndex === 0
+                      ? '-ml-3'
+                      : cellIndex === 0 &&
+                          `ml-3
+                           w-[22px]`,
+                    selectedOriginalRows?.length &&
+                      cellIndex !== 0 &&
+                      !row?.isGrouped &&
+                      `row-pointer-events-none
+                       pointer-events-none
+                       opacity-50`,
+                    cell.column.id === 'selection' &&
+                      maxNumberOfSelectedRowsReached &&
+                      !row?.isGrouped &&
+                      rowsNotInFirstTwoSelected.includes(parseInt(row.id)) &&
+                      `pointer-events-none
+                       opacity-20`,
                   )}
                 >
                   <span className={cell.column.width}>

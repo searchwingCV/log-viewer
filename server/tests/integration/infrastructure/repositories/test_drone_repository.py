@@ -1,4 +1,5 @@
 from copy import deepcopy
+from datetime import datetime
 
 import pytest
 from common.exceptions.db import DuplicatedKeyError
@@ -171,3 +172,25 @@ def test_update_non_existing(add_sample_drone_to_db, test_db_session):
     drone_updated = repository.update(test_db_session, 2, update_data)
 
     assert drone_updated is None
+
+
+def test_get_all_should_be_ordered(add_sample_drone_to_db, get_sample_drone, test_db_session):
+    add_sample_drone_to_db()
+
+    drone_2 = get_sample_drone()
+
+    drone_db = DroneModel(**drone_2.dict())
+    drone_db.updated_at = datetime.now()
+
+    test_db_session.add(drone_db)
+    test_db_session.commit()
+    test_db_session.refresh(drone_db)
+
+    add_sample_drone_to_db()
+
+    repository = DroneRepository()
+    _, drones = repository.get_with_pagination(test_db_session, 1, 20)
+
+    assert drones[0].id == 1
+    assert drones[1].id == 2
+    assert drones[2].id == 3

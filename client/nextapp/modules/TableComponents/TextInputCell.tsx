@@ -1,17 +1,21 @@
-import { Tooltip } from 'react-tippy'
 import React, { memo, useEffect, useState } from 'react'
+import { Tooltip } from 'react-tippy'
 import clsx from 'clsx'
 import { useFormContext, UseFormReturn, FieldValues } from 'react-hook-form'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-interface InputProps extends UseFormReturn<FieldValues, any> {
+type TextInputCellProps = {
   name: string
-  type?: 'text' | 'number'
   defaultValue?: string
+  type?: 'text' | 'number'
+  min?: number
+  max?: number
 }
 
+interface InputProps extends UseFormReturn<FieldValues, any>, TextInputCellProps {}
+
 const Input = memo(
-  ({ register, name, defaultValue = '', setValue, type, getValues }: InputProps) => {
+  ({ register, name, defaultValue = '', setValue, type, getValues, min, max }: InputProps) => {
     const [newValue, setNewValue] = useState(getValues(name))
 
     useEffect(() => {
@@ -36,11 +40,20 @@ const Input = memo(
           trigger="mouseenter"
         >
           <input
+            onFocus={() => {
+              if (defaultValue) {
+                setValue(name, defaultValue)
+                setNewValue(defaultValue)
+              }
+            }}
+            min={min}
+            max={max}
             type={type || 'text'}
             {...register(name as `${string}` | `${string}.${string}` | `${string}.${number}`, {
               onChange: (e) => {
                 if (e.target.value === defaultValue) {
                   setNewValue('')
+                  setValue(name, '')
                 } else {
                   setNewValue(e.target.value)
                 }
@@ -51,7 +64,9 @@ const Input = memo(
               max-h-[31px]
               w-full
               rounded-md
-              p-2
+              pt-2
+              pb-2
+              pl-2
               text-center
               placeholder-primary-black
               focus:ring-0
@@ -59,10 +74,11 @@ const Input = memo(
               newValue === 'delete'
                 ? `bg-primary-red
                    text-primary-white`
-                : newValue !== '' && newValue !== defaultValue
+                : newValue !== '' && newValue !== defaultValue && newValue !== undefined
                 ? `bg-primary-dark-petrol
                    text-primary-white`
                 : `bg-grey-light`,
+              type === 'number' ? 'pr-2' : 'pr-6',
             )}
             placeholder={defaultValue || ''}
           />
@@ -77,11 +93,11 @@ const Input = memo(
             type="button"
             className={clsx(
               `absolute
+               right-2
                top-1/2
                -translate-y-1/2
                cursor-pointer
              text-primary-red`,
-              type === 'number' ? 'right-8' : 'right-2',
             )}
           >
             <FontAwesomeIcon icon={'circle-xmark'} />
@@ -117,14 +133,11 @@ const Input = memo(
     return prevProps.formState.isDirty === nextProps.formState.isDirty
   },
 )
-type TextInputCellProps = {
-  name: string
-  defaultValue?: string
-  type?: 'text' | 'number'
-}
 
-export const TextInputCell = ({ name, defaultValue, type }: TextInputCellProps) => {
+export const TextInputCell = ({ name, defaultValue, type, min, max }: TextInputCellProps) => {
   const methods = useFormContext()
 
-  return <Input {...methods} name={name} defaultValue={defaultValue} type={type} />
+  return (
+    <Input {...methods} name={name} defaultValue={defaultValue} type={type} min={min} max={max} />
+  )
 }

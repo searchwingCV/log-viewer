@@ -1,18 +1,41 @@
+import random
+
 import pytest
-from domain.drone.entities import BaseDrone
+from domain.flight_file.value_objects import AllowedFiles
 from faker import Faker
+from mock_providers import FlightLogProvider
 
 fake = Faker()
+fake.add_provider(FlightLogProvider)
 
 
 @pytest.fixture
 def get_sample_drone():
     def _get_sample_drone():
-        return BaseDrone(
-            name=fake.first_name() + fake.last_name(),
-            model=fake.domain_word(),
-            sys_thismav=fake.pyint(min_value=1, max_value=3),
-            description=fake.paragraph(nb_sentences=1),
-        )
+        return fake.drone()
 
     return _get_sample_drone
+
+
+@pytest.fixture
+def get_sample_mission():
+    def _get_sample_mission():
+        return fake.mission()
+
+    return _get_sample_mission
+
+
+@pytest.fixture
+def get_sample_flight():
+    def _get_sample_flight(drone_id=1, mission_id=None):
+        return fake.flight(mission_id=mission_id, drone_id=drone_id)
+
+    return _get_sample_flight
+
+
+@pytest.fixture
+def get_sample_flight_file():
+    def _get_sample_flight_file(flight_id=1, file_type=AllowedFiles.log, version=random.randint(1, 10)):
+        return fake.flight_file(flight_id, file_type, version)
+
+    return _get_sample_flight_file

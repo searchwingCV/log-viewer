@@ -30,6 +30,13 @@ class APISerializer(BaseModel):
     def to_json(self, **kwargs):
         return jsonable_encoder(self, **kwargs)
 
+    def get_foreign_keys(self) -> dict:
+        fk = {}
+        for k in self.__fields__.keys():
+            if k.startswith("fk_"):
+                fk[k] = self.__getattribute__(k)
+        return fk
+
 
 class APIGeoSerializer(APISerializer):
     @validator("latitude", check_fields=False)

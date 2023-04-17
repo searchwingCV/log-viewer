@@ -1,15 +1,11 @@
+/*  
+  TODO: Make SelectReactHookForn and Select become one component to remove duplicate code
+*/
 import * as React from 'react'
 import { useTranslation } from 'next-i18next'
 import clsx from 'clsx'
 import { ErrorMessage } from '@hookform/error-message'
-import {
-  RegisterOptions,
-  DeepMap,
-  FieldError,
-  UseFormRegister,
-  Path,
-  FieldValues,
-} from 'react-hook-form'
+import { RegisterOptions, UseFormRegister, Path, FieldValues, FieldErrors } from 'react-hook-form'
 
 type SelectProps = {
   name: string
@@ -28,9 +24,9 @@ type SelectProps = {
 
 export type FormSelectProps<TFormValues extends FieldValues> = {
   name: Path<TFormValues>
-  register?: UseFormRegister<TFormValues>
-  rules?: RegisterOptions
-  errors?: Partial<DeepMap<TFormValues, FieldError>>
+  register: UseFormRegister<TFormValues>
+  rules: RegisterOptions
+  errors: FieldErrors<TFormValues>
 } & Omit<SelectProps, 'name'>
 
 export const SelectReactHookForm = <TFormValues extends FieldValues>({
@@ -61,26 +57,26 @@ export const SelectReactHookForm = <TFormValues extends FieldValues>({
         <select
           className={clsx(
             `!focus:outline-none
-              appearane-none
-              peer
-              absolute
-              top-6
-              bottom-0
-              z-10
-              h-10
-              w-full
-              border-0
-              border-b
-              border-solid
-              bg-transparent
-              pl-0
-              pt-1
-              pb-3
-              caret-grey-dark
-              !outline-none
-              outline-0
-              transition-all
-              focus:ring-0`,
+             appearane-none
+             peer
+             absolute
+             top-6
+             bottom-0
+             z-10
+             h-10
+             w-full
+             border-0
+             border-b
+             border-solid
+             bg-transparent
+             pl-0
+             pt-1
+             pb-3
+             caret-grey-dark
+             !outline-none
+             outline-0
+             transition-all
+             focus:ring-0`,
             disabled ? 'pointer-events-none' : 'border-grey-medium',
           )}
           {...rest}
@@ -92,31 +88,50 @@ export const SelectReactHookForm = <TFormValues extends FieldValues>({
               ...rules,
             }))}
         >
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.name}
-            </option>
-          ))}
+          <option></option>
+          {options.map((option: { name: string; value: string | number }) => {
+            return (
+              <option key={option.value} value={option.value}>
+                {option.value === '' ? '' : option.name}
+              </option>
+            )
+          })}
         </select>
         {children}
         <label
-          className={`absolute
-            bottom-0
-            left-0
-            h-px
-            w-0
-            bg-grey-medium
-            opacity-0
-            peer-hover:z-20
-            peer-hover:w-full
-            peer-hover:bg-primary-black
-            peer-hover:opacity-100
-            peer-hover:duration-500`}
+          className={clsx(
+            `height-5
+             absolute
+             left-0
+             z-0
+             text-grey-dark
+             transition-all
+             peer-focus:top-0
+             peer-focus:text-xs`,
+            value
+              ? `top-0
+                 text-xs`
+              : 'top-7',
+            disabled && 'text-grey-medium',
+          )}
         >
           {placeholder}
           {!rules?.required ? ` (${t('Optional')})` : ''}
         </label>
-        <div className={clsx(!hasError && 'input-border z-20')}></div>
+        <div
+          className={`absolute
+                        bottom-0
+                        left-0
+                        h-px
+                        w-0
+                        bg-grey-medium
+                        opacity-0
+                        peer-hover:z-20
+                        peer-hover:w-full
+                        peer-hover:bg-primary-black
+                        peer-hover:opacity-100
+                        peer-hover:duration-500`}
+        ></div>{' '}
       </div>
       {!disabled && (
         <ErrorMessage
@@ -126,7 +141,7 @@ export const SelectReactHookForm = <TFormValues extends FieldValues>({
             <p
               className={`pt-1
                           text-xs
-                        text-primary-red`}
+                          text-primary-red`}
             >
               {message}
             </p>

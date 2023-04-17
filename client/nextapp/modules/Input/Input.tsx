@@ -1,3 +1,7 @@
+/*  
+  TODO: Make InputReactHookForn and Input become one component to remove duplicate code
+*/
+
 import * as React from 'react'
 import clsx from 'clsx'
 import { Button } from 'modules/Button/Button'

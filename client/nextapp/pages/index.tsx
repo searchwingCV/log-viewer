@@ -1,6 +1,6 @@
 import { GetStaticProps } from 'next'
 
-import { Layout } from 'modules/Layout/Layout'
+import { Layout } from '~/modules/Layouts/Layout'
 
 const Index = ({}) => {
   return (

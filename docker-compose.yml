@@ -5,9 +5,10 @@ services:
     container_name: api
     build:
       context: server
+      target: dev
     stdin_open: true
     tty: true
-    command: python bin/api.py
+    command: sh -c "alembic upgrade head && python scripts/fill_up_db.py && python bin/api.py --reload"
     volumes:
       - ./server:/searchwing
       - ./storage:/data/
@@ -15,7 +16,6 @@ services:
       - "80:80"
     depends_on:
       - db
-      - migrations
     environment:
       POSTGRES_USER: searchwing
       POSTGRES_PASSWORD: searchwing
@@ -63,24 +63,6 @@ services:
       retries: 3
     volumes:
       - ./server/db:/docker-entrypoint-initdb.d/
-
-  migrations:
-    container_name: migrations
-    build:
-      context: server
-    command: alembic upgrade head
-    volumes:
-      - ./server:/app
-    ports:
-      - "8081:8080"
-    depends_on:
-      - db
-    environment:
-      POSTGRES_USER: searchwing
-      POSTGRES_PASSWORD: searchwing
-      POSTGRES_DB: searchwing
-      POSTGRES_SERVER: db
-      POSTGRES_PORT: 5432
 
   pgadmin:
     container_name: pgadmin4_container
