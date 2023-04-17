@@ -1,8 +1,11 @@
 //TODO: Refactor code of FlightTableOverview, MissionTableOverview & DroneTableOverview to avoid duplicate code
 import 'regenerator-runtime/runtime'
+import useElementSize from '@charlietango/use-element-size'
 import React, { useMemo } from 'react'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
+import useMedia from '@charlietango/use-media'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { ToastContainer, toast } from 'react-toastify'
 import { useTranslation } from 'next-i18next'
@@ -53,6 +56,8 @@ export const MissionTableOverview = ({
   data: MissionSerializer[]
   totalNumber: number
 }) => {
+  const [ref, size] = useElementSize()
+  const matches = useMedia({ minWidth: 1920 })
   const router = useRouter()
   const { pagesize: queryPageSize } = router.query
   const queryClient = useQueryClient()
@@ -74,11 +79,14 @@ export const MissionTableOverview = ({
 
       queryClient.invalidateQueries([ALL_MISSIONS_KEY])
     },
-    onError: (data) => {
+    onError: async (data) => {
       toast('Error submitting data.', {
         type: 'error',
         position: toast.POSITION.BOTTOM_CENTER,
       })
+      //TODO find out why error message disappears immediately without a timeout
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
       //TODO: implement scrolling to input if error from be
       //scrollInputIntoView(`input-${data[0]}`)
     },
@@ -181,6 +189,7 @@ export const MissionTableOverview = ({
                   flex
                   min-h-screen`}
     >
+      <ToastContainer />
       <CustomizeColumnsDrawer
         allColumns={allColumns}
         setColumnOrder={setColumnOrder}
@@ -188,12 +197,18 @@ export const MissionTableOverview = ({
       />
       <animated.div
         className={clsx(` ml-side-drawer-width
+                          flex
                           h-screen
+                          flex-col
+                          items-center
                           overflow-x-hidden
                           `)}
         style={slideX}
       >
         <div
+          style={{
+            maxWidth: matches ? size.width + 40 : '100%',
+          }}
           className={`relative
                       mb-40
                       pl-2
@@ -201,7 +216,6 @@ export const MissionTableOverview = ({
                       pt-20
                       pb-12`}
         >
-          <ToastContainer />
           <div
             className={`mb-8
                         grid
@@ -230,11 +244,26 @@ export const MissionTableOverview = ({
               resetButtonText={'Reset Group'}
             />
           </div>
-          <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.MISSION_DRAWER_EXTENDED} />
+          <div className="flex">
+            <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.MISSION_DRAWER_EXTENDED} />
+            <div className="py-8 px-4">
+              <Button
+                isSpecial={true}
+                buttonStyle="Main"
+                className="w-[200px] px-6 py-4"
+                onClick={async () => {
+                  await router.push('/add/mission')
+                }}
+              >
+                <FontAwesomeIcon icon={'plus-circle'} height="32" className="scale-150" />
+                <span className="ml-3">Add new mission</span>
+              </Button>
+            </div>
+          </div>{' '}
           <FormProvider {...methods}>
             <form onSubmit={onSubmit}>
               <div className="overflow-x-scroll">
-                <table {...getTableProps()} className={`roundex-xl`}>
+                <table {...getTableProps()} className={`roundex-xl`} ref={ref}>
                   <TableHead
                     headerGroups={headerGroups}
                     allColumns={allColumns}

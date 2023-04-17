@@ -28,6 +28,8 @@ import {
   faAngleRight,
   faCircleXmark,
   faUndo,
+  faAdd,
+  faPlusCircle,
 } from '@fortawesome/free-solid-svg-icons'
 
 config.autoAddCss = false
@@ -50,6 +52,8 @@ library.add(
   faAngleRight,
   faCircleXmark,
   faUndo,
+  faAdd,
+  faPlusCircle,
 )
 
 export type NextPageWithLayout<Props = object> = NextPage<Props> & {

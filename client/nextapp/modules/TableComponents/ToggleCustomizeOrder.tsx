@@ -17,8 +17,7 @@ export const ToggleCustomizeOrder = ({ drawerKey }: { drawerKey: DrawerExtension
 
   return (
     <div
-      className="h-full
-                 py-8
+      className="py-8
                 text-primary-white"
     >
       <Button

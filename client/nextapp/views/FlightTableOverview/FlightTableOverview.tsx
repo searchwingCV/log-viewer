@@ -3,6 +3,7 @@ import 'regenerator-runtime/runtime'
 import React, { useMemo } from 'react'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { ToastContainer, toast } from 'react-toastify'
 import { useTranslation } from 'next-i18next'
@@ -238,6 +239,7 @@ export const FlightTableOverview = ({
                   flex
                   min-h-screen`}
     >
+      <ToastContainer />
       <CustomizeColumnsDrawer
         allColumns={allColumns}
         setColumnOrder={setColumnOrder}
@@ -246,7 +248,8 @@ export const FlightTableOverview = ({
       <animated.div
         className={clsx(`ml-side-drawer-width
                           h-screen
-                          overflow-x-hidden`)}
+                          overflow-x-hidden
+                          px-12`)}
         style={slideX}
       >
         <div
@@ -257,7 +260,6 @@ export const FlightTableOverview = ({
                       pt-20
                       pb-12`}
         >
-          <ToastContainer />
           <div
             className={`mb-8
                         grid
@@ -286,7 +288,22 @@ export const FlightTableOverview = ({
               resetButtonText={'Reset Group'}
             />
           </div>
-          <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED} />
+          <div className="flex">
+            <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED} />
+            <div className="py-8 px-4">
+              <Button
+                isSpecial={true}
+                buttonStyle="Main"
+                className="w-[200px] px-6 py-4"
+                onClick={async () => {
+                  await router.push('/add/flight')
+                }}
+              >
+                <FontAwesomeIcon icon={'plus-circle'} height="32" className="scale-150" />
+                <span className="ml-3">Add new flight</span>{' '}
+              </Button>
+            </div>
+          </div>
           <FormProvider {...methods}>
             <form onSubmit={onSubmit}>
               <div className="overflow-x-scroll">

@@ -4,7 +4,7 @@ import { QueryClient, dehydrate } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 import { getDrones, ALL_DRONES_KEY, fetchAllDronesQuery } from '~/api/drone/getDrones'
 import DroneTableOverview from '~/views/DroneTableOverview'
-import { Layout } from '~/modules/Layout/Layout'
+import { Layout } from '~/modules/Layouts/Layout'
 import { NextPageWithLayout } from './_app'
 
 const DroneTablePage: NextPageWithLayout = () => {

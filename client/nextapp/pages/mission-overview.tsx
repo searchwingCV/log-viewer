@@ -1,11 +1,11 @@
 import React from 'react'
-import type { GetStaticProps, GetServerSideProps } from 'next'
+import type { GetServerSideProps } from 'next'
 import { QueryClient, dehydrate } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 import { getMissions, ALL_MISSIONS_KEY, fetchAllMissionsQuery } from '~/api/mission/getMissions'
-import { Layout } from '~/modules/Layout/Layout'
-import { NextPageWithLayout } from './_app'
+import { Layout } from '~/modules/Layouts/Layout'
 import MissionTableOverview from '~/views/MissionTableOverview'
+import { NextPageWithLayout } from './_app'
 
 const MissionOverviewPage: NextPageWithLayout = () => {
   const router = useRouter()
