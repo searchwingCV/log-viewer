@@ -6,6 +6,7 @@ from alembic.command import upgrade
 from alembic.config import Config as AlembicConfig
 from common.logging import get_logger
 from fastapi import FastAPI, Request, Response, status
+from fastapi.middleware.cors import CORSMiddleware
 from presentation.rest.controllers import drone, file, flight, health, mission, root
 from presentation.rest.serializers.errors import InternalServerError
 
@@ -54,10 +55,22 @@ def log_exception_handler(request: Request, exc: Exception):
 
 
 def build_api() -> FastAPI:
-
     app = FastAPI(
         title="Searchwing flight log data API",
         description="An API to keep log files organized and analyze them",
+    )
+    origins = [
+        "http://localhost",
+        "http://localhost:3000",
+        "http://staging.flight-data.searchwing.org",
+        "http://flight-data.searchwing.org",
+    ]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
     app.include_router(root.router)
