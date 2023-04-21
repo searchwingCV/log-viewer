@@ -1,7 +1,7 @@
-from src.presentation.worker import celery_app
+from celery import shared_task
 
 
-@celery_app.task(name="say_hello", bind=True)
+@shared_task(name="say_hello", bind=True)
 def say_hello(self, name):
     print(self.request.id)
     return f"hello {name}"
