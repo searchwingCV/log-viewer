@@ -16,7 +16,6 @@ export const AddInstanceScreen: NextPageWithLayout = ({}) => {
     switch (model) {
       case 'flight':
         return <AddFlightView />
-        return
       case 'drone':
         return <AddDroneView />
       case 'mission':
