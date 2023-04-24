@@ -29,12 +29,14 @@ export const flightColumns = (
         return props.row.values.fkDrone
       }
       if (droneOptions && droneOptions.length) {
+        const fkNumber = parseInt(props.row.values.fkDrone?.slice(-1))
+
         return (
           <div>
             <SelectInputCell
               name={`fkDrone-${props.row.values.id}-${props.row.index}`}
               options={droneOptions}
-              defaultValue={props.row.values.fkDrone || undefined}
+              defaultValue={fkNumber || undefined}
               required
             />
           </div>
@@ -56,11 +58,13 @@ export const flightColumns = (
         return props.row.values.fkMission
       }
       if (missionOptions && missionOptions.length) {
+        const fkNumber = parseInt(props.row.values?.fkMission?.slice(-1))
+
         return (
           <SelectInputCell
             name={`fkMission-${props.row.values.id}-${props.row.index}`}
             options={missionOptions}
-            defaultValue={props.row.values.fkMission || undefined}
+            defaultValue={fkNumber || undefined}
           />
         )
       }

@@ -64,6 +64,28 @@ export const FlightTableOverview = ({
   const router = useRouter()
   const queryClient = useQueryClient()
 
+  const parseVerboseNamesForForeignKeys = (data: FlightSerializer[]) => {
+    const dataCopy = [...data]
+
+    const parsedData = dataCopy.map((flight) => {
+      const { fkDrone, fkMission, ...rest } = flight
+
+      const verboseDroneName =
+        droneOptions?.find((drone) => drone.value === fkDrone)?.name || fkDrone
+      const verboseMissionName = missionOptions?.find(
+        (mission) => mission.value === fkMission,
+      )?.name
+
+      return { fkDrone: verboseDroneName, fkMission: verboseMissionName, ...rest }
+    })
+
+    return parsedData
+  }
+
+  const verboseData = React.useMemo(() => {
+    return parseVerboseNamesForForeignKeys(data)
+  }, [data])
+
   const { data: sideNavExtended } = useQuery([DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED], () => {
     return false
   })
@@ -165,7 +187,7 @@ export const FlightTableOverview = ({
   } = useTable(
     {
       columns: columns,
-      data: data,
+      data: verboseData,
       defaultColumn,
       initialState: {},
       pageCount: Math.ceil(totalNumber / (parseInt(queryPageSize as string) || 10)),
@@ -237,7 +259,8 @@ export const FlightTableOverview = ({
     <div
       className={`flex-column
                   flex
-                  min-h-screen`}
+                  min-h-screen
+                  pt-12`}
     >
       <ToastContainer />
       <CustomizeColumnsDrawer

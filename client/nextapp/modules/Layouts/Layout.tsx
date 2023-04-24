@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
 import Header from '~/modules/Header'
+import HeaderNavigation from '../HeaderNavigation'
 
 export type Props = { children: ReactNode }
 
@@ -7,11 +8,11 @@ export const Layout = ({ children }: Props) => {
   return (
     <>
       <div
-        className={`flex-column
-                    flex
-                    min-h-screen`}
+        className={`flex
+                    min-h-screen
+                    flex-col`}
       >
-        <Header />
+        <HeaderNavigation />{' '}
         <main
           className={`
                       min-h-screen
