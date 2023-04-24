@@ -6,7 +6,7 @@ import type { AxiosError } from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 import { pickBy } from 'lodash'
 import { useMutation, useQueries } from '@tanstack/react-query'
-import { FlightRating, FlightPurpose, CreateFlightSerializer, AllowedFiles } from '@schema'
+import { FlightRating, FlightPurpose, CreateFlightSerializer, AllowedFiles, AllowedLogFileExtensions } from '@schema'
 import Button from '~/modules/Button'
 import { getDrones, ALL_DRONES_KEY } from '~/api/drone/getDrones'
 import { getMissions, ALL_MISSIONS_KEY } from '~/api/mission/getMissions'
@@ -21,9 +21,9 @@ interface AddFlightForm extends CreateFlightSerializer {
 }
 
 export const validateLogFileType = (file: File) => {
-  const allowedFileTypes = (Object.keys(AllowedFiles) as Array<keyof typeof AllowedFiles>).map(
+  const allowedFileTypes = (Object.keys(AllowedLogFileExtensions) as Array<keyof typeof AllowedLogFileExtensions>).map(
     (key) => {
-      return AllowedFiles[key]
+      return AllowedLogFileExtensions[key]
     },
   )
   return !!allowedFileTypes.find((type) => file?.name?.endsWith(type))?.length
@@ -101,7 +101,7 @@ export const AddFlightView = () => {
         if (selectedLogFile) {
           putFile.mutate({
             file: selectedLogFile[0],
-            fileType: determineFileType(selectedLogFile[0] as File) || AllowedFiles.ROSBAG,
+            fileType: AllowedFiles.LOG,
             flightId: data.id,
           })
         }
@@ -254,7 +254,7 @@ export const AddFlightView = () => {
               className="mr-4 h-5 w-5"
               onChange={() => setHasLogFile(!hasLogFile)}
             />
-            <span> Flight has a log file</span>
+            <span> Attach a log file </span>
           </div>
 
           <animated.div style={heightCollapse}>
@@ -267,7 +267,7 @@ export const AddFlightView = () => {
                   fileType: (file: any) =>
                     !hasLogFile ||
                     (file && validateLogFileType(file[0] as File)) ||
-                    'File must be of type rosbag, log, apm or tlog',
+                    'File must be a MAVLink binary log file with .bin or .log extensions',
                 },
               }}
               render={({ field: { onChange, onBlur }, fieldState }) => (
@@ -276,7 +276,7 @@ export const AddFlightView = () => {
                   setValue={setValue}
                   name="file"
                   disabled={!hasLogFile}
-                  hint={'File must be of type rosbag, log, apm or tlog'}
+                  hint={'File must be a MAVLink binary log file'}
                 />
               )}
             />
