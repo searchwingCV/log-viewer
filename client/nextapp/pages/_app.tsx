@@ -12,6 +12,8 @@ import '@fortawesome/fontawesome-svg-core/styles.css'
 import {
   faChevronLeft,
   faChevronRight,
+  faChevronUp,
+  faChevronDown,
   faEye,
   faFile,
   faCalendar,
@@ -36,6 +38,8 @@ config.autoAddCss = false
 library.add(
   faChevronLeft,
   faChevronRight,
+  faChevronUp,
+  faChevronDown,
   faEye,
   faFile,
   faCalendar,

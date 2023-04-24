@@ -10,8 +10,8 @@ export type FlightSerializer = {
     id: number;
     createdAt: string;
     updatedAt?: string;
-    fkDrone: number;
-    fkMission?: number;
+    fkDrone: number | string;
+    fkMission?: number | string;
     /**
      * A short description of the location
      */

@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { Layout } from '~/modules/Layouts/Layout'
+import FlightDetailView from '~/views/FlightDetailView'
 
 const FlightDetailScreen = ({}) => {
   const router = useRouter()
@@ -7,7 +7,7 @@ const FlightDetailScreen = ({}) => {
 
   return (
     <>
-      <Layout>{`Welcome to the detail screen of flight ${id} `}</Layout>
+      <FlightDetailView />
     </>
   )
 }

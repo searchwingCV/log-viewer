@@ -6,7 +6,7 @@ import { useFormContext, UseFormReturn, FieldValues } from 'react-hook-form'
 type SelectInputCellProps = {
   name: string
   options: { name: string; value: string | number }[]
-  defaultValue?: string
+  defaultValue?: string | number
   required?: boolean
 }
 
