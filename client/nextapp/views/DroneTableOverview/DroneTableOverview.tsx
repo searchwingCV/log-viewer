@@ -118,15 +118,13 @@ export const DroneTableOverview = ({
       const keysBelongingToDrones = changedKeys.filter((key) => key.includes(drone.id.toString()))
       const changedProps = keysBelongingToDrones
         .map((key) => {
-          return { [key.split('-')[0]]: formData[key] === 'delete' ? undefined : formData[key] }
+          return { [key.split('-')[0]]: formData[key] === 'delete' ? null : formData[key] }
         })
         .reduce((prev, cur) => {
           return { ...prev, ...cur }
         })
-
       const { id } = drone
       const newDrone = { ...changedProps, id }
-
       return newDrone
     })
 

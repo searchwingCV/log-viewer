@@ -126,7 +126,7 @@ export const FlightTableOverview = ({
       const keysBelongingToFlight = changedKeys.filter((key) => key.includes(flight.id.toString()))
       const changedProps = keysBelongingToFlight
         .map((key) => {
-          return { [key.split('-')[0]]: formData[key] === 'delete' ? undefined : formData[key] }
+          return { [key.split('-')[0]]: formData[key] === 'delete' ? null : formData[key] }
         })
         .reduce((prev, cur) => {
           return { ...prev, ...cur }
