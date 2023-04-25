@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
 from typing import Optional
 
-from domain import AllOptional, DomainEntity
+from domain import DomainEntity, DomainUpdate
 from domain.flight.value_objects import FlightPurpose, FlightRating, WindIntensity
 from domain.types import ID_Type
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, root_validator
 
 
 class IBaseFlight(BaseModel):
@@ -92,5 +92,11 @@ class Flight(BaseFlight, DomainEntity):
     pass
 
 
-class FlightUpdate(IBaseFlight, metaclass=AllOptional):
-    pass
+class FlightUpdate(IBaseFlight, DomainUpdate):
+    @root_validator(pre=True)
+    def _check_which_none(cls, values):
+        for k in ["fk_drone", "fk_mission", "location", "drone_needs_repair"]:
+            if k not in values:
+                continue
+            if values[k] is None:
+                raise ValueError(f"'{k}' should not be nullable")
