@@ -20,14 +20,16 @@ interface AddFlightForm extends CreateFlightSerializer {
   file?: Blob[]
 }
 
-export const validateLogFileType = (file: File) => {
-  const allowedFileTypes = (Object.keys(AllowedFiles) as Array<keyof typeof AllowedFiles>).map(
-    (key) => {
-      return AllowedFiles[key]
-    },
-  )
-  return !!allowedFileTypes.find((type) => file?.name?.endsWith(type))?.length
-}
+// TODO: Add validation of files based on file_type AND extension
+
+// export const validateLogFileType = (file: File) => {
+//   const allowedFileTypes = (Object.keys(AllowedFiles) as Array<keyof typeof AllowedFiles>).map(
+//     (key) => {
+//       return AllowedFiles[key]
+//     },
+//   )
+//   return !!allowedFileTypes.find((type) => file?.name?.endsWith(type))?.length
+// }
 
 export const determineFileType = (file: File) => {
   const allowedFileTypes = (Object.keys(AllowedFiles) as Array<keyof typeof AllowedFiles>).map(
@@ -101,7 +103,7 @@ export const AddFlightView = () => {
         if (selectedLogFile) {
           putFile.mutate({
             file: selectedLogFile[0],
-            fileType: determineFileType(selectedLogFile[0] as File) || AllowedFiles.ROSBAG,
+            fileType: AllowedFiles.LOG,
             flightId: data.id,
           })
         }
@@ -254,7 +256,7 @@ export const AddFlightView = () => {
               className="mr-4 h-5 w-5"
               onChange={() => setHasLogFile(!hasLogFile)}
             />
-            <span> Flight has a log file</span>
+            <span> Attach a log file </span>
           </div>
 
           <animated.div style={heightCollapse}>
@@ -263,12 +265,14 @@ export const AddFlightView = () => {
               name="file"
               rules={{
                 required: hasLogFile ? 'File is required' : false,
-                validate: {
-                  fileType: (file: any) =>
-                    !hasLogFile ||
-                    (file && validateLogFileType(file[0] as File)) ||
-                    'File must be of type rosbag, log, apm or tlog',
-                },
+                // TODO: For now, no validation, in the future we need to change this
+
+                // validate: {
+                //   fileType: (file: any) =>
+                //     !hasLogFile ||
+                //     (file && validateLogFileType(file[0] as File)) ||
+                //     'File must be a MAVLink binary log file with .bin or .log extensions',
+                // },
               }}
               render={({ field: { onChange, onBlur }, fieldState }) => (
                 <FileUpload<AddFlightForm>
@@ -276,7 +280,7 @@ export const AddFlightView = () => {
                   setValue={setValue}
                   name="file"
                   disabled={!hasLogFile}
-                  hint={'File must be of type rosbag, log, apm or tlog'}
+                  hint={'File must be a MAVLink binary log file'}
                 />
               )}
             />
