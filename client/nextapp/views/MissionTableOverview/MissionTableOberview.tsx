@@ -122,7 +122,7 @@ export const MissionTableOverview = ({
       )
       const changedProps = keysBelongingToMission
         .map((key) => {
-          return { [key.split('-')[0]]: formData[key] === 'delete' ? undefined : formData[key] }
+          return { [key.split('-')[0]]: formData[key] === 'delete' ? null : formData[key] }
         })
         .reduce((prev, cur) => {
           return { ...prev, ...cur }
