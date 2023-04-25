@@ -4,7 +4,6 @@
 
 
 export { AllowedFiles } from './models/AllowedFiles';
-export { AllowedLogFileExtensions } from './models/AllowedLogFileExtensions'
 export type { AppHealth } from './models/AppHealth';
 export type { BatchUpdateResponse_DroneSerializer_ } from './models/BatchUpdateResponse_DroneSerializer_';
 export type { BatchUpdateResponse_FlightSerializer_ } from './models/BatchUpdateResponse_FlightSerializer_';

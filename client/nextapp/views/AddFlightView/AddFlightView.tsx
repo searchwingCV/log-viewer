@@ -6,7 +6,7 @@ import type { AxiosError } from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 import { pickBy } from 'lodash'
 import { useMutation, useQueries } from '@tanstack/react-query'
-import { FlightRating, FlightPurpose, CreateFlightSerializer, AllowedFiles, AllowedLogFileExtensions } from '@schema'
+import { FlightRating, FlightPurpose, CreateFlightSerializer, AllowedFiles } from '@schema'
 import Button from '~/modules/Button'
 import { getDrones, ALL_DRONES_KEY } from '~/api/drone/getDrones'
 import { getMissions, ALL_MISSIONS_KEY } from '~/api/mission/getMissions'
@@ -20,14 +20,16 @@ interface AddFlightForm extends CreateFlightSerializer {
   file?: Blob[]
 }
 
-export const validateLogFileType = (file: File) => {
-  const allowedFileTypes = (Object.keys(AllowedLogFileExtensions) as Array<keyof typeof AllowedLogFileExtensions>).map(
-    (key) => {
-      return AllowedLogFileExtensions[key]
-    },
-  )
-  return !!allowedFileTypes.find((type) => file?.name?.endsWith(type))?.length
-}
+// TODO: Add validation of files based on file_type AND extension
+
+// export const validateLogFileType = (file: File) => {
+//   const allowedFileTypes = (Object.keys(AllowedFiles) as Array<keyof typeof AllowedFiles>).map(
+//     (key) => {
+//       return AllowedFiles[key]
+//     },
+//   )
+//   return !!allowedFileTypes.find((type) => file?.name?.endsWith(type))?.length
+// }
 
 export const determineFileType = (file: File) => {
   const allowedFileTypes = (Object.keys(AllowedFiles) as Array<keyof typeof AllowedFiles>).map(
@@ -263,12 +265,14 @@ export const AddFlightView = () => {
               name="file"
               rules={{
                 required: hasLogFile ? 'File is required' : false,
-                validate: {
-                  fileType: (file: any) =>
-                    !hasLogFile ||
-                    (file && validateLogFileType(file[0] as File)) ||
-                    'File must be a MAVLink binary log file with .bin or .log extensions',
-                },
+                // TODO: For now, no validation, in the future we need to change this
+
+                // validate: {
+                //   fileType: (file: any) =>
+                //     !hasLogFile ||
+                //     (file && validateLogFileType(file[0] as File)) ||
+                //     'File must be a MAVLink binary log file with .bin or .log extensions',
+                // },
               }}
               render={({ field: { onChange, onBlur }, fieldState }) => (
                 <FileUpload<AddFlightForm>
