@@ -86,7 +86,6 @@ def test_delete_by_id(test_db_session, insert_drones):
 
 
 def test_get_by_name(test_db_session, get_sample_drone):
-
     existing_drone_data = get_sample_drone()
 
     name = existing_drone_data.name
@@ -139,7 +138,6 @@ def test_get_with_pagination_filter(test_db_session, insert_drones):
 
 
 def test_update(add_sample_drone_to_db, test_db_session):
-
     add_sample_drone_to_db()
     update_data = DroneUpdate(name="NewName")
     repository = DroneRepository()
@@ -165,7 +163,6 @@ def test_update(add_sample_drone_to_db, test_db_session):
 
 
 def test_update_non_existing(add_sample_drone_to_db, test_db_session):
-
     add_sample_drone_to_db()
     update_data = DroneUpdate(name="NewName")
     repository = DroneRepository()
@@ -194,3 +191,13 @@ def test_get_all_should_be_ordered(add_sample_drone_to_db, get_sample_drone, tes
     assert drones[0].id == 1
     assert drones[1].id == 2
     assert drones[2].id == 3
+
+
+def test_update_with_none(add_sample_drone_to_db, test_db_session):
+    add_sample_drone_to_db()
+    update_data = DroneUpdate(name="NewName", description=None)
+    repository = DroneRepository()
+    drone_updated = repository.update(test_db_session, 1, update_data)
+
+    assert drone_updated.name == update_data.name
+    assert drone_updated.description is None

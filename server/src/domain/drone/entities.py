@@ -1,8 +1,8 @@
 import typing as t
 
-from domain import AllOptional, DomainEntity
+from domain import DomainEntity, DomainUpdate
 from domain.drone.value_objects import DroneStatus
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, root_validator
 
 
 class BaseDrone(BaseModel):
@@ -20,5 +20,11 @@ class Drone(BaseDrone, DomainEntity):
     pass
 
 
-class DroneUpdate(BaseDrone, metaclass=AllOptional):
-    pass
+class DroneUpdate(BaseDrone, DomainUpdate):
+    @root_validator(pre=True)
+    def _check_which_none(cls, values):
+        for k in ["name", "model", "status", "sys_thismav"]:
+            if k not in values:
+                continue
+            if values[k] is None:
+                raise ValueError(f"'{k}' should not be nullable")
