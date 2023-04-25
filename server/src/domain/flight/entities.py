@@ -4,7 +4,7 @@ from typing import Optional
 from domain import DomainEntity, DomainUpdate
 from domain.flight.value_objects import FlightPurpose, FlightRating, WindIntensity
 from domain.types import ID_Type
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, validator
 
 
 class IBaseFlight(BaseModel):
@@ -93,10 +93,8 @@ class Flight(BaseFlight, DomainEntity):
 
 
 class FlightUpdate(IBaseFlight, DomainUpdate):
-    @root_validator(pre=True)
-    def _check_which_none(cls, values):
-        for k in ["fk_drone", "fk_mission", "location", "drone_needs_repair"]:
-            if k not in values:
-                continue
-            if values[k] is None:
-                raise ValueError(f"'{k}' should not be nullable")
+    @validator("fk_drone", "fk_mission", "location", "drone_needs_repair", pre=True)
+    def _check_which_none(cls, v):
+        if v is None:
+            raise ValueError("should not be nullable")
+        return v

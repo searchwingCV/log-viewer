@@ -2,7 +2,7 @@ import typing as t
 from datetime import date
 
 from domain import DomainEntity, DomainUpdate
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, validator
 
 
 class BaseMission(BaseModel):
@@ -22,10 +22,8 @@ class Mission(BaseMission, DomainEntity):
 
 
 class MissionUpdate(BaseMission, DomainUpdate):
-    @root_validator(pre=True)
-    def _check_which_none(cls, values):
-        for k in ["name", "location", "start_date"]:
-            if k not in values:
-                continue
-            if values[k] is None:
-                raise ValueError(f"'{k}' should not be nullable")
+    @validator("name", "location", "start_date", pre=True)
+    def _check_which_none(cls, v):
+        if v is None:
+            raise ValueError("should not be nullable")
+        return v
