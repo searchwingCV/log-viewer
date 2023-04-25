@@ -1,8 +1,8 @@
 import typing as t
 from datetime import date
 
-from domain import AllOptional, DomainEntity
-from pydantic import BaseModel
+from domain import DomainEntity, DomainUpdate
+from pydantic import BaseModel, validator
 
 
 class BaseMission(BaseModel):
@@ -21,5 +21,9 @@ class Mission(BaseMission, DomainEntity):
     pass
 
 
-class MissionUpdate(BaseMission, metaclass=AllOptional):
-    pass
+class MissionUpdate(BaseMission, DomainUpdate):
+    @validator("name", "location", "start_date", pre=True)
+    def _check_which_none(cls, v):
+        if v is None:
+            raise ValueError("should not be nullable")
+        return v

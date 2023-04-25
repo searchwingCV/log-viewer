@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from domain.types import ID_Type
 from pydantic import BaseModel
@@ -25,6 +25,16 @@ class AllOptional(ModelMetaclass):
                 annotations[field] = Optional[annotations[field]]
         namespaces["__annotations__"] = annotations
         return super().__new__(cls, name, bases, namespaces, **kwargs)
+
+
+class DomainUpdate(BaseModel, metaclass=AllOptional):
+    _to_delete: List[str] = []
+
+    def __init__(self, *args, **kwargs):
+        for k, v in kwargs.items():
+            if v is None:
+                self._to_delete.append(k)
+        super().__init__(*args, **kwargs)
 
 
 class EntityID(BaseModel):
