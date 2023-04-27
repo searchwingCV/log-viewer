@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react'
 import { animated, useSpring } from '@react-spring/web'
+import { persistQueryClientSave } from '@tanstack/react-query-persist-client'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { ColumnInstance } from 'react-table'
 import { useQueryClient, useQuery } from '@tanstack/react-query'

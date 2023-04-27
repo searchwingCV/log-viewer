@@ -38,7 +38,12 @@ const getOverAllMaxMin = (data: LineChartData[]) => {
 
 export type FlightModeTime = { time: string; mode: string }
 
-export type LineChartData = { propName: string; values: { timestamp: string; value: number }[] }
+export type LineChartData = {
+  propName: string
+  group: string
+  id: string
+  values: { timestamp: string; value: number }[]
+}
 
 export type LineChartComponentProps = {
   data: LineChartData[]
@@ -69,6 +74,7 @@ const prepareDataForLineChart = (data: LineChartData[]) => {
     ...property.values.map((item) => ({
       timestamp: item.timestamp,
       value: item.value,
+      label: `${property.group}.${property.propName}`,
       propName: property.propName,
     })),
   ])

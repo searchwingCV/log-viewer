@@ -2,96 +2,77 @@
   The following Component is currently not used
  */
 import { useState, useMemo } from 'react'
+import { useRouter } from 'next/router'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Disclosure, Combobox } from '@headlessui/react'
-import { animated, useSpring } from '@react-spring/web'
-import { useQueryClient, useQuery } from '@tanstack/react-query'
+import { Disclosure } from '@headlessui/react'
+import { ToastContainer, toast } from 'react-toastify'
+import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query'
 import clsx from 'clsx'
+import { logFileTimeSeriesTable } from '@idbSchema'
 import CircleIconButton from '~/modules/CircleIconButton'
+import { getLogPropertyTimeSeriesMock } from '~/api/flight/getLogTimeSeries'
 
-type Props = {}
+type Props = {
+  groupedProperties: {
+    name: string
+    id: string
+    timeSeriesProperties: { name: string; id: string }[]
+  }[]
+}
 
 const DRAWER_EXTENDED = 'drawer-extended'
 
-const mockLogProps = [
-  {
-    name: 'XKF1[0]',
-    id: 'xkf10',
-    items: [
-      { name: 'VE', id: 've-xkf10' },
-      { name: 'VN', id: 'vn-xkf10' },
-    ],
-  },
+export const PlotPropsDrawer = ({ groupedProperties }: Props) => {
+  const router = useRouter()
 
-  {
-    name: 'BAT',
-    id: 'bat',
-    items: [
-      { name: 'Curr (A)', id: 'curr-bat' },
-      { name: 'Temp (°C)', id: 'temp-bat' },
-    ],
-  },
-  {
-    name: 'BARO',
-    id: 'baro',
-    items: [
-      { name: 'I (instance)', id: 'i-baro' },
-      { name: 'Gnd Temp (°C)', id: 'gnd-temp-baro' },
-    ],
-  },
-]
+  const fetchTimeSeriesOnClick = useMutation(getLogPropertyTimeSeriesMock, {
+    onSuccess: async (data) => {
+      //await logFileTimeSeriesTable.add(data)
+      console.log('success', data)
+    },
+    onError: async (data) => {
+      toast('error fetching timeseries data' as string, {
+        type: 'error',
+        position: toast.POSITION.BOTTOM_CENTER,
+      })
+      //TODO find out why error message disappears immediately without a timeout
+      await new Promise((resolve) => setTimeout(resolve, 100))
+    },
+  })
 
-export const PlotPropsDrawer = ({}: Props) => {
+  const { id: flightid } = router.query
+
   const { data: isExtended } = useQuery([DRAWER_EXTENDED], () => {
     return true
   })
 
-  const groups = mockLogProps.map((prop) => ({
+  const groups = groupedProperties.map((prop) => ({
     name: prop.name,
     id: prop.id,
-    items: prop.items.map((item) => ({
+    items: prop.timeSeriesProperties.map((item) => ({
       label: item.name,
-      name: `${prop.name} ${item.id}`,
+      name: `${prop.name} ${item.id} ${item.name}`,
       id: item.id,
       groupName: prop.name,
+      groupId: prop.id,
     })),
   }))
 
-  const filterableLogProps = useMemo(() => {
-    return mockLogProps
-      .map((propGroup) => {
-        const { items, name, id } = propGroup
-
-        const comboBoxItems = items.map((prop) => ({
-          label: prop.name,
-          name: `${prop.name} ${prop.id}`,
-          id: prop.id,
-          groupName: name,
-        }))
-
-        return comboBoxItems
-      })
-      .flat()
-  }, [])
-
-  const [selectedProps, setSelectedProps] = useState(filterableLogProps[0].name)
   const [query, setQuery] = useState('')
   const queryClient = useQueryClient()
-
-  const filteredLogProps =
-    query === ''
-      ? filterableLogProps
-      : filterableLogProps.filter((person) => {
-          return person.name.toLowerCase().includes(query.toLowerCase())
-        })
 
   const handleToggleSideNav = () => {
     queryClient.setQueryData<boolean>([DRAWER_EXTENDED], (prev) => {
       return !prev
     })
   }
-
-  console.log('dlll', filterableLogProps, groups)
+  const fetchClickedProperty = async (timeseriesId: string, group: string) => {
+    fetchTimeSeriesOnClick.mutate({
+      key: timeseriesId,
+      group,
+      flightid: parseInt(flightid as string),
+    })
+  }
 
   return (
     <div
@@ -101,7 +82,8 @@ export const PlotPropsDrawer = ({}: Props) => {
                     bottom-0
                     z-10
                     h-full
-                    w-side-drawer`,
+                    w-side-drawer
+                    `,
 
         isExtended ? 'translate-x-0 translate-y-0' : 'translate-x-[-200px]',
       )}
@@ -131,34 +113,27 @@ export const PlotPropsDrawer = ({}: Props) => {
               <ul
                 className={`relative
                             z-30
-                            px-2`}
+                            px-4`}
               >
                 <input
+                  className="mt-8 w-full rounded-sm p-1"
                   onChange={(event) => setQuery(event.target.value)}
-                  displayValue={(prop: {
-                    name: string
-                    id: string
-                    items: {
-                      name: string
-                      id: string
-                    }[]
-                  }) => prop.name}
                 />
 
                 {groups
-                  .filter(
-                    (group) =>
+                  .filter((group) => {
+                    return (
                       group.items.filter((item) =>
                         item.name.toLowerCase().includes(query.toLowerCase()),
-                      ).length > 1,
-                  )
+                      ).length > 0
+                    )
+                  })
                   .map((group) => (
                     <Disclosure>
                       {({ open: disclosureOpen }) => (
                         <>
                           <Disclosure.Button className="my-1 flex w-full justify-between rounded-xl px-4 py-2 text-left text-sm text-white">
                             {group.name}
-
                             {disclosureOpen ? (
                               <FontAwesomeIcon icon={'chevron-up'}></FontAwesomeIcon>
                             ) : (
@@ -166,19 +141,13 @@ export const PlotPropsDrawer = ({}: Props) => {
                             )}
                           </Disclosure.Button>
 
-                          {/* <Combobox.Options>
-                                      {filteredLogProps.map((prop) => (
-                                        <Combobox.Option key={prop.id} value={prop.name}>
-                                          <Combobox.Option
-                                            key={prop.id}
-                                            value={prop.name}
-                                            className="text-white"
-                                          >
-                                            {`${prop.groupName}  - ${prop.label}`}
-                                          </Combobox.Option>
-                                        </Combobox.Option>
-                                      ))}
-                                    </Combobox.Options> */}
+                          {group.items.map((item) => (
+                            <Disclosure.Panel className="pl-4 text-gray-500">
+                              <button onClick={() => fetchClickedProperty(item.id, item.groupId)}>
+                                {item.label}
+                              </button>
+                            </Disclosure.Panel>
+                          ))}
                         </>
                       )}
                     </Disclosure>
