@@ -4,6 +4,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import { ReactElement, ReactNode, useState } from 'react'
 import type { AppProps } from 'next/app'
 import { QueryClient, QueryClientProvider, Hydrate } from '@tanstack/react-query'
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { appWithTranslation } from 'next-i18next'
 import { NextPage } from 'next'
@@ -33,6 +34,7 @@ import {
   faAdd,
   faPlusCircle,
 } from '@fortawesome/free-solid-svg-icons'
+import { createIDBPersister } from '@lib/createIDBPersister'
 
 config.autoAddCss = false
 library.add(
@@ -67,6 +69,8 @@ export type NextPageWithLayout<Props = object> = NextPage<Props> & {
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout
 }
+
+const persister = createIDBPersister()
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   // Use the layout defined at the page level, if available
