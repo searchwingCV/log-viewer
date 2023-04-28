@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'
 import { getDrones, ALL_DRONES_KEY, fetchAllDronesQuery } from '~/api/drone/getDrones'
 import DroneTableOverview from '~/views/DroneTableOverview'
 import { Layout } from '~/modules/Layouts/Layout'
-import { NextPageWithLayout } from './_app'
+import type { NextPageWithLayout } from './_app'
 
 const DroneTablePage: NextPageWithLayout = () => {
   const router = useRouter()
@@ -32,7 +32,6 @@ export const getServerSideProps: GetServerSideProps = async () => {
     props: {
       dehydratedState: dehydrate(queryClient),
     },
-    //revalidate: 60 * 5, // 5 minutes
   }
 }
 

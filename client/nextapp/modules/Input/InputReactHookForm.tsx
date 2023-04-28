@@ -5,7 +5,6 @@ import * as React from 'react'
 import { useTranslation } from 'next-i18next'
 import clsx from 'clsx'
 import { ErrorMessage } from '@hookform/error-message'
-import styles from './Input.module.css'
 import { RegisterOptions, UseFormRegister, Path, FieldErrors, FieldValues } from 'react-hook-form'
 
 export type InputProps = {
@@ -56,8 +55,6 @@ export const InputReactHookForm = <TFormValues extends FieldValues>({
   //To ensure autofilled value is detected, animation on autofill-pseudo element is set up
   const [isAutofillOnMountActive, setIsAutofillOnMountActive] = React.useState(false)
   const [value, setValue] = React.useState(defaultValue)
-
-  console.log(errors)
 
   return (
     <div className={clsx(classNameInputWrapper, 'relative')}>

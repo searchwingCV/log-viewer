@@ -8,26 +8,6 @@ module.exports = {
     './views/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
-    colors: {
-      transparent: 'transparent',
-      current: 'currentColor',
-      primary: {
-        black: '#000000',
-        white: '#ffffff',
-        'light-petrol': '#2c879a',
-        'dark-petrol': '#1e7182',
-        'indigo-blue': '#3F0FB7',
-        red: '#E9132D',
-        green: '#77D866',
-        rose: '#b86777',
-      },
-      grey: {
-        light: '#F8F8F8',
-        medium: '#CACACA',
-        dark: '#909090',
-        'super-dark': '#2d2d2d',
-      },
-    },
     screens: {
       xs: '450px',
       sm: '600px',
@@ -37,8 +17,28 @@ module.exports = {
       xl: '1440px',
       '2xl': '1920px',
     },
-
     extend: {
+      colors: {
+        transparent: 'transparent',
+        current: 'currentColor',
+        primary: {
+          black: '#000000',
+          white: '#ffffff',
+          'light-petrol': '#6da9b5',
+          'dark-petrol': '#1e7182',
+          'indigo-blue': '#3F0FB7',
+          red: '#E9132D',
+          green: '#77D866',
+          rose: '#f093c6',
+          activeGreen: '#aafc53',
+        },
+        grey: {
+          light: '#F8F8F8',
+          medium: '#CACACA',
+          dark: '#909090',
+          'super-dark': '#2d2d2d',
+        },
+      },
       width: {
         'side-drawer': '280px',
       },

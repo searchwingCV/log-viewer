@@ -20,6 +20,8 @@
       "@schema": ["./types/index"],
       "@lib/*": ["./lib/*"],
       "@constants": ["./lib/constants"],
+      "@idbSchema": ["./dexie-database"],
+
       "~/*": ["./*"]
     }
   },
