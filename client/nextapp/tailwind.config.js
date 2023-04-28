@@ -29,7 +29,8 @@ module.exports = {
           'indigo-blue': '#3F0FB7',
           red: '#E9132D',
           green: '#77D866',
-          rose: '#b86777',
+          rose: '#f093c6',
+          activeGreen: '#aafc53',
         },
         grey: {
           light: '#F8F8F8',

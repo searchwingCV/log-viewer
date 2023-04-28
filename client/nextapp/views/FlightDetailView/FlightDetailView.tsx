@@ -1,11 +1,12 @@
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
 import { useQuery } from '@tanstack/react-query'
-import { PlotPropsDrawer, LineChartComponent } from '~/modules/PlotInterfaceComponents'
-import { animated, useSpring } from '@react-spring/web'
 import { LogOverallData } from '@schema'
-
-const DRAWER_EXTENDED = 'drawer-extended'
+import {
+  PlotPropsDrawer,
+  LineChartComponent,
+  PLOT_DRAWER_EXTENDED,
+} from '~/modules/PlotInterfaceComponents'
 
 export type FlightDetailViewProps = {
   logOverallData: LogOverallData
@@ -14,9 +15,7 @@ export type FlightDetailViewProps = {
 export const FlightDetailView = ({ logOverallData }: FlightDetailViewProps) => {
   const router = useRouter()
   const { id } = router.query
-  const { data: sideNavExtended } = useQuery([DRAWER_EXTENDED])
-
-  console.log('djdj', logOverallData)
+  const { data: sideNavExtended } = useQuery([PLOT_DRAWER_EXTENDED])
 
   return (
     <>
@@ -32,12 +31,15 @@ export const FlightDetailView = ({ logOverallData }: FlightDetailViewProps) => {
         <div
           className={clsx(
             `ml-side-drawer-width
-                       h-screen
-                       overflow-x-hidden`,
+             h-screen
+             overflow-x-hidden`,
 
             sideNavExtended
-              ? 'min-w-[calc(100vw_-_270px)] translate-x-0 translate-y-0'
-              : 'min-w-[calc(100vw_-_0px)] translate-x-[-260px]',
+              ? `min-w-[calc(100vw_-_270px)]
+                 translate-x-0
+                 translate-y-0`
+              : `min-w-[calc(100vw_-_0px)]
+                 translate-x-[-260px]`,
           )}
         >
           <main
@@ -48,12 +50,18 @@ export const FlightDetailView = ({ logOverallData }: FlightDetailViewProps) => {
                       bg-grey-light
                         `}
           >
-            <div className={clsx('w-full pr-8  pt-8', sideNavExtended ? 'pl-8' : 'pl-28')}>
-              {/* <LineChartComponent
-                data={mockData}
+            <div
+              className={clsx(
+                `r-8
+                 w-full
+                 pt-8`,
+                sideNavExtended ? 'pl-8' : 'pl-28',
+              )}
+            >
+              <LineChartComponent
                 flightModeData={logOverallData.flightModeTimeSeries}
                 flightId={parseInt(id as string)}
-              /> */}
+              />
             </div>
           </main>
         </div>

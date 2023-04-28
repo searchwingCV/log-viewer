@@ -1,13 +1,13 @@
 import '../styles/globals.css'
 import 'react-tippy/dist/tippy.css'
 import 'react-toastify/dist/ReactToastify.css'
-import { ReactElement, ReactNode, useState } from 'react'
+import type { ReactElement, ReactNode } from 'react'
+import { useState } from 'react'
 import type { AppProps } from 'next/app'
 import { QueryClient, QueryClientProvider, Hydrate } from '@tanstack/react-query'
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { appWithTranslation } from 'next-i18next'
-import { NextPage } from 'next'
+import type { NextPage } from 'next'
 import { config, library } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import {
@@ -33,8 +33,8 @@ import {
   faUndo,
   faAdd,
   faPlusCircle,
+  faTrashCan,
 } from '@fortawesome/free-solid-svg-icons'
-import { createIDBPersister } from '@lib/createIDBPersister'
 
 config.autoAddCss = false
 library.add(
@@ -60,6 +60,7 @@ library.add(
   faUndo,
   faAdd,
   faPlusCircle,
+  faTrashCan,
 )
 
 export type NextPageWithLayout<Props = object> = NextPage<Props> & {
@@ -69,8 +70,6 @@ export type NextPageWithLayout<Props = object> = NextPage<Props> & {
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout
 }
-
-const persister = createIDBPersister()
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   // Use the layout defined at the page level, if available

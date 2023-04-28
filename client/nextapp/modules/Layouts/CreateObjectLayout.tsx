@@ -11,14 +11,17 @@ export const CreateObjectLayout = ({ children }: Props) => {
   return (
     <div
       className={`flex
-                h-full
-                flex-col
-                items-center
-                justify-center
-                pb-16
+                  h-full
+                  flex-col
+                  items-center
+                  justify-center
+                  pb-16
                 `}
     >
-      <div className="max-w-[600px] pt-16">
+      <div
+        className={`max-w-[600px]
+                    pt-16`}
+      >
         <Button
           className="pb-12"
           buttonStyle="Link"
@@ -26,7 +29,11 @@ export const CreateObjectLayout = ({ children }: Props) => {
         >
           Back To Table Overview
         </Button>
-        <h1 className="mb-12 text-4xl font-bold">{`Add new ${model}`}</h1>
+        <h1
+          className={`mb-12
+                      text-4xl
+                      font-bold`}
+        >{`Add new ${model}`}</h1>
 
         {children}
       </div>
