@@ -1,7 +1,6 @@
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { LogOverallData } from "@schema";
-import { logFileOverallData } from '@idbSchema'
 
 const Series = require('time-series-data-generator')
 
@@ -114,14 +113,4 @@ export const getLogOverallDataMock = (flightid: number) => {
 export const fetchLogPropertyOverallData = (flightid: number) =>
     useQuery<LogOverallData>([LOG_OVERALL_DATA, flightid], () =>
         getLogOverallDataMock(flightid),
-        {
-            onSuccess: async (data) => {
-                try {
-                    await logFileOverallData.add(data)
-                } catch (error) {
-                    // console.error(`Failed to add ${customer}: ${error}`);
-                }
-
-            },
-
-        })
+    )

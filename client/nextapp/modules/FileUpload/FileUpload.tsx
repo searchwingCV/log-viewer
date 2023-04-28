@@ -41,8 +41,16 @@ export const FileUpload = <TFormValues extends FieldValues>({
           })
         }}
       >
-        {({ getRootProps, getInputProps, open, isDragActive, acceptedFiles }) => (
-          <div className="flex h-[200px] items-center justify-center rounded-xl border border-dashed">
+        {({ getRootProps, getInputProps, open, acceptedFiles }) => (
+          <div
+            className={`flex
+                        h-[200px]
+                        items-center
+                        justify-center
+                        rounded-xl
+                        border
+                        border-dashed`}
+          >
             <div {...getRootProps()}>
               <input
                 {...getInputProps({
@@ -55,7 +63,8 @@ export const FileUpload = <TFormValues extends FieldValues>({
                 <Button
                   type="button"
                   buttonStyle="Secondary"
-                  className="h-[50px] w-[200px]"
+                  className={`h-[50px]
+                              w-[200px]`}
                   onClick={open}
                 >
                   Choose a file
@@ -65,7 +74,12 @@ export const FileUpload = <TFormValues extends FieldValues>({
               </div>
               <div className="text-center">
                 {acceptedFiles.length ? (
-                  <div className="mt-4 text-xl font-bold text-primary-green">
+                  <div
+                    className={`mt-4
+                                text-xl
+                                font-bold
+                                text-primary-green`}
+                  >
                     {acceptedFiles[0].name}
                   </div>
                 ) : (
@@ -79,10 +93,11 @@ export const FileUpload = <TFormValues extends FieldValues>({
                   render={({ message }) => (
                     <p
                       className={`error-message
-                          absolute
-                          top-full
-                          left-0
-                          pt-1 text-xs text-primary-red`}
+                                  absolute
+                                  top-full
+                                  left-0
+                                  pt-1 text-xs
+                                  text-primary-red`}
                     >
                       {message}
                     </p>

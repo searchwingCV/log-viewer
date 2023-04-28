@@ -39,10 +39,9 @@ export const Link = ({
        font-outfit
        hover:underline
        underline-offset-4	
-       text-white
        `,
       icon && 'inline-flex',
-      isWhite ? 'text-primary-white' : 'text-primary-black',
+      isWhite ? 'text-primary-white' : 'text-grey-dark',
       disabled &&
         `pointer-events-none 
          text-grey-dark`,

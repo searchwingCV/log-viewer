@@ -5,10 +5,9 @@ import { useRouter } from 'next/router'
 import { fetchAllFlightsQuery, getFlights, ALl_FLIGHTS_KEY } from '~/api/flight/getFlights'
 import { getDrones, ALL_DRONES_KEY } from '~/api/drone/getDrones'
 import { getMissions, ALL_MISSIONS_KEY } from '~/api/mission/getMissions'
-
 import { Layout } from '~/modules/Layouts/Layout'
 import FlightTableOverview from '~/views/FlightTableOverview'
-import { NextPageWithLayout } from './_app'
+import type { NextPageWithLayout } from './_app'
 
 const FlightOverviewPage: NextPageWithLayout = () => {
   const router = useRouter()

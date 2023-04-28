@@ -2,6 +2,8 @@
   The following Component is currently not used
  */
 import { ReactNode, useMemo } from 'react'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { useRouter } from 'next/router'
 import {
   LineChart,
   Line,
@@ -16,39 +18,25 @@ import {
   Label,
 } from 'recharts'
 import { differenceInSeconds, intervalToDuration } from 'date-fns'
+import database, { DexieLogFileTimeSeries } from '@idbSchema'
 
 export type Props = { children: ReactNode }
 
 const calculateSignatureNumbers = ({ name, values }: { name: string; values: number[] }) => {
   const max = Math.max(...values)
   const min = Math.min(...values)
-  const mean = values.reduce((a, b) => a + b) / values.length
+  const mean = values?.reduce((a, b) => a + b) / values.length
 
   return { name, max, min, mean }
 }
 
-const getOverAllMaxMin = (data: LineChartData[]) => {
+const getOverAllMaxMin = (data: DexieLogFileTimeSeries[]) => {
   const vals2Dimensional = data.map((property) => [...property.values.map((item) => item.value)])
   const valsCombined = vals2Dimensional.reduce((a, b) => [...a, ...b])
   const max = Math.ceil(Math.max(...valsCombined))
   const min = Math.floor(Math.min(...valsCombined))
 
   return { max, min }
-}
-
-export type FlightModeTime = { time: string; mode: string }
-
-export type LineChartData = {
-  propName: string
-  group: string
-  id: string
-  values: { timestamp: string; value: number }[]
-}
-
-export type LineChartComponentProps = {
-  data: LineChartData[]
-  flightModeData: FlightModeTime[]
-  flightId: number
 }
 
 const getTimeInDuration = (uniqueTimestamps: string[]) => {
@@ -69,7 +57,7 @@ const getTimeInDuration = (uniqueTimestamps: string[]) => {
   return formattedTimes
 }
 
-const prepareDataForLineChart = (data: LineChartData[]) => {
+const prepareDataForLineChart = (data: DexieLogFileTimeSeries[]) => {
   const vals2Dimensional = data.map((property) => [
     ...property.values.map((item) => ({
       timestamp: item.timestamp,
@@ -79,7 +67,7 @@ const prepareDataForLineChart = (data: LineChartData[]) => {
     })),
   ])
 
-  const valsCombined = vals2Dimensional.reduce((a, b) => [...a, ...b])
+  const valsCombined = vals2Dimensional?.reduce((a, b) => [...a, ...b])
 
   const uniqueTimestamps = valsCombined
     .map((val) => val.timestamp)
@@ -176,17 +164,60 @@ const flightModes = [
   { name: '', color: '#F7C4D4' },
 ]
 
-export const LineChartComponent = ({ data, flightModeData, flightId }: LineChartComponentProps) => {
-  const preparedData = useMemo(() => prepareDataForLineChart(data), [data])
+export type FlightModeTime = { time: string; mode: string }
+
+export type LineChartComponentProps = {
+  flightModeData: FlightModeTime[]
+  flightId: number
+}
+
+export interface LineChartProps extends LineChartComponentProps {
+  activeTimeSeries: DexieLogFileTimeSeries[]
+}
+
+export const LineChartComponent = ({ flightModeData, flightId }: LineChartComponentProps) => {
+  const router = useRouter()
+  const { id: flightid } = router.query
+  const activeTimeSeries = useLiveQuery(() =>
+    //TODO: solve dexie ts error
+    // @ts-expect-error: Dexie not working with TS right now
+    database.logFileTimeSeries
+      .filter((series: DexieLogFileTimeSeries) => series.flightId === (flightid as string))
+      .toArray(),
+  )
+
+  if (!activeTimeSeries || !activeTimeSeries?.length) {
+    return (
+      <div
+        className={`flex
+                    items-center
+                    justify-center`}
+      >
+        No Data selected
+      </div>
+    )
+  }
+
+  return (
+    <LineChartGraph
+      flightModeData={flightModeData}
+      flightId={flightId}
+      activeTimeSeries={activeTimeSeries}
+    />
+  )
+}
+
+export const LineChartGraph = ({ flightModeData, flightId, activeTimeSeries }: LineChartProps) => {
+  const preparedData = useMemo(() => prepareDataForLineChart(activeTimeSeries), [activeTimeSeries])
   const signatureNumbers = useMemo(
     () =>
-      data.map((propTypes) =>
+      activeTimeSeries.map((propTypes: DexieLogFileTimeSeries) =>
         calculateSignatureNumbers({
           name: propTypes.propName,
           values: propTypes.values.map((valPair) => valPair.value),
         }),
       ),
-    [data],
+    [activeTimeSeries],
   )
 
   const flightModeAreas = useMemo(
@@ -201,7 +232,11 @@ export const LineChartComponent = ({ data, flightModeData, flightId }: LineChart
     [flightModeData],
   )
 
-  const plotNames = data.map((plotTypes) => plotTypes.propName)
+  const plotNames = activeTimeSeries.map((plotTypes: DexieLogFileTimeSeries) => ({
+    name: plotTypes.propName,
+    label: `${plotTypes.group}-${plotTypes.propName}`,
+  }))
+
   return (
     <>
       <ResponsiveContainer width="100%" height={700}>
@@ -219,12 +254,23 @@ export const LineChartComponent = ({ data, flightModeData, flightId }: LineChart
             content={(props) => {
               const { payload } = props
               return (
-                <ul className="relative ml-[60px] mb-12 border border-grey-medium bg-primary-white p-2 text-xs">
+                <ul
+                  className={`relative
+                              ml-[60px]
+                              mb-12
+                              border
+                              border-grey-medium
+                              bg-primary-white
+                              p-2
+                              text-xs`}
+                >
                   {payload?.map((entry, index) => (
                     <li
                       key={`item-${index}`}
                       style={{ color: colorArr[index] }}
-                      className={'grid grid-cols-[50px_250px_250px_250px] text-xs'}
+                      className={`grid
+                                  grid-cols-[150px_250px_250px_250px]
+                                  text-xs`}
                     >
                       <span className="font-bold">{entry.value}</span>
                       <span>
@@ -242,7 +288,12 @@ export const LineChartComponent = ({ data, flightModeData, flightId }: LineChart
                     </li>
                   ))}
 
-                  <div className="absolute top-2 right-8 text-grey-dark">{`FLIGHT ${flightId}`}</div>
+                  <div
+                    className={`absolute
+                                top-2
+                                right-8
+                                text-grey-dark`}
+                  >{`FLIGHT ${flightId}`}</div>
                 </ul>
               )
             }}
@@ -250,27 +301,29 @@ export const LineChartComponent = ({ data, flightModeData, flightId }: LineChart
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
 
-          {plotNames.map((name, i) => (
+          {plotNames.map((plot, i) => (
             <YAxis
-              dataKey={name}
+              dataKey={plot.name}
               yAxisId={i}
               stroke={colorArr[i]}
               label={
                 <Label
                   stroke={colorArr[i]}
-                  className={'text-xs'}
+                  className={`text-xs`}
                   position="bottom"
-                  value={name}
+                  value={plot.label}
+                  angle={-90}
+                  offset={55}
                 ></Label>
               }
             />
           ))}
 
           <Tooltip />
-          {plotNames.map((name, i) => (
+          {plotNames.map((plot, i) => (
             <Line
               type="monotone"
-              dataKey={name}
+              dataKey={plot.name}
               stroke={colorArr[i]}
               fill={colorArr[i]}
               dot={false}
@@ -279,10 +332,10 @@ export const LineChartComponent = ({ data, flightModeData, flightId }: LineChart
           ))}
           <Brush data={preparedData} dataKey={'prop'} height={100}>
             <LineChart data={preparedData} className={'mt-8'}>
-              {plotNames.map((name, i) => (
+              {plotNames.map((plot, i) => (
                 <Line
                   type="monotone"
-                  dataKey={name}
+                  dataKey={plot.name}
                   stroke={colorArr[i]}
                   fill={colorArr[i]}
                   dot={false}

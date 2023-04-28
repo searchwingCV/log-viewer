@@ -2,9 +2,9 @@ import { ReactNode } from 'react'
 import Header from '~/modules/Header'
 import HeaderNavigation from '../HeaderNavigation'
 
-export type Props = { children: ReactNode }
+export type Props = { children: ReactNode; isHeaderMinimalist?: boolean }
 
-export const Layout = ({ children }: Props) => {
+export const Layout = ({ children, isHeaderMinimalist }: Props) => {
   return (
     <>
       <div
@@ -12,7 +12,7 @@ export const Layout = ({ children }: Props) => {
                     min-h-screen
                     flex-col`}
       >
-        <HeaderNavigation />{' '}
+        <HeaderNavigation isHeaderMinimalist={isHeaderMinimalist} />{' '}
         <main
           className={`
                       min-h-screen

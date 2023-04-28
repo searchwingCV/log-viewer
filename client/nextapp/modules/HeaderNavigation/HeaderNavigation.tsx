@@ -1,4 +1,5 @@
 import React from 'react'
+import clsx from 'clsx'
 import Link from 'modules/Link'
 
 const navItems = [
@@ -7,40 +8,83 @@ const navItems = [
   { name: 'DRONE TABLE', url: '/drone-overview/' },
 ]
 
-export const HeaderNavigation = () => {
-  const [navbarOpen, setNavbarOpen] = React.useState(false)
+export type HeaderNavigationProps = {
+  isHeaderMinimalist?: boolean
+}
+
+export const HeaderNavigation = ({ isHeaderMinimalist }: HeaderNavigationProps) => {
   return (
-    <nav className="fixed right-0 left-0 z-10 flex flex-wrap items-center justify-between bg-primary-light-petrol py-3 pl-2">
-      <div className="container mx-auto flex flex-wrap items-center justify-between pl-4">
-        <div className="relative flex w-full justify-between lg:static lg:block lg:w-auto lg:justify-start">
+    <nav
+      className={clsx(
+        `fixed
+          right-0
+          left-0
+          z-10
+          flex
+          flex-col
+          flex-wrap
+          items-center
+          py-1
+          pl-2`,
+        isHeaderMinimalist
+          ? `justify-end
+             bg-transparent
+             text-primary-black`
+          : `justify-between
+             bg-primary-light-petrol
+             text-primary-white`,
+      )}
+    >
+      <div
+        className={`container
+                    mx-auto
+                    flex
+                    flex-wrap
+                    items-center
+                    justify-between
+                    pl-4`}
+      >
+        {!isHeaderMinimalist ? (
           <a
-            className="mr-4 inline-block whitespace-nowrap py-2 text-sm font-bold uppercase leading-relaxed text-primary-white"
+            className={`mr-4
+                        inline-block
+                        whitespace-nowrap
+                        py-2
+                        text-sm
+                        font-bold
+                        uppercase
+                        leading-relaxed
+                        text-inherit`}
             href="/"
           >
             Log Viewer
           </a>
-          <button
-            className="text-white block cursor-pointer rounded border border-solid border-transparent bg-transparent py-1 pl-3 text-xl leading-none outline-none focus:outline-none lg:hidden"
-            type="button"
-            onClick={() => setNavbarOpen(!navbarOpen)}
-          >
-            <i className="fas fa-bars"></i>
-          </button>
-        </div>
-        <div
-          className={'flex-grow items-center pr-8 lg:flex' + (navbarOpen ? ' flex' : ' hidden')}
-          id="example-navbar-danger"
+        ) : null}
+        <ul
+          className={`flex
+                      list-none
+                      flex-col
+                      pr-8
+                      lg:ml-auto
+                      lg:flex-row`}
         >
-          <ul className="flex list-none flex-col lg:ml-auto lg:flex-row">
-            {navItems.map((item) => (
-              <li className="nav-item flex w-[150px] justify-end">
-                <Link href={item.url} isWhite>
-                  {item.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+          {navItems.map((item) => (
+            <li
+              className={clsx(
+                `nav-item
+                 flex
+                 w-[150px]
+                 justify-end
+                 text-inherit`,
+                isHeaderMinimalist ? `text-primary-black` : `text-primary-white`,
+              )}
+            >
+              <Link href={item.url} isWhite={!isHeaderMinimalist}>
+                {item.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </nav>
   )

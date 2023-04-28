@@ -20,7 +20,7 @@
       "@schema": ["./types/index"],
       "@lib/*": ["./lib/*"],
       "@constants": ["./lib/constants"],
-      "@idbSchema": ["./database.config"],
+      "@idbSchema": ["./dexie-database"],
 
       "~/*": ["./*"]
     }
