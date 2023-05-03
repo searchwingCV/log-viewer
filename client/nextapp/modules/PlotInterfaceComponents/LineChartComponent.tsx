@@ -183,6 +183,7 @@ export const LineChartComponent = ({ flightModeData, flightId }: LineChartCompon
     // @ts-expect-error: Dexie not working with TS right now
     database.logFileTimeSeries
       .filter((series: DexieLogFileTimeSeries) => series.flightId === (flightid as string))
+      .reverse()
       .toArray(),
   )
 

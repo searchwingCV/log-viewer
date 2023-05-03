@@ -9,7 +9,7 @@ export interface DexieLogFileTimeSeries extends LogFileTimeSeries {
 }
 
 database.version(1).stores({
-    logFileTimeSeries: '++id, propId, propName, group, values, flightId',
+    logFileTimeSeries: '++id, propId, propName, group, values, flightId, unit',
 });
 
 export const logFileTimeSeriesTable = database.table('logFileTimeSeries');

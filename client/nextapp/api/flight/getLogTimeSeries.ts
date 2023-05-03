@@ -30,6 +30,7 @@ const mockData: LogFileTimeSeries[] = [
             timestamp: item.timestamp,
             value: item.value * 10,
         })),
+        unit: "V"
     },
     {
         propName: 'VN',
@@ -39,42 +40,49 @@ const mockData: LogFileTimeSeries[] = [
             timestamp: item.timestamp,
             value: item.value * 10,
         })),
+        unit: "V"
+
     },
     {
-        propName: 'Curr (A)',
+        propName: 'Curr',
         group: 'BAT',
         id: 'curr-bat',
         values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 10 + 100,
         })),
+        unit: "A"
+
     },
     {
-        propName: 'Temp (°C)',
+        propName: 'Temp',
         group: 'BAT',
         id: 'temp-bat',
         values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 20,
         })),
+        unit: "Celsius"
     },
     {
-        propName: 'I (instance)',
+        propName: 'I',
         group: 'BARO',
         id: 'i-baro',
         values: series2.sin().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 10,
         })),
+        unit: "instance"
     },
     {
-        propName: 'Gnd Temp (°C)',
+        propName: 'GndTemp',
         group: 'BARO',
         id: 'gnd-temp-baro',
         values: series2.cos().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 10,
         })),
+        unit: "Celsius"
     },
 ]
 

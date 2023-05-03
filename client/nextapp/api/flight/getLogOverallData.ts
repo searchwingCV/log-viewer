@@ -80,24 +80,24 @@ const mockData = {
             name: 'XKF1[0]',
             id: 'xkf10',
             timeSeriesProperties: [
-                { name: 'VE', id: 've-xkf10' },
-                { name: 'VN', id: 'vn-xkf10' },
+                { propName: 'VE', id: 've-xkf10', unit: "V" },
+                { propName: 'VN', id: 'vn-xkf10', unit: "V" },
             ],
         },
         {
             name: 'BAT',
             id: 'bat',
             timeSeriesProperties: [
-                { name: 'Curr (A)', id: 'curr-bat' },
-                { name: 'Temp (°C)', id: 'temp-bat' },
+                { propName: 'Curr', id: 'curr-bat', unit: "A" },
+                { propName: 'Temp', id: 'temp-bat', unit: "Celsius" },
             ],
         },
         {
             name: 'BARO',
             id: 'baro',
             timeSeriesProperties: [
-                { name: 'I (instance)', id: 'i-baro' },
-                { name: 'Gnd Temp (°C)', id: 'gnd-temp-baro' },
+                { propName: 'I', id: 'i-baro', unit: "I" },
+                { propName: 'GndTemp', id: 'gnd-temp-baro', unit: "Celsius" },
             ],
         },
     ]
