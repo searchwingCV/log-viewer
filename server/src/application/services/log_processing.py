@@ -1,3 +1,4 @@
+import os
 import typing as t
 
 from application.services import FileService, FlightService
@@ -8,10 +9,14 @@ from domain.flight_file.value_objects import AllowedFiles
 from pymavlog import MavLog
 
 logger = get_logger(__name__)
+basedir = os.path.dirname(__file__)
+tmp_dir = os.path.join(basedir, os.pardir, os.pardir, os.pardir, "tmp", "cache", "logs")
+
+print(tmp_dir)
 
 
 class LogProcessingService:
-    def __init__(self, file_service: FileService, flight_service: FlightService, tmp_dir: str = "./tmp/cache/logs"):
+    def __init__(self, file_service: FileService, flight_service: FlightService, tmp_dir: str = tmp_dir):
         self._file_service = file_service
         self._flight_service = flight_service
         self._tmp_dir = tmp_dir

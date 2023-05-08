@@ -31,9 +31,6 @@ test-server:
   - source venv/bin/activate
   - make install-back-deps
   - make install-back-test-deps
-  - echo $CI_PROJECT_DIR
-  - echo "test" > $CI_PROJECT_DIR/server/tmp/cache/logs/file.bin
-  - ls $CI_PROJECT_DIR/server/tmp/cache/logs -alh
   script:
   - make lint-server
   - make test-server
