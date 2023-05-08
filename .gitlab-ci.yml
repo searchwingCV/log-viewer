@@ -32,7 +32,7 @@ test-server:
   - make install-back-deps
   - make install-back-test-deps
   - echo $CI_PROJECT_DIR
-  - ls $CI_PROJECT_DIR/server/tmp/cache/logs/file.bin
+  - ls $CI_PROJECT_DIR/server/tmp/cache -alh
   - echo "test" > $CI_PROJECT_DIR/server/tmp/cache/logs/file.bin
   script:
   - make lint-server
