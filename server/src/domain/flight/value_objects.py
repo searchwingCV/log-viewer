@@ -24,3 +24,10 @@ class AllowedFiles(str, enum.Enum):
     log = "log"
     apm = "apm"
     tlog = "tlog"
+
+
+class FlightProcessingStatus(str, enum.Enum):
+    not_processed = 0
+    processing = 1
+    success = 2
+    error = 3
