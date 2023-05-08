@@ -40,7 +40,7 @@ class LogProcessingService:
 
         logger.debug(f"grabbing log file {iofile.flight_file.id}")
         tmp_path = f"{self._tmp_dir}/file.bin"
-        with open(tmp_path, "wb") as f:
+        with open(tmp_path, "wb+") as f:
             f.write(iofile.io.getbuffer())
 
         mlog = MavLog(filepath=tmp_path, types=types, to_datetime=True)
