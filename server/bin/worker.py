@@ -1,13 +1,18 @@
 import logging
+from argparse import ArgumentParser, Namespace
 
-# from src.presentation.worker import celery_app as app
-from src.presentation.worker.factory import make_celery
+from src.presentation.worker import celery_app as app
+
+
+def get_args() -> Namespace:
+    parser = ArgumentParser()
+    parser.add_argument("--debug", help="Activate debug", action="store_true")
+    return parser.parse_args()
+
 
 if __name__ == "__main__":
-    app = make_celery()
+    args = get_args()
 
-    # app.autodiscover_tasks(force=True)
-
-    worker = app.Worker(include=["src.presentation.worker.tasks"], queues=["hello"])
-    worker.setup_defaults(loglevel=logging.DEBUG)
+    worker = app.Worker(include=["src.presentation.worker.tasks"])
+    worker.setup_defaults(loglevel=logging.DEBUG if args.debug else logging.INFO)
     worker.start()

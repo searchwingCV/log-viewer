@@ -1,7 +1,8 @@
-from celery import shared_task
+from presentation.worker import celery_app
+from presentation.worker.dependencies import get_log_processing_service
 
 
-@shared_task(name="say_hello", bind=True)
-def say_hello(self, name):
-    print(self.request.id)
-    return f"hello {name}"
+@celery_app.task(name="flight_duration", bind=True)
+def process_flight_duration(self, flight_id):
+    log_processing_service = get_log_processing_service()
+    return log_processing_service.process_flight_duration(flight_id)

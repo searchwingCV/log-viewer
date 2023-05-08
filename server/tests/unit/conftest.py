@@ -3,6 +3,7 @@ import sys
 from unittest.mock import Mock
 
 import pytest
+from application.services import FileService, FlightService
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from infrastructure.db.session import SessionContextManager
@@ -42,3 +43,17 @@ def mock_session_factory(mock_session):
     session_factory.__enter__ = mock_session
     session_factory.__exit__ = Mock(return_value=False)
     return session_factory
+
+
+@pytest.fixture
+def mock_flight_service():
+    mock_flight_service = Mock(spec=FlightService)
+    mock_flight_service._entity_type = "Flight"
+    return mock_flight_service
+
+
+@pytest.fixture
+def mock_file_service():
+    mock_file_service = Mock(spec=FileService)
+    mock_file_service._entity_type = "FileFlight"
+    return mock_file_service

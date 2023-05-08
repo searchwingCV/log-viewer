@@ -14,6 +14,7 @@ from presentation.rest.serializers.errors import EntityNotFoundError, InvalidPay
 from presentation.rest.serializers.file import FlightFileSerializer
 from presentation.rest.serializers.flight import CreateFlightSerializer, FlightSerializer, FlightUpdate
 from presentation.rest.serializers.responses import BatchUpdateResponse, FlightFilesListResponse
+from presentation.worker.tasks import process_flight_duration
 
 ROUTE_PREFIX = "/flight"
 router = APIRouter(
@@ -87,10 +88,14 @@ def upload_file(
     id: int,
     file_type: AllowedFiles,
     file: UploadFile,
+    process: bool = True,
     file_service: FileService = Depends(get_file_service),
 ):
     try:
-        return file_service.upload_file(id, file, file_type)
+        uploaded_file = file_service.upload_file(id, file, file_type)
+        if file_type == AllowedFiles.log and process:
+            process_flight_duration.delay(id)
+        return uploaded_file
     except NotFoundException:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

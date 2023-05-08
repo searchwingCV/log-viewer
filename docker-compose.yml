@@ -5,7 +5,7 @@ services:
     container_name: api
     build:
       context: server
-      target: dev
+      target: dev-api
     stdin_open: true
     tty: true
     command: sh -c "alembic upgrade head && python scripts/fill_up_db.py && python bin/api.py --reload"
@@ -27,7 +27,7 @@ services:
     container_name: worker
     build:
       context: server
-      target: dev
+      target: dev-worker
     stdin_open: true
     tty: true
     command: sh -c "python bin/worker.py"
