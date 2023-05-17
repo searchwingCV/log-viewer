@@ -14,8 +14,20 @@ class BaseConfig(object):
         f"/{os.environ['POSTGRES_DB']}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
     STORAGE_PROTOCOL = os.getenv("STORAGE_PROTOCOL", "file")
     STORAGE_ROOT = os.getenv("STORAGE_ROOT", "/data")
+
+    REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
+    REDIS_PORT = os.getenv("REDIS_PORT", "6379")
+    REDIS_DB = os.getenv("REDIS_DB", "0")
+    REDIS_USER = os.getenv("REDIS_USER")
+    REDIS_PWD = os.getenv("REDIS_PWD")
+
+    CELERY_CONFIG = {
+        "broker_url": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
+        "result_backend": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
+    }
 
 
 class Config(BaseConfig):

@@ -5,7 +5,7 @@ services:
     container_name: api
     build:
       context: server
-      target: dev
+      target: dev-api
     stdin_open: true
     tty: true
     command: sh -c "alembic upgrade head && python scripts/fill_up_db.py && python bin/api.py --reload"
@@ -22,6 +22,28 @@ services:
       POSTGRES_DB: searchwing
       POSTGRES_SERVER: db
       POSTGRES_PORT: 5432
+      REDIS_HOST: redis
+  worker:
+    container_name: worker
+    build:
+      context: server
+      target: dev-worker
+    stdin_open: true
+    tty: true
+    command: sh -c "python bin/worker.py"
+    volumes:
+      - ./server:/searchwing
+      - ./storage:/data/
+    depends_on:
+      - db
+      - redis
+    environment:
+      POSTGRES_USER: searchwing
+      POSTGRES_PASSWORD: searchwing
+      POSTGRES_DB: searchwing
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: 5432
+      REDIS_HOST: redis
 
   db:
     container_name: db
@@ -95,6 +117,34 @@ services:
       - 3000:3000
     environment:
       - NEXT_PUBLIC_API_URL
+
+  redis:
+    container_name: redis
+    hostname: redis
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  redis-commander:
+    container_name: redis-commander
+    hostname: redis-commander
+    image: rediscommander/redis-commander:latest
+    restart: always
+    environment:
+    - REDIS_HOSTS=local:redis:6379
+    ports:
+    - "8081:8081"
+
+  flower:
+    image: mher/flower:0.9.7
+    command: ['flower', '--broker=redis://redis:6379', '--port=5555']
+    expose:
+      - 5555
+    ports:
+    - "5555:5555"
+    depends_on:
+      - redis
 
 volumes:
   storage:
