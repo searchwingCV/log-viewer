@@ -1,5 +1,4 @@
 import { ReactNode } from 'react'
-import Header from '~/modules/Header'
 import HeaderNavigation from '../HeaderNavigation'
 
 export type Props = { children: ReactNode; isHeaderMinimalist?: boolean }
