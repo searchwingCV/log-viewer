@@ -1,9 +1,12 @@
 /* 
-  The following Component is currently not used
+   Complex component to plot the data, based on recharts.js,
+   only the LineChart component from recharts is used here,
+   plots individual timeseries & custom plots
  */
-import { ReactNode, useMemo } from 'react'
+import { type ReactNode, useMemo } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useRouter } from 'next/router'
+import useMedia from '@charlietango/use-media'
 import {
   LineChart,
   Line,
@@ -18,34 +21,25 @@ import {
   Label,
 } from 'recharts'
 import { differenceInSeconds, intervalToDuration } from 'date-fns'
-import database, { DexieLogFileTimeSeries } from '@idbSchema'
-
-export type Props = { children: ReactNode }
+import database, { type DexieCustomPlot, type DexieLogFileTimeSeries } from '@idbSchema'
 
 const calculateSignatureNumbers = ({ name, values }: { name: string; values: number[] }) => {
-  const max = Math.max(...values)
-  const min = Math.min(...values)
-  const mean = values?.reduce((a, b) => a + b) / values.length
+  //Calculate the Max, Min and AVG for each plot and limit decial numbers to 2 digits
+  const max = Math.max(...values).toFixed(2)
+  const min = Math.min(...values).toFixed(2)
+  const mean = (values?.reduce((a, b) => a + b) / values.length).toFixed(2)
 
   return { name, max, min, mean }
 }
 
-const getOverAllMaxMin = (data: DexieLogFileTimeSeries[]) => {
-  const vals2Dimensional = data.map((property) => [...property.values.map((item) => item.value)])
-  const valsCombined = vals2Dimensional.reduce((a, b) => [...a, ...b])
-  const max = Math.ceil(Math.max(...valsCombined))
-  const min = Math.floor(Math.min(...valsCombined))
-
-  return { max, min }
-}
-
 const getTimeInDuration = (uniqueTimestamps: string[]) => {
+  //get time strings for the x-axis in a readable format rather than timestamp
   const dateArr = uniqueTimestamps
-    .map((item) => ({ date: new Date(item), timestamp: item }))
-    .sort((dateA, dateB) => Number(dateA.date) - Number(dateB.date))
+    ?.map((item) => ({ date: new Date(item), timestamp: item }))
+    ?.sort((dateA, dateB) => Number(dateA.date) - Number(dateB.date))
 
-  const first = dateArr[0].date
-  const formattedTimes = dateArr.map((date) => {
+  const first = dateArr?.[0]?.date
+  const formattedTimes = dateArr?.map((date) => {
     const seconds = differenceInSeconds(first, date.date) * -1
     const duration = intervalToDuration({ start: 0, end: seconds * 1000 })
 
@@ -57,48 +51,8 @@ const getTimeInDuration = (uniqueTimestamps: string[]) => {
   return formattedTimes
 }
 
-const prepareDataForLineChart = (data: DexieLogFileTimeSeries[]) => {
-  const vals2Dimensional = data.map((property) => [
-    ...property.values.map((item) => ({
-      timestamp: item.timestamp,
-      value: item.value,
-      label: `${property.group}.${property.propName}`,
-      propName: property.propName,
-    })),
-  ])
-
-  const valsCombined = vals2Dimensional?.reduce((a, b) => [...a, ...b])
-
-  const uniqueTimestamps = valsCombined
-    .map((val) => val.timestamp)
-    .filter((x, i, a) => a.indexOf(x) === i)
-  const formattedTimes = getTimeInDuration(uniqueTimestamps)
-
-  const finalValues = uniqueTimestamps.map((timestamp) => {
-    const valsMatchingTimestamp = valsCombined.filter((valObj) => valObj.timestamp === timestamp)
-
-    const propertyNameAsKeyObj = valsMatchingTimestamp
-      .map((item) => ({
-        [item.propName]: item.value,
-      }))
-      .reduce((a, b) => ({
-        ...a,
-        ...b,
-      }))
-
-    return {
-      name: formattedTimes.find((time) => time.timestamp === timestamp)?.formatted,
-      timestring: timestamp,
-      ...propertyNameAsKeyObj,
-    }
-  })
-
-  return finalValues
-}
-
-const splitifDiffHigherThanOne = (arr: number[]) => {
+const splitIfDiffHigherThanOne = (arr: number[]) => {
   const maxDiff = 1
-
   const result = [[arr[0]]]
   let last = arr[0]
   for (const item of arr.slice(1)) {
@@ -114,6 +68,7 @@ const prepareFlightModeAreas = (
   flightModeData: FlightModeTime[],
   timeData: { timestring: string; formatted: string }[],
 ) => {
+  //Create data for the chart's flight mode areas that will be colored differently
   const assignedToFlightMode = flightModes.map((mode) => {
     return {
       mode,
@@ -125,7 +80,7 @@ const prepareFlightModeAreas = (
 
   const startEndArr = assignedToFlightMode
     .map((arr) => {
-      const startEndArray = splitifDiffHigherThanOne(arr.values).map((item) => ({
+      const startEndArray = splitIfDiffHigherThanOne(arr.values).map((item) => ({
         mode: arr.mode,
         start: item[0],
         end: item.slice(-1)[0],
@@ -133,29 +88,17 @@ const prepareFlightModeAreas = (
 
       return startEndArray
     })
-    .reduce((a, b) => [...a, ...b])
+    ?.reduce((a, b) => [...a, ...b])
 
   return startEndArr.map((item) => ({
     mode: item.mode,
+    //flight modes have a start and end time on the x-axis, but cover the whole y-axis
     start: timeData[item.start]?.formatted,
     end: timeData[item.end]?.formatted,
   }))
 }
 
-const colorArr = [
-  '#48C9B0',
-  '#B47BE3',
-  '#EC7063',
-  '#FF33E3',
-  '#44D8CD',
-  '#D8BB44',
-  '#9B44D8',
-  '#9B44D8',
-  '#FF5733',
-  '#117A65',
-  '#A04000',
-]
-
+//currently available flight modes
 const flightModes = [
   { name: 'FBWA', color: '#B5AEE0' },
   { name: 'AUTOTUNE', color: '#F2D4AC' },
@@ -173,21 +116,38 @@ export type LineChartComponentProps = {
 
 export interface LineChartProps extends LineChartComponentProps {
   activeTimeSeries: DexieLogFileTimeSeries[]
+  customPlots: DexieCustomPlot[]
 }
 
 export const LineChartComponent = ({ flightModeData, flightId }: LineChartComponentProps) => {
   const router = useRouter()
   const { id: flightid } = router.query
+
+  const customPlots = useLiveQuery(() =>
+    //TODO: solve dexie ts error
+    // @ts-expect-error: Dexie not working with TS right now
+    database.customFunction
+      .orderBy('timestamp')
+      .filter((plot: DexieCustomPlot) => plot.flightid === parseInt(flightid as string))
+      .toArray(),
+  )
+
   const activeTimeSeries = useLiveQuery(() =>
     //TODO: solve dexie ts error
     // @ts-expect-error: Dexie not working with TS right now
     database.logFileTimeSeries
-      .filter((series: DexieLogFileTimeSeries) => series.flightId === (flightid as string))
-      .reverse()
+      .orderBy('timestamp')
+      .filter((series: DexieLogFileTimeSeries) => series.flightid === parseInt(flightid as string))
       .toArray(),
   )
 
-  if (!activeTimeSeries || !activeTimeSeries?.length) {
+  if (
+    (!activeTimeSeries && !customPlots) ||
+    ((!customPlots?.length ||
+      //there are empty custom plots that should not influence the LineChartComponent should not be shown
+      customPlots?.filter((item: DexieCustomPlot) => item.customFunction !== '').length === 0) &&
+      !activeTimeSeries?.length)
+  ) {
     return (
       <div
         className={`flex
@@ -204,47 +164,133 @@ export const LineChartComponent = ({ flightModeData, flightId }: LineChartCompon
       flightModeData={flightModeData}
       flightId={flightId}
       activeTimeSeries={activeTimeSeries}
+      customPlots={customPlots}
     />
   )
 }
 
-export const LineChartGraph = ({ flightModeData, flightId, activeTimeSeries }: LineChartProps) => {
-  const preparedData = useMemo(() => prepareDataForLineChart(activeTimeSeries), [activeTimeSeries])
-  const signatureNumbers = useMemo(
-    () =>
-      activeTimeSeries.map((propTypes: DexieLogFileTimeSeries) =>
-        calculateSignatureNumbers({
-          name: propTypes.propName,
-          values: propTypes.values.map((valPair) => valPair.value),
-        }),
-      ),
-    [activeTimeSeries],
-  )
+export const LineChartGraph = ({
+  flightModeData,
+  flightId,
+  activeTimeSeries, //only timeseries that are saved in IndexedDB are shown
+  customPlots, //only customPlots that are saved in IndexedDB are shown
+}: LineChartProps) => {
+  const matches = useMedia({ maxWidth: 1440 })
 
+  //signatureNumbers (min, max, avg) for each plot to be shown in an info board
+  const signatureNumbers = useMemo(() => {
+    const customPlotSignatureNumbers = customPlots?.map((propTypes: DexieCustomPlot) =>
+      propTypes?.values?.length
+        ? calculateSignatureNumbers({
+            name: propTypes.customFunction,
+            values: propTypes.values.map((valPair) => valPair.value),
+          })
+        : null,
+    )
+    const activeTimeSeriesSignatureNumbers = activeTimeSeries?.map(
+      (propTypes: DexieLogFileTimeSeries) =>
+        propTypes?.values?.length
+          ? calculateSignatureNumbers({
+              name: propTypes.name,
+              values: propTypes.values.map((valPair) => valPair.value),
+            })
+          : null,
+    )
+
+    return activeTimeSeriesSignatureNumbers?.concat(customPlotSignatureNumbers)
+  }, [activeTimeSeries, customPlots])
+
+  //data formatted for rehcart's Line component representing each
+  //visible individual timeseries and customplot
+  const preparedLineData = useMemo(() => {
+    const unsorted = [
+      ...(activeTimeSeries?.length ? activeTimeSeries?.map((series) => series.values) : []),
+      ...(customPlots?.length
+        ? customPlots?.filter((plot) => !!plot.customFunction).map((plot) => plot.values)
+        : []),
+    ]
+    const longestTimeseries = unsorted?.length
+      ? unsorted.reduce((a, b) => a && b && (Object.keys(a).length > Object.keys(b).length ? a : b))
+      : undefined
+
+    const unifiedData = longestTimeseries?.length
+      ? getTimeInDuration(longestTimeseries?.map((time) => time.timestamp)).map(
+          (timestamp, indexValueUnit) => {
+            const timeseriesPlotValueInfo = activeTimeSeries?.length
+              ? activeTimeSeries
+                  .map((plot) => ({
+                    [plot.name]: plot?.values?.[indexValueUnit]?.value || NaN,
+                  }))
+                  ?.reduce((a, b) => ({
+                    ...a,
+                    ...b,
+                  }))
+              : []
+
+            const customPlotValueInfo = customPlots?.length
+              ? customPlots
+                  ?.map((plot) => ({
+                    [plot.customFunction]: plot?.values?.[indexValueUnit]?.value || NaN,
+                  }))
+                  ?.reduce((a, b) => ({
+                    ...a,
+                    ...b,
+                  }))
+              : []
+
+            return {
+              name: timestamp.formatted,
+              timestring: timestamp.timestamp,
+              ...timeseriesPlotValueInfo,
+              ...customPlotValueInfo,
+            }
+          },
+        )
+      : []
+
+    return unifiedData
+  }, [activeTimeSeries, customPlots])
+
+  //Data formatted to represent flight modes on the x-axis, rendered with rechart's ReferenceArea
   const flightModeAreas = useMemo(
     () =>
       prepareFlightModeAreas(
         flightModeData,
-        preparedData.map((item) => ({
+        preparedLineData.map((item) => ({
           timestring: item.timestring,
           formatted: item.name,
         })) as { timestring: string; formatted: string }[],
       ),
-    [flightModeData],
+    [flightModeData, preparedLineData],
   )
 
-  const plotNames = activeTimeSeries.map((plotTypes: DexieLogFileTimeSeries) => ({
-    name: plotTypes.propName,
-    label: `${plotTypes.group}-${plotTypes.propName}`,
-  }))
+  //plot name data for labelling plots in chart and brush
+  const plotNames = useMemo(() => {
+    const customPlotNames = customPlots
+      ?.filter((plot) => !plot.hidden && plot.customFunction)
+      ?.map((plot) => ({
+        name: plot.customFunction,
+        label: plot.customFunction,
+        color: plot.color,
+      }))
+    const activeTimeSeriesNames = activeTimeSeries
+      ?.filter((timeseries) => !timeseries.hidden)
+      ?.map((plotTypes: DexieLogFileTimeSeries) => ({
+        name: plotTypes.name,
+        label: `${plotTypes.group}-${plotTypes.name}`,
+        color: plotTypes.color,
+      }))
+
+    return activeTimeSeriesNames?.concat(customPlotNames)
+  }, [activeTimeSeries, customPlots])
 
   return (
     <>
-      <ResponsiveContainer width="100%" height={700}>
+      <ResponsiveContainer width="100%" height={matches ? 650 : 700}>
         <LineChart
-          width={500}
+          width={matches ? 500 : 475}
           height={500}
-          data={preparedData}
+          data={preparedLineData}
           syncId="anyId"
           margin={{ bottom: 50 }}
         >
@@ -254,6 +300,7 @@ export const LineChartGraph = ({ flightModeData, flightId, activeTimeSeries }: L
             align="center"
             content={(props) => {
               const { payload } = props
+
               return (
                 <ul
                   className={`relative
@@ -268,23 +315,26 @@ export const LineChartGraph = ({ flightModeData, flightId, activeTimeSeries }: L
                   {payload?.map((entry, index) => (
                     <li
                       key={`item-${index}`}
-                      style={{ color: colorArr[index] }}
+                      style={{ color: entry.color }}
                       className={`grid
-                                  grid-cols-[150px_250px_250px_250px]
+                                  grid-cols-[300px_250px_250px_250px]
                                   text-xs`}
                     >
                       <span className="font-bold">{entry.value}</span>
                       <span>
                         <span className="pr-2">MAX:</span>
-                        {signatureNumbers.find((numberSet) => numberSet.name === entry.value)?.max}
+                        {signatureNumbers.find((numberSet) => numberSet?.name === entry.value)?.max}
                       </span>
                       <span>
                         <span className="pr-2"> MIN:</span>
-                        {signatureNumbers.find((numberSet) => numberSet.name === entry.value)?.min}
+                        {signatureNumbers.find((numberSet) => numberSet?.name === entry.value)?.min}
                       </span>
                       <span>
                         <span className="pr-2"> MEAN:</span>
-                        {signatureNumbers.find((numberSet) => numberSet.name === entry.value)?.mean}
+                        {
+                          signatureNumbers.find((numberSet) => numberSet?.name === entry.value)
+                            ?.mean
+                        }
                       </span>
                     </li>
                   ))}
@@ -302,43 +352,48 @@ export const LineChartGraph = ({ flightModeData, flightId, activeTimeSeries }: L
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
 
-          {plotNames.map((plot, i) => (
+          {plotNames?.map((plot, i) => (
             <YAxis
-              dataKey={plot.name}
+              key={plot?.name}
+              width={40}
+              tick={{ fontSize: 12 }}
+              dataKey={plot?.name}
               yAxisId={i}
-              stroke={colorArr[i]}
+              stroke={plot?.color}
               label={
                 <Label
-                  stroke={colorArr[i]}
-                  className={`text-xs`}
+                  stroke={plot?.color}
+                  className={`text-[9px] font-thin`}
                   position="bottom"
-                  value={plot.label}
+                  value={plot?.label}
                   angle={-90}
-                  offset={55}
+                  offset={90}
                 ></Label>
               }
             />
           ))}
 
           <Tooltip />
-          {plotNames.map((plot, i) => (
+          {plotNames?.map((plot, i) => (
             <Line
+              key={plot?.name}
               type="monotone"
-              dataKey={plot.name}
-              stroke={colorArr[i]}
-              fill={colorArr[i]}
+              dataKey={plot?.name}
+              stroke={plot?.color}
+              fill={plot?.color}
               dot={false}
               yAxisId={i}
             />
           ))}
-          <Brush data={preparedData} dataKey={'prop'} height={100}>
-            <LineChart data={preparedData} className={'mt-8'}>
-              {plotNames.map((plot, i) => (
+          <Brush data={preparedLineData} dataKey={'prop'} height={100}>
+            <LineChart data={preparedLineData} className={'mt-8'}>
+              {plotNames?.map((plot, i) => (
                 <Line
+                  key={plot?.name}
                   type="monotone"
-                  dataKey={plot.name}
-                  stroke={colorArr[i]}
-                  fill={colorArr[i]}
+                  dataKey={plot?.name}
+                  stroke={plot?.color}
+                  fill={plot?.color}
                   dot={false}
                   yAxisId={i}
                 />
@@ -348,6 +403,7 @@ export const LineChartGraph = ({ flightModeData, flightId, activeTimeSeries }: L
 
           {flightModeAreas.map((areaData) => (
             <ReferenceArea
+              key={`area-${areaData.start}`}
               x1={areaData.start}
               x2={areaData.end}
               fillOpacity={0.3}

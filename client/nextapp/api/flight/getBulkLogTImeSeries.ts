@@ -1,4 +1,8 @@
 
+/*
+   Fetch funtions for getting multiple timeseries properties for one specific flight
+*/
+
 import type { LogFileTimeSeries } from "@schema";
 const Series = require('time-series-data-generator')
 
@@ -95,9 +99,8 @@ const mockData: LogFileTimeSeries[] = [
 
 
 
-
-export const getLogPropertyTimeSeriesMock = async (logSeriesParams: { key: string, flightid: number }) => {
-    const timeseries = await mockData.find((item) => logSeriesParams.key === item.id) || mockData[0]
+export const getBulkLogPropertyTimeSeriesMock = async (logSeriesParams: { keys: string[], flightid: number }) => {
+    const timeseries = await mockData.filter((item) => logSeriesParams.keys.includes(item.id)) || mockData[0]
     return timeseries
 }
 

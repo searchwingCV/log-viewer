@@ -78,7 +78,10 @@ export const Button = ({
         )
       case 'Link':
         return clsx(
-          'underline underline-offset-8	text-grey-dark',
+          `underline
+           underline-offset-8
+           text-grey-dark`,
+
           disabled
             ? `bg-transparent
                cursor-not-allowed`

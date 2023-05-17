@@ -1,7 +1,10 @@
+/*
+    Diclosure or Accordion Element on the base of the library headless UI,
+    used for the list of timeseries
+*/
 import { Disclosure as HeadlessDisclosure } from '@headlessui/react'
 import clsx from 'clsx'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import Head from 'next/head'
 
 export const DisclosurePanel = ({
   children,
@@ -14,10 +17,10 @@ export const DisclosurePanel = ({
     <HeadlessDisclosure.Panel
       className={clsx(
         `justify-between,
-                    className
-                    flex
-                    w-full
-                    `,
+         className
+         flex
+         w-full
+        `,
         className,
       )}
     >
@@ -29,12 +32,12 @@ export const DisclosurePanel = ({
 type DisclosureProps = {
   buttonContent: React.ReactNode
   children: React.ReactNode
-  isSpecialButton?: boolean
+  isSpecialButton?: boolean //for marking a more accentuated accordion level
 }
 
 export const Disclosure = ({ children, buttonContent, isSpecialButton }: DisclosureProps) => {
   return (
-    <HeadlessDisclosure>
+    <HeadlessDisclosure defaultOpen>
       {({ open: disclosureOpen }) => (
         <>
           <HeadlessDisclosure.Button
@@ -50,16 +53,21 @@ export const Disclosure = ({ children, buttonContent, isSpecialButton }: Disclos
                text-left
                text-sm
                text-white`,
-              isSpecialButton ? 'bg-opacity-[30%] py-2' : ' pb-0.25 bg-opacity-[10%] pt-1',
+              isSpecialButton
+                ? `bg-opacity-[30%]
+                   py-2`
+                : ` pb-0.25 
+                    bg-opacity-[10%]
+                    pt-1`,
             )}
           >
             {buttonContent}
 
             <div className="mt-1">
               {disclosureOpen ? (
-                <FontAwesomeIcon icon={'chevron-up'}></FontAwesomeIcon>
+                <FontAwesomeIcon icon={'chevron-up'} />
               ) : (
-                <FontAwesomeIcon icon={'chevron-down'}></FontAwesomeIcon>
+                <FontAwesomeIcon icon={'chevron-down'} />
               )}
             </div>
           </HeadlessDisclosure.Button>

@@ -7,7 +7,8 @@
 export type LogFileTimeSeries = {
     group: string;
     id: string;
-    propName: string;
+    flightid: number
+    name: string;
     unit: string;
     values: {
         timestamp: string;

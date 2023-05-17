@@ -26,6 +26,6 @@
     }
   },
 
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.ts", "**/*.ts", "pages/index.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.ts", "**/*.ts", "dexie-database.ts"],
   "exclude": ["node_modules", "__generated__"]
 }
