@@ -1,7 +1,9 @@
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
+import { useLiveQuery } from 'dexie-react-hooks'
 import { useQuery } from '@tanstack/react-query'
 import { LogOverallData } from '@schema'
+import database, { DexieLogOverallData } from '@idbSchema'
 import {
   PlotPropsDrawer,
   LineChartComponent,
@@ -14,8 +16,25 @@ export type FlightDetailViewProps = {
 
 export const FlightDetailView = ({ logOverallData }: FlightDetailViewProps) => {
   const router = useRouter()
+  const { data: isExtended } = useQuery([PLOT_DRAWER_EXTENDED], () => {
+    return true
+  })
   const { id } = router.query
+
+  const overallData = useLiveQuery(() =>
+    //TODO: solve dexie ts error
+    // @ts-expect-error: Dexie not working with TS right now
+    database.overallDataForFlight
+      .orderBy('timestamp')
+      .filter((customPlot: DexieLogOverallData) => customPlot.flightid === parseInt(id as string))
+      .toArray(),
+  )
+
   const { data: sideNavExtended } = useQuery([PLOT_DRAWER_EXTENDED])
+
+  if (!overallData) {
+    return null
+  }
 
   return (
     <>
@@ -26,7 +45,10 @@ export const FlightDetailView = ({ logOverallData }: FlightDetailViewProps) => {
                     bg-grey-light
                     `}
       >
-        <PlotPropsDrawer groupedProperties={logOverallData.groupedProperties} />
+        <PlotPropsDrawer
+          groupedProperties={logOverallData.groupedProperties}
+          overallData={overallData[0]}
+        />
 
         <div
           className={clsx(
@@ -48,13 +70,15 @@ export const FlightDetailView = ({ logOverallData }: FlightDetailViewProps) => {
                         w-full
                         items-center
                       bg-grey-light
+                        pr-5
+                        pt-8
                         `}
           >
             <div
               className={clsx(
                 `r-8
                  w-full
-                 pt-8`,
+                 `,
                 sideNavExtended ? 'pl-8' : 'pl-28',
               )}
             >

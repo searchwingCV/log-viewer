@@ -37,4 +37,4 @@ export type { UpdateSerializer_MissionUpdate_ } from './models/UpdateSerializer_
 export type { ValidationError } from './models/ValidationError';
 export { WindIntensity } from './models/WindIntensity';
 export type { LogFileTimeSeries } from './models/LogFileTimeSeries'
-export type { LogOverallData } from './models/LogOverallData'
+export type { LogOverallData, GroupedProps } from './models/LogOverallData'

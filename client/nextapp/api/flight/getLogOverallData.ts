@@ -1,6 +1,9 @@
-import axios from "axios";
+
+/*
+   Fetch functions for overall data of a flight (without individual timeseries)
+*/
 import { useQuery } from "@tanstack/react-query";
-import { LogOverallData } from "@schema";
+import type { LogOverallData } from "@schema";
 
 const Series = require('time-series-data-generator')
 
@@ -80,24 +83,24 @@ const mockData = {
             name: 'XKF1[0]',
             id: 'xkf10',
             timeSeriesProperties: [
-                { name: 'VE', id: 've-xkf10' },
-                { name: 'VN', id: 'vn-xkf10' },
+                { name: 'VE', id: 've-xkf10', unit: "V" },
+                { name: 'VN', id: 'vn-xkf10', unit: "V" },
             ],
         },
         {
             name: 'BAT',
             id: 'bat',
             timeSeriesProperties: [
-                { name: 'Curr (A)', id: 'curr-bat' },
-                { name: 'Temp (°C)', id: 'temp-bat' },
+                { name: 'Curr', id: 'curr-bat', unit: "A" },
+                { name: 'Temp', id: 'temp-bat', unit: "Celsius" },
             ],
         },
         {
             name: 'BARO',
             id: 'baro',
             timeSeriesProperties: [
-                { name: 'I (instance)', id: 'i-baro' },
-                { name: 'Gnd Temp (°C)', id: 'gnd-temp-baro' },
+                { name: 'I', id: 'i-baro', unit: "I" },
+                { name: 'GndTemp', id: 'gndtemp-baro', unit: "Celsius" },
             ],
         },
     ]
@@ -105,12 +108,13 @@ const mockData = {
 
 
 export const getLogOverallDataMock = (flightid: number) => {
+
     return { flightid, ...mockData }
 }
 
 
 
-export const fetchLogPropertyOverallData = (flightid: number) =>
+export const useFetchLogPropertyOverallData = (flightid: number) =>
     useQuery<LogOverallData>([LOG_OVERALL_DATA, flightid], () =>
         getLogOverallDataMock(flightid),
     )

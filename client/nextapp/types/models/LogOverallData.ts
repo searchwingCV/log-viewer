@@ -5,14 +5,14 @@
 
 
 
+export type GroupedProps = {
+    //used for drawer
+    name: string; //name of the group
+    timeSeriesProperties: { name: string; id: string, unit: string }[]
+}
+
 export type LogOverallData = {
     flightid: number
     flightModeTimeSeries: { time: string; mode: string }[];
-    groupedProperties: {
-        //used for drawer
-        name: string;
-        id: string;
-        timeSeriesProperties: { name: string; id: string }[]
-    }[]
-
+    groupedProperties: GroupedProps[]
 }

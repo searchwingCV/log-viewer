@@ -1,3 +1,6 @@
+/*
+  Very simple Header Nav that leads user to tables
+*/
 import React from 'react'
 import clsx from 'clsx'
 import Link from 'modules/Link'
@@ -45,7 +48,7 @@ export const HeaderNavigation = ({ isHeaderMinimalist }: HeaderNavigationProps) 
                     pl-4`}
       >
         {!isHeaderMinimalist ? (
-          <a
+          <Link
             className={`mr-4
                         inline-block
                         whitespace-nowrap
@@ -54,11 +57,12 @@ export const HeaderNavigation = ({ isHeaderMinimalist }: HeaderNavigationProps) 
                         font-bold
                         uppercase
                         leading-relaxed
-                        text-inherit`}
+                        text-inherit
+                        text-white`}
             href="/"
           >
             Log Viewer
-          </a>
+          </Link>
         ) : null}
         <ul
           className={`flex
@@ -70,6 +74,7 @@ export const HeaderNavigation = ({ isHeaderMinimalist }: HeaderNavigationProps) 
         >
           {navItems.map((item) => (
             <li
+              key={item.name}
               className={clsx(
                 `nav-item
                  flex

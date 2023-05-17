@@ -1,5 +1,6 @@
 import '../styles/globals.css'
 import 'react-tippy/dist/tippy.css'
+import 'tippy.js/dist/tippy.css'
 import 'react-toastify/dist/ReactToastify.css'
 import type { ReactElement, ReactNode } from 'react'
 import { useState } from 'react'
@@ -34,6 +35,8 @@ import {
   faAdd,
   faPlusCircle,
   faTrashCan,
+  faEyeSlash,
+  faCopy,
 } from '@fortawesome/free-solid-svg-icons'
 
 config.autoAddCss = false
@@ -61,6 +64,8 @@ library.add(
   faAdd,
   faPlusCircle,
   faTrashCan,
+  faEyeSlash,
+  faCopy,
 )
 
 export type NextPageWithLayout<Props = object> = NextPage<Props> & {
