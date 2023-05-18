@@ -45,6 +45,19 @@ services:
       POSTGRES_PORT: 5432
       REDIS_HOST: redis
 
+  frontend:
+    container_name: flight-log-viewer-fe
+    image: flight-log-viewer-fe-dev
+    # network_mode: "host"
+    build:
+      context: ./client
+    volumes:
+      - ./client/nextapp:/app
+    ports:
+      - 3000:3000
+    environment:
+      NEXT_PUBLIC_API_URL: http://api/
+
   db:
     container_name: db
     build:
@@ -104,19 +117,6 @@ services:
       GF_INSTALL_PLUGINS: grafana-clock-panel 1.0.1,grafana-simple-json-datasource
     ports:
       - "3000:3000"
-  frontend:
-    container_name: flight-log-viewer-fe
-    image: flight-log-viewer-fe-dev
-    # network_mode: "host"
-    build:
-      context: ./client
-    volumes:
-      - ./client/nextapp/node_modules
-      - ./client/nextapp:/app
-    ports:
-      - 3000:3000
-    environment:
-      - NEXT_PUBLIC_API_URL
 
   redis:
     container_name: redis
