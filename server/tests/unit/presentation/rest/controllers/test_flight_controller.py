@@ -1,17 +1,7 @@
 import json
-from unittest.mock import Mock
 
-import pytest
-from application.services import FlightService
 from common.exceptions.db import ForeignKeyNotFound
 from presentation.rest.dependencies import get_flight_service
-
-
-@pytest.fixture
-def mock_flight_service():
-    mock_flight_service = Mock(spec=FlightService)
-    mock_flight_service._entity_type = "Flight"
-    return mock_flight_service
 
 
 def test_patch_flight_batch_error(test_client, mock_flight_service):

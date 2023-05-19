@@ -129,7 +129,8 @@ export const Input = ({
         <div className={classNameResetButtonContainer}>
           <Button
             buttonStyle="Secondary"
-            className="h-[50px] w-[200px]"
+            className={`h-[50px]
+                        w-[200px]`}
             type="reset"
             onClick={handleClickReset}
           >

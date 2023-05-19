@@ -1,17 +1,21 @@
 import '../styles/globals.css'
 import 'react-tippy/dist/tippy.css'
+import 'tippy.js/dist/tippy.css'
 import 'react-toastify/dist/ReactToastify.css'
-import { ReactElement, ReactNode, useState } from 'react'
+import type { ReactElement, ReactNode } from 'react'
+import { useState } from 'react'
 import type { AppProps } from 'next/app'
 import { QueryClient, QueryClientProvider, Hydrate } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { appWithTranslation } from 'next-i18next'
-import { NextPage } from 'next'
+import type { NextPage } from 'next'
 import { config, library } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import {
   faChevronLeft,
   faChevronRight,
+  faChevronUp,
+  faChevronDown,
   faEye,
   faFile,
   faCalendar,
@@ -30,12 +34,17 @@ import {
   faUndo,
   faAdd,
   faPlusCircle,
+  faTrashCan,
+  faEyeSlash,
+  faCopy,
 } from '@fortawesome/free-solid-svg-icons'
 
 config.autoAddCss = false
 library.add(
   faChevronLeft,
   faChevronRight,
+  faChevronUp,
+  faChevronDown,
   faEye,
   faFile,
   faCalendar,
@@ -54,6 +63,9 @@ library.add(
   faUndo,
   faAdd,
   faPlusCircle,
+  faTrashCan,
+  faEyeSlash,
+  faCopy,
 )
 
 export type NextPageWithLayout<Props = object> = NextPage<Props> & {

@@ -86,3 +86,8 @@ class FileService(BaseCRUDService):
         with self._session as session:
             data = self._repository.get_by_flight(flight_id, session)
         return data
+
+    def get_by_flight_id_type(self, flight_id: ID_Type, file_type: AllowedFiles) -> IOFile:
+        with self._session as session:
+            flight_file = self._repository.get_by_flight_and_type(flight_id, file_type, session)
+        return self.get_file(flight_file.id)

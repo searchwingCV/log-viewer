@@ -182,6 +182,7 @@ export const DroneTableOverview = ({
       className={`flex-column
                   flex
                   min-h-screen
+                  pt-12
                  `}
     >
       <ToastContainer />

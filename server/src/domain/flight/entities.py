@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Optional
 
-from domain import DomainEntity, DomainUpdate
+from domain import DomainEntity, DomainUpdate, EntityID
 from domain.flight.value_objects import FlightPurpose, FlightRating, WindIntensity
 from domain.types import ID_Type
 from pydantic import BaseModel, Field, validator
@@ -98,3 +98,7 @@ class FlightUpdate(IBaseFlight, DomainUpdate):
         if v is None:
             raise ValueError("should not be nullable")
         return v
+
+
+class FlightComputedUpdate(BaseComputedFields, EntityID, DomainUpdate):
+    pass

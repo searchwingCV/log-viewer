@@ -13,7 +13,9 @@ export const putLogFile = async (params: PutFileProps) => {
     const fd = new FormData();
     fd.append('file', file);
 
-    const response: FlightFileSerializer = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/flight/${flightId}/file?file_type=${fileType}`,
+    const response: FlightFileSerializer = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/flight/${flightId}/file?file_type=log`,
+        // TODO: for now, we are hardcoding log type, in the future this should be dynamic.
+
         fd,
         {
             headers: {

@@ -1,92 +1,178 @@
-# Flight Data Service
+[![codecov](https://codecov.io/gl/searchwing:development:groundstation/flight-data-service/branch/dev/graph/badge.svg?token=NFR061UJQD)](https://codecov.io/gl/searchwing:development:groundstation/flight-data-service)
+![pipeline](https://gitlab.com/searchwing/development/groundstation/flight-data-service/badges/dev/pipeline.svg)
 
-The go-to place for log files
+# Flight Data App - Log Viewer
 
-## Getting started
+The go-to place for log files.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Log Viewer is a progressive web application that aims to enable our team to keep flight documentation in a centralized place and organize files in a systematic manner. It allows drone developers/operators to maintain the drone fleet status up to date, create missions and flights and attach data to them. The MAVLink log files attached to a flight are post-processed and messages are saved into a PostgreSQL database with TimescaleDB. Besides, some relevant attributes for a flight, such as battery consumption, flight distance, etc. are calculated from the MAVLink files and displayed in a table view.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## Architecture
 
-## Add your files
+Log Viewer is composed by 5 applications alltogether:
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+- Client side:
+  - Next.JS based frontend, with what the users interact
 
+- Server side:
+  - API, which feeds and digests the data
+  - Consumer/Worker to process flights asynchronously
+  - Redis as a broker for the async worker
+  - PostgreSQL to keep our precious data
+
+### Frontend
+
+#### Tech Stack
+
+- React.js
+- Next.js 12
+- Typescript & openapi-typescript-codegen for generating the types from the BE
+- React-query for data fetching and caching
+- Axios client for calling the Backend Rest API
+- React-Table v7 for showcasing
+- Recharts for plotting the data
+- React Hook Form for form management
+- Dexie.js IndexedDB for creating a database on the frontend to persist data
+
+#### Interface structure
+
+```mermaid
+graph LR
+D[Mission Table Page]
+H[Add Mission page]
+D-->H
+A[Flight Table Page] ----> B(Plot Detail Page One Flight )
+A -->F[Add Flight page]
+A ----> C(Plot Detail Page Two Flights )
+E[Drone Table Page]
+E-->G[Add Drone page]
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/searchwing/development/groundstation/flight-data-service.git
-git branch -M main
-git push -uf origin main
+
+#### Code Structure
+
+The frontend code lies under `./client`, and it is composed of:
+
+- /pages contains all the next.js pages which offers file-system based routing
+- /views contains encompassing component views matching the views mentioned in **## Frontend - Interface structure**
+- /api for now contains all the functions for interacting with the rest api backend
+- /modules contain smaller components like Button or bigger component systems like PlotInterfaceComponents
+- /types contain types for typescript generated with openapi-typescript-codegen
+
+
+### Backend
+
+#### Tech stack
+
+- Python 3.6+
+- FastAPI, for the REST endpoints
+- Celery, for the sidecar worker app
+- Pydantic for the internal entities
+- SQLAlchemy as ORM
+- GeoAlchemy to handle geospatial coordinates
+- Redis as broker
+- PostgreSQL as database
+
+#### Database schema
+
+The database is composed by the following entities:
+
+![schema](devdocs/model/model.png)
+
+#### Code structure
+
+The server code lies under `./server` and is organized following [DDD](https://en.wikipedia.org/wiki/Domain-driven_design) principles:
+
+- `/domain` is where all internal entities (classes) are located - `Flight`, `Drone`, `Mission`
+- `/infrastracture` contains all the code that handles communication with external applications, such as the database. This layer contains repositories (to handle transactions) and database models.
+- `/application` contains the logic of the app, i.e., the services that are in charge of processing requests/events.
+- `/presentation` contains what is exposed to the outside world:
+    1. The RestAPI: controllers, dependencies and serializers.
+    2. The Celery worker: tasks, etc...
+
+## Development
+
+To run the app, we recommend using Docker as allows you to spin up all services within a single command, however we provide instructions for local development as well.
+
+### Run with docker - aka the easy way
+
+#### Prerequesites
+
+- Docker + Docker Compose
+
+#### Steps
+
+This will build all images and create persistent directories to store local data. For the backend, this will also run a script to fill up with mock data (`./server/scripts/fill_up_db.py`)
+
+```bash
+docker compose up --build
 ```
 
-## Integrate with your tools
+If you want to do some changes in the app, simply re-build the image by running the same command.
 
-- [ ] [Set up project integrations](https://gitlab.com/searchwing/development/groundstation/flight-data-service/-/settings/integrations)
+### Run locally - aka the hard way
 
-## Collaborate with your team
+#### Prerequisites
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+Frontend:
+    - Node18
 
-## Test and Deploy
+Backend:
+    - PostgreSQL server running (either locally or somewhere else) - you can also run a db instance with `docker compose up -d db`
+    - Redis server - you can use the one provided in the compose file with `docker compose up -d redis`
+    - Python 3.6+
+    - Optional: Flower to monitor the worker tasks. You can use the one in the compose file: `docker compose up -d flower`
 
-Use the built-in continuous integration in GitLab.
+#### Steps
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+Frontend:
 
-***
+- go to folder ./client/nextapp
+- run `npm install`
+- run `npm run dev`
+- go to localhost:3000
 
-# Editing this README
+API:
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!).  Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+- Optional: create a python venv - using your favourite provider aka pyenv/venv/conda
+- Install dependencies with `make install-back-deps`
+- Make sure that a db and redis instance are running and you've set the right env variables (see docker-compose for an example)
+- Run with `python server/api.py` (use `-h` to see the available arguments)
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Worker:
 
-## Name
-Choose a self-explaining name for your project.
+- Start the app with `python server/worker.py`
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+If you want to see the worker dashboard (for tasks monitoring), run `docker compose up -d flower`
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+#### Run tests - Backend
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Make sure you have an instance of postgres running to run the integration tests, and that the env variables `POSTGRES_TEST_SERVER` and `POSTGRES_TEST_PORT` are correctly set.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+```bash
+make install-back-test-deps
+make test-unit-server
+```
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## Deployment
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+The app is hosted in the cloud inside a VM powered by [CapRover](https://caprover.com/). A deployment is triggered to staging and production environments after merge to `dev` and `main`, respectively.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+To manually trigger a re-deployment, simply run the CI pipeline `deploy-dev` and `deploy`.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+### Links
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+- Frontend:
+  - [Staging](http://staging.flight-data.searchwing.org/)
+  - [Production](http://staging.flight-data.searchwing.org/)
+- API:
+  - [Staging](http://api.staging.flight-data.searchwing.org/)
+  - [Production](http://api.flight-data.searchwing.org/)
+- Tasks monitoring:
+  - [Staging](http://tasks.staging.flight-data.searchwing.org/)
+  - [Production](http://tasks.flight-data.searchwing.org/)
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+The database in `staging` runs as a docker container in CapRover, which might be unstable. For production environment, we use a separate server (still TBD).
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+## Maintainers
 
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+This app is developed/maintained by [maimai94](https://gitlab.com/maimai94) and [rmargar](https://gitlab.com/rmargar), in case of further questions feel free to reach out to them.
