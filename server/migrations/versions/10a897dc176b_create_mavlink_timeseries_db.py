@@ -30,6 +30,7 @@ def upgrade():
         ),
         sa.UniqueConstraint("timestamp"),
     )
+    op.execute("create extension if not exists timescaledb cascade;")
     op.execute("SELECT create_hypertable('mavlink_timeseries', 'timestamp')")
     # ### end Alembic commands ###
 
