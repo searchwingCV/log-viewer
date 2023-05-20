@@ -12,8 +12,6 @@ test-server:
     POSTGRES_PORT: 5432
     POSTGRES_TEST_PORT: 5432
     POSTGRES_TEST_SERVER: test-db
-  tags:
-    - flight-log
   services:
     - name: postgis/postgis:14-3.3
       alias: test-db
@@ -62,8 +60,6 @@ deploy-dev:
   only:
     - dev
   stage: build
-  tags:
-    - flight-log
   variables:
     BACKEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/server:$CI_COMMIT_REF_SLUG
     FRONTEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/client:$CI_COMMIT_REF_SLUG
@@ -90,8 +86,6 @@ deploy:
     - main
   stage: deploy
   when: manual
-  tags:
-    - flight-log
   variables:
     BACKEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/server:$CI_COMMIT_REF_SLUG
     WORKER_IMAGE_TAG: $CI_REGISTRY_IMAGE/worker:$CI_COMMIT_REF_SLUG
