@@ -48,9 +48,6 @@ build:
   image: docker:latest
   services:
     - docker:dind
-  before_script:
-    - apk update
-    - apk add bash
   script:
     - ./scripts/build.sh
 
