@@ -45,8 +45,6 @@ test-server:
 build:
   only:
     - merge_requests
-  tags:
-    - flight-log
   image: docker:latest
   services:
     - docker:dind
