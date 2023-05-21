@@ -144,6 +144,7 @@ class Flight(BaseModel):
     drone = relationship("Drone", secondary=drone_flight_association)
     mission = relationship("Mission", secondary=misssion_flight_association)
     files = relationship("FlightFile")
+    mavlink_timeseries = relationship("MavLinkTimeseries")
 
 
 class FlightFile(BaseModel):
@@ -152,6 +153,18 @@ class FlightFile(BaseModel):
     location = Column(String, nullable=False)
     fk_flight = Column(Integer, ForeignKey("flight.id"))
     version = Column(Integer, nullable=False, default=1)
+
+
+class MavLinkTimeseries(Base):
+    __tablename__ = "mavlink_timeseries"
+
+    fk_flight = Column(Integer, ForeignKey("flight.id"), nullable=False)
+    timestamp = Column(DateTime, nullable=False, unique=True)
+    message_type = Column(String, nullable=False)
+    message_field = Column(String, nullable=False)
+    value = Column(Float)
+
+    __mapper_args__ = {"primary_key": [fk_flight, timestamp]}
 
 
 @event.listens_for(Flight, "before_insert")
