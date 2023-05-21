@@ -48,21 +48,21 @@ services:
   frontend:
     container_name: flight-log-viewer-fe
     image: flight-log-viewer-fe-dev
-    # network_mode: "host"
     build:
       context: ./client
     volumes:
       - ./client/nextapp:/app
+    depends_on:
+      - server
     ports:
       - 3000:3000
     environment:
-      NEXT_PUBLIC_API_URL: http://api/
+      NEXT_PUBLIC_API_URL: http://server
 
   db:
     container_name: db
-    build:
-      context: server
-      dockerfile: Dockerfile.db
+    platform: linux/x86_64
+    image: timescale/timescaledb-ha:pg14.8-ts2.10.3-all-oss
     restart: always
     environment:
       POSTGRES_USER: searchwing
@@ -81,9 +81,8 @@ services:
 
   test-db:
     container_name: test-db
-    build:
-      context: server
-      dockerfile: Dockerfile.db
+    platform: linux/x86_64
+    image: timescale/timescaledb-ha:pg14.8-ts2.10.3-all-oss
     restart: always
     environment:
       POSTGRES_USER: searchwing
