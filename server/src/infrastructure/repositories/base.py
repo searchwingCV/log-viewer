@@ -38,7 +38,7 @@ class BaseRepository:
         model_data = self._schema_to_model(data, self._model)
         try:
             query = session.query(self._model).filter_by(id=id)
-            updates = dict(data.dict(exclude_none=True), **{field: None for field in data._to_delete})
+            updates = dict(data.dict(exclude_none=True), **{field: None for field in data.to_delete})
             updated_row_count = query.update(values=updates)
             if updated_row_count == 0:
                 return None

@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Optional, Union
 
 from domain.types import ID_Type
-from pydantic import BaseModel
+from pydantic import BaseModel, PrivateAttr
 from pydantic.main import ModelMetaclass
 
 
@@ -28,13 +28,18 @@ class AllOptional(ModelMetaclass):
 
 
 class DomainUpdate(BaseModel, metaclass=AllOptional):
-    _to_delete: List[str] = []
+    _to_delete: List[str] = PrivateAttr()
 
     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._to_delete = []
         for k, v in kwargs.items():
             if v is None:
                 self._to_delete.append(k)
-        super().__init__(*args, **kwargs)
+
+    @property
+    def to_delete(self):
+        return self._to_delete
 
 
 class EntityID(BaseModel):
