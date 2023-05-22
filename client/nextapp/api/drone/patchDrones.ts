@@ -11,9 +11,7 @@ export const patchDrones = async (items: DroneUpdate[]) => {
         })
         .then((res) => {
             return res.data
-        }).catch((e) =>
-            console.error(e)
-        )
+        })
 
     return response
 }

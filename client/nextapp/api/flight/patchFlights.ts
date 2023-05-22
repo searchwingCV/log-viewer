@@ -11,9 +11,7 @@ export const patchFlights = async (items: FlightUpdate[]) => {
         })
         .then((res) => {
             return res.data
-        }).catch((e) =>
-            console.error(e)
-        )
+        })
 
     return response
 }

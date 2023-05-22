@@ -1,5 +1,6 @@
 import React, { memo, useState } from 'react'
 import clsx from 'clsx'
+import Tippy from '@tippyjs/react'
 import { useFormContext, UseFormReturn, FieldValues } from 'react-hook-form'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { format, parseISO, isValid } from 'date-fns'
@@ -7,12 +8,22 @@ import { format, parseISO, isValid } from 'date-fns'
 type DateInputCellProps = {
   name: string
   defaultValue?: string
+  hasNoDeleteValue?: boolean
+  headerName: string
 }
 
 interface InputProps extends UseFormReturn<FieldValues, any>, DateInputCellProps {}
 
 const Input = memo(
-  ({ register, name, defaultValue = '', setValue, setError, getValues }: InputProps) => {
+  ({
+    register,
+    name,
+    defaultValue = '',
+    setValue,
+    getValues,
+    hasNoDeleteValue,
+    headerName,
+  }: InputProps) => {
     const [newValue, setNewValue] = useState(getValues(name))
     const parsedDefault = isValid(parseISO(defaultValue))
       ? format(parseISO(defaultValue), 'yyyy-MM-dd')
@@ -25,19 +36,25 @@ const Input = memo(
                     w-full`}
         id={`input-${name}`}
       >
-        <input
-          type={'date'}
-          {...register(name as `${string}` | `${string}.${string}` | `${string}.${number}`, {
-            onChange: (e) => {
-              if (e.target.value === defaultValue) {
-                setNewValue('')
-              } else {
-                setNewValue(e.target.value)
-              }
-            },
-          })}
-          className={clsx(
-            `
+        <Tippy
+          content={newValue ? `${headerName}: ${newValue}` : `${headerName}: ${defaultValue}`}
+          trigger="mouseenter"
+          className="w-full"
+        >
+          <>
+            <input
+              type={'date'}
+              {...register(name as `${string}` | `${string}.${string}` | `${string}.${number}`, {
+                onChange: (e) => {
+                  if (e.target.value === defaultValue) {
+                    setNewValue('')
+                  } else {
+                    setNewValue(e.target.value)
+                  }
+                },
+              })}
+              className={clsx(
+                `
               w-full
               rounded-md
               py-2
@@ -47,24 +64,24 @@ const Input = memo(
               placeholder-primary-black
               focus:ring-0
               focus:ring-offset-0`,
-            !!getValues(name) && newValue === 'delete'
-              ? `bg-primary-red
+                !!getValues(name) && newValue === 'delete'
+                  ? `bg-primary-red
                  text-primary-white`
-              : !!getValues(name) && newValue && newValue !== parsedDefault
-              ? `bg-primary-dark-petrol
+                  : !!getValues(name) && newValue && newValue !== parsedDefault
+                  ? `bg-primary-dark-petrol
                  text-primary-white`
-              : `bg-grey-light`,
-          )}
-          placeholder={parsedDefault || ''}
-        />
-        {getValues(name) && defaultValue && newValue !== parsedDefault ? (
-          <button
-            onClick={() => {
-              setValue(name, parsedDefault, { shouldDirty: true })
-              setNewValue(parsedDefault)
-            }}
-            type="button"
-            className={`absolute
+                  : `bg-grey-light`,
+              )}
+              placeholder={parsedDefault || ''}
+            />
+            {getValues(name) && defaultValue && newValue !== parsedDefault ? (
+              <button
+                onClick={() => {
+                  setValue(name, parsedDefault, { shouldDirty: true })
+                  setNewValue(parsedDefault)
+                }}
+                type="button"
+                className={`absolute
                         left-2
                         top-1/2
                         z-[10]
@@ -75,33 +92,33 @@ const Input = memo(
                         cursor-pointer
                         rounded-full
                         bg-primary-white`}
-          >
-            <FontAwesomeIcon icon={'undo'} />
-          </button>
-        ) : null}
+              >
+                <FontAwesomeIcon icon={'undo'} />
+              </button>
+            ) : null}
 
-        {defaultValue !== '' ? (
-          <button
-            onClick={() => {
-              setValue(name, 'delete', { shouldDirty: true })
-              setNewValue('delete')
-            }}
-            type="button"
-            className={`
+            {hasNoDeleteValue && defaultValue !== '' ? (
+              <button
+                onClick={() => {
+                  setValue(name, 'delete', { shouldDirty: true })
+                  setNewValue('delete')
+                }}
+                type="button"
+                className={`
                       absolute
                       right-2
                       top-1/2
                       -translate-y-1/2
                       cursor-pointer
                       text-primary-red`}
-          >
-            <FontAwesomeIcon icon={'circle-xmark'} />
-          </button>
-        ) : null}
+              >
+                <FontAwesomeIcon icon={'circle-xmark'} />
+              </button>
+            ) : null}
 
-        {newValue === 'delete' ? (
-          <span
-            className={`
+            {newValue === 'delete' ? (
+              <span
+                className={`
                           absolute
                           top-1/2
                           left-10
@@ -115,13 +132,13 @@ const Input = memo(
                           break-words
                           bg-primary-red
                           text-primary-white`}
-          >
-            delete
-          </span>
-        ) : null}
-        {!getValues(name) && parsedDefault ? (
-          <span
-            className={`absolute
+              >
+                delete
+              </span>
+            ) : null}
+            {!getValues(name) && parsedDefault ? (
+              <span
+                className={`absolute
                         top-1/2
                         left-1/2
                         h-[18px]
@@ -135,12 +152,14 @@ const Input = memo(
                         break-words
                         bg-grey-light
                           `}
-          >
-            {isValid(parseISO(defaultValue))
-              ? format(parseISO(defaultValue), 'dd.MM.yyyy')
-              : undefined}
-          </span>
-        ) : null}
+              >
+                {isValid(parseISO(defaultValue))
+                  ? format(parseISO(defaultValue), 'dd.MM.yyyy')
+                  : undefined}
+              </span>
+            ) : null}
+          </>
+        </Tippy>
       </div>
     )
   },
@@ -149,8 +168,21 @@ const Input = memo(
   },
 )
 
-export const DateInputCell = ({ name, defaultValue }: DateInputCellProps) => {
+export const DateInputCell = ({
+  name,
+  defaultValue,
+  hasNoDeleteValue,
+  headerName,
+}: DateInputCellProps) => {
   const methods = useFormContext()
 
-  return <Input {...methods} name={name} defaultValue={defaultValue} />
+  return (
+    <Input
+      {...methods}
+      name={name}
+      defaultValue={defaultValue}
+      hasNoDeleteValue={hasNoDeleteValue}
+      headerName={headerName}
+    />
+  )
 }

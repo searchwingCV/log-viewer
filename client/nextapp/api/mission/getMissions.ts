@@ -19,6 +19,7 @@ export const fetchAllMissionsQuery = (page: number, size: number) =>
     useQuery<Page_MissionSerializer_>([ALL_MISSIONS_KEY, page, size], () =>
         getMissions(page, size),
         {
-            keepPreviousData: true,
+
             staleTime: 10 * (60 * 100), // 1 mins
+
         })

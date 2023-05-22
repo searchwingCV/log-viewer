@@ -7,10 +7,11 @@ import Button from '~/modules/Button'
 import { InputReactHookForm } from '~/modules/Input/InputReactHookForm'
 import { SelectReactHookForm } from '~/modules/Select/SelectReactHookForm'
 import { postDrone } from '~/api/drone/postDrone'
-import { useRouter } from 'next/router'
+import { useGoToLastTablePage } from '@lib/hooks/useGoToLastTablePage'
 
 export const AddDroneView = () => {
-  const router = useRouter()
+  const goToLastTableName = useGoToLastTablePage({ tableName: 'drones' })
+
   const {
     register,
     handleSubmit,
@@ -26,10 +27,9 @@ export const AddDroneView = () => {
       toast('Data changed.', {
         type: 'success',
       })
-      await new Promise((resolve) => setTimeout(resolve, 1000))
 
       await reset()
-      await router.push('/drone-overview')
+      await goToLastTableName()
     },
     onError: async (data: AxiosError) => {
       //TODO: better error messages
@@ -50,7 +50,11 @@ export const AddDroneView = () => {
   return (
     <>
       <ToastContainer />
-      <form className="w-[600px] [&>div]:mt-8" onSubmit={onSubmit}>
+      <form
+        className={`w-[600px]
+                    [&>div]:mt-8`}
+        onSubmit={onSubmit}
+      >
         <ToastContainer autoClose={5000} />
         <InputReactHookForm<CreateDroneSerializer>
           name="name"
@@ -73,29 +77,38 @@ export const AddDroneView = () => {
         <InputReactHookForm<CreateDroneSerializer>
           name="description"
           register={register}
-          rules={{}}
           errors={errors}
           placeholder="Description"
         ></InputReactHookForm>
         <InputReactHookForm<CreateDroneSerializer>
           name="sysThismav"
           register={register}
-          rules={{}}
           type="number"
           errors={errors}
           placeholder="Systhismav"
+          rules={{
+            required: 'SysThismav required',
+          }}
         ></InputReactHookForm>
         <SelectReactHookForm
           register={register}
-          rules={{}}
           errors={errors}
           name="status"
           options={(Object.keys(DroneStatus) as Array<keyof typeof DroneStatus>).map((key) => {
             return { name: DroneStatus[key], value: DroneStatus[key] }
           })}
+          rules={{
+            required: 'Status required',
+          }}
           placeholder="Status"
         ></SelectReactHookForm>
-        <Button buttonStyle="Main" className="mt-12 h-16 w-full" type="submit">
+        <Button
+          buttonStyle="Main"
+          className={`mt-12
+                      h-16
+                      w-full`}
+          type="submit"
+        >
           Create new Drone
         </Button>
       </form>

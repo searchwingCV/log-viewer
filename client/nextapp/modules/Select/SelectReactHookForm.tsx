@@ -25,7 +25,7 @@ type SelectProps = {
 export type FormSelectProps<TFormValues extends FieldValues> = {
   name: Path<TFormValues>
   register: UseFormRegister<TFormValues>
-  rules: RegisterOptions
+  rules?: RegisterOptions
   errors: FieldErrors<TFormValues>
 } & Omit<SelectProps, 'name'>
 
@@ -85,7 +85,7 @@ export const SelectReactHookForm = <TFormValues extends FieldValues>({
               onChange: (e) => {
                 setValue(e.target.value)
               },
-              ...rules,
+              ...(rules || {}),
             }))}
         >
           <option></option>

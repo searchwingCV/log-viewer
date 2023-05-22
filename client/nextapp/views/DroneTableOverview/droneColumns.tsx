@@ -1,7 +1,12 @@
 import { format, parseISO, isValid } from 'date-fns'
 import { Column } from 'react-table'
 import { DroneSerializer, DroneStatus } from '@schema'
-import { TextInputCell, determineWidth, SelectInputCell } from '~/modules/TableComponents'
+import {
+  TextInputCell,
+  determineWidth,
+  SelectInputCell,
+  TippyValueWrapper,
+} from '~/modules/TableComponents'
 
 export const droneColumns = (): Column<DroneSerializer>[] => [
   {
@@ -22,6 +27,7 @@ export const droneColumns = (): Column<DroneSerializer>[] => [
 
       return (
         <TextInputCell
+          headerName={props.column.Header}
           name={`name-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.name}
         />
@@ -43,6 +49,7 @@ export const droneColumns = (): Column<DroneSerializer>[] => [
 
       return (
         <TextInputCell
+          headerName={props.column.Header}
           name={`model-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.model}
         />
@@ -67,11 +74,13 @@ export const droneColumns = (): Column<DroneSerializer>[] => [
 
       return (
         <SelectInputCell
+          headerName={props.column.Header}
           name={`status-${props.row.values.id}-${props.row.index}`}
           options={(Object.keys(DroneStatus) as Array<keyof typeof DroneStatus>).map((key) => {
             return { name: DroneStatus[key], value: DroneStatus[key] }
           })}
           defaultValue={props.row.values.status || undefined}
+          //hasNoDeleteValue
         />
       )
     },
@@ -91,6 +100,7 @@ export const droneColumns = (): Column<DroneSerializer>[] => [
 
       return (
         <TextInputCell
+          headerName={props.column.Header}
           name={`sysThismav-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.sysThismav}
           type="number"
@@ -113,6 +123,7 @@ export const droneColumns = (): Column<DroneSerializer>[] => [
 
       return (
         <TextInputCell
+          headerName={props.column.Header}
           name={`description-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.description}
         />
@@ -126,7 +137,11 @@ export const droneColumns = (): Column<DroneSerializer>[] => [
     accessor: 'createdAt',
     Cell: (props: any) => {
       if (isValid(parseISO(props.row.values.createdAt))) {
-        return <div>{format(parseISO(props.row.values.createdAt), 'hh:ss:mm dd.MM.yyyy')}</div>
+        return (
+          <TippyValueWrapper tableHeadName={props.column.Header}>
+            <div>{format(parseISO(props.row.values.createdAt), 'hh:ss:mm dd.MM.yyyy')}</div>
+          </TippyValueWrapper>
+        )
       } else {
         return <div></div>
       }
@@ -139,7 +154,11 @@ export const droneColumns = (): Column<DroneSerializer>[] => [
     accessor: 'updatedAt',
     Cell: (props: any) => {
       if (isValid(parseISO(props.row.values.createdAt))) {
-        return <div>{format(parseISO(props.row.values.createdAt), 'hh:ss:mm dd.MM.yyyy')}</div>
+        return (
+          <TippyValueWrapper tableHeadName={props.column.Header}>
+            <div>{format(parseISO(props.row.values.createdAt), 'hh:ss:mm dd.MM.yyyy')}</div>{' '}
+          </TippyValueWrapper>
+        )
       } else {
         return <div></div>
       }

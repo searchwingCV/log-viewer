@@ -1,8 +1,8 @@
 import React, { memo, useEffect, useState } from 'react'
-import { Tooltip } from 'react-tippy'
 import clsx from 'clsx'
 import { useFormContext, UseFormReturn, FieldValues } from 'react-hook-form'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import Tippy from '@tippyjs/react'
 
 type TextInputCellProps = {
   name: string
@@ -10,12 +10,23 @@ type TextInputCellProps = {
   type?: 'text' | 'number'
   min?: number
   max?: number
+  headerName: string
 }
 
 interface InputProps extends UseFormReturn<FieldValues, any>, TextInputCellProps {}
 
 const Input = memo(
-  ({ register, name, defaultValue = '', setValue, type, getValues, min, max }: InputProps) => {
+  ({
+    register,
+    name,
+    defaultValue = '',
+    setValue,
+    type,
+    getValues,
+    min,
+    max,
+    headerName,
+  }: InputProps) => {
     const [newValue, setNewValue] = useState(getValues(name))
 
     useEffect(() => {
@@ -31,36 +42,34 @@ const Input = memo(
                     w-full`}
         id={`input-${name}`}
       >
-        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore */}
-        <Tooltip
+        <Tippy
           className="w-full"
-          position="top"
-          title={newValue || defaultValue}
+          content={newValue ? `${headerName}: ${newValue}` : `${headerName}: ${defaultValue}`}
           trigger="mouseenter"
         >
-          <input
-            onFocus={() => {
-              if (defaultValue) {
-                setValue(name, defaultValue)
-                setNewValue(defaultValue)
-              }
-            }}
-            min={min}
-            max={max}
-            type={type || 'text'}
-            {...register(name as `${string}` | `${string}.${string}` | `${string}.${number}`, {
-              onChange: (e) => {
-                if (e.target.value === defaultValue) {
-                  setNewValue('')
-                  setValue(name, '')
-                } else {
-                  setNewValue(e.target.value)
+          <div>
+            <input
+              onFocus={() => {
+                if (defaultValue) {
+                  setValue(name, defaultValue)
+                  setNewValue(defaultValue)
                 }
-              },
-            })}
-            className={clsx(
-              `
+              }}
+              min={min}
+              max={max}
+              type={type || 'text'}
+              {...register(name as `${string}` | `${string}.${string}` | `${string}.${number}`, {
+                onChange: (e) => {
+                  if (e.target.value === defaultValue) {
+                    setNewValue('')
+                    setValue(name, '')
+                  } else {
+                    setNewValue(e.target.value)
+                  }
+                },
+              })}
+              className={clsx(
+                `
               max-h-[31px]
               w-full
               rounded-md
@@ -71,18 +80,19 @@ const Input = memo(
               placeholder-primary-black
               focus:ring-0
               focus:ring-offset-0`,
-              newValue === 'delete'
-                ? `bg-primary-red
+                newValue === 'delete'
+                  ? `bg-primary-red
                    text-primary-white`
-                : newValue !== '' && newValue !== defaultValue && newValue !== undefined
-                ? `bg-primary-dark-petrol
+                  : newValue !== '' && newValue !== defaultValue && newValue !== undefined
+                  ? `bg-primary-dark-petrol
                    text-primary-white`
-                : `bg-grey-light`,
-              type === 'number' ? 'pr-2' : 'pr-6',
-            )}
-            placeholder={defaultValue || ''}
-          />
-        </Tooltip>
+                  : `bg-grey-light`,
+                type === 'number' ? 'pr-2' : 'pr-6',
+              )}
+              placeholder={defaultValue || ''}
+            />
+          </div>
+        </Tippy>
 
         {defaultValue !== '' ? (
           <button
@@ -134,10 +144,25 @@ const Input = memo(
   },
 )
 
-export const TextInputCell = ({ name, defaultValue, type, min, max }: TextInputCellProps) => {
+export const TextInputCell = ({
+  name,
+  defaultValue,
+  type,
+  min,
+  max,
+  headerName,
+}: TextInputCellProps) => {
   const methods = useFormContext()
 
   return (
-    <Input {...methods} name={name} defaultValue={defaultValue} type={type} min={min} max={max} />
+    <Input
+      {...methods}
+      name={name}
+      defaultValue={defaultValue}
+      type={type}
+      min={min}
+      max={max}
+      headerName={headerName}
+    />
   )
 }

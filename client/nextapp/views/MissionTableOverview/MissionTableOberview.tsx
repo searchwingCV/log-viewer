@@ -68,8 +68,8 @@ export const MissionTableOverview = ({
     transform: sideNavExtended ? 'translate3d(20px,0,0)' : `translate3d(-240px,0,0)`,
     minWidth: sideNavExtended ? 'calc(100vw - 270px)' : `calc(100vw - 0px)`,
   })
+
   const updateMissions = useMutation(patchMissions, {
-    onSettled: (data) => {},
     onSuccess: (data) => {
       toast('Data changed.', {
         type: 'success',
@@ -122,7 +122,18 @@ export const MissionTableOverview = ({
       )
       const changedProps = keysBelongingToMission
         .map((key) => {
-          return { [key.split('-')[0]]: formData[key] === 'delete' ? null : formData[key] }
+          return {
+            [key.split('-')[0]]:
+              formData[key] === 'delete'
+                ? null
+                : key.startsWith('fk') //fkKeys have to be numbers
+                ? parseInt(formData[key])
+                : formData[key] === 'true'
+                ? true
+                : formData[key] === 'false'
+                ? false
+                : formData[key],
+          }
         })
         .reduce((prev, cur) => {
           return { ...prev, ...cur }
@@ -197,11 +208,11 @@ export const MissionTableOverview = ({
       />
       <animated.div
         className={clsx(` ml-side-drawer-width
-                          flex
                           h-screen
                           flex-col
-                          items-center
                           overflow-x-hidden
+                          py-8
+                          px-4
                           `)}
         style={slideX}
       >
@@ -217,7 +228,7 @@ export const MissionTableOverview = ({
                       pb-12`}
         >
           <div
-            className={`mb-8
+            className={`mb-4
                         grid
                         grid-cols-[minmax(700px,_1fr)_200px]
                         grid-rows-2
@@ -237,6 +248,7 @@ export const MissionTableOverview = ({
               options={[
                 { name: 'None', value: '' },
                 { name: 'Partner Organization', value: 'partnerOrganization' },
+                { name: 'Mission Id', value: 'id' },
               ]}
               onSetValue={setGroupBy}
               defaultValue="None"
@@ -245,24 +257,31 @@ export const MissionTableOverview = ({
             />
           </div>
           <div className="flex">
-            <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.MISSION_DRAWER_EXTENDED} />
-            <div className="py-8 px-4">
+            <div
+              className={`pr-4
+                          pt-4`}
+            >
               <Button
                 isSpecial={true}
                 buttonStyle="Main"
-                className="w-[200px] px-6 py-4"
+                className={`w-[220px]
+                            px-6
+                            py-3`}
                 onClick={async () => {
-                  await router.push('/add/mission')
+                  await router.push(
+                    `/add/mission?curentPageSize=${pageSize}&currentPageCount=${pageCount}&totalNumber=${totalNumber}`,
+                  )
                 }}
               >
                 <FontAwesomeIcon icon={'plus-circle'} height="32" className="scale-150" />
                 <span className="ml-3">Add new mission</span>
               </Button>
             </div>
-          </div>{' '}
+            <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.MISSION_DRAWER_EXTENDED} />
+          </div>
           <FormProvider {...methods}>
             <form onSubmit={onSubmit}>
-              <div className="overflow-x-scroll">
+              <div className="">
                 <table {...getTableProps()} className={`roundex-xl`} ref={ref}>
                   <TableHead
                     headerGroups={headerGroups}
@@ -292,7 +311,7 @@ export const MissionTableOverview = ({
                   type="submit"
                   className={`sticky
                               left-[100vw]
-                              bottom-8
+                              bottom-20
                               w-[350px]
                               p-4`}
                 >

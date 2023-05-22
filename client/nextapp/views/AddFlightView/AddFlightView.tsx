@@ -14,6 +14,7 @@ import { InputReactHookForm } from '~/modules/Input/InputReactHookForm'
 import { SelectReactHookForm } from '~/modules/Select/SelectReactHookForm'
 import { postFlight } from '~/api/flight/postFlight'
 import { putLogFile } from '~/api/flight/putLogFile'
+import { useGoToLastTablePage } from '@lib/hooks/useGoToLastTablePage'
 import FileUpload from '~/modules/FileUpload'
 
 interface AddFlightForm extends CreateFlightSerializer {
@@ -42,6 +43,8 @@ export const determineFileType = (file: File) => {
 
 export const AddFlightView = () => {
   const router = useRouter()
+  const goToLastTableName = useGoToLastTablePage({ tableName: 'flights' })
+
   const [hasLogFile, setHasLogFile] = useState(false)
   const [selectedLogFile, setSelectedLogFile] = useState<Blob[] | undefined>(undefined)
 
@@ -98,7 +101,7 @@ export const AddFlightView = () => {
       if (!hasLogFile) {
         await new Promise((resolve) => setTimeout(resolve, 2000))
 
-        await router.push('/flight-overview')
+        await goToLastTableName()
       } else {
         if (selectedLogFile) {
           putFile.mutate({
@@ -129,7 +132,7 @@ export const AddFlightView = () => {
       await reset()
       if (hasLogFile) {
         await new Promise((resolve) => setTimeout(resolve, 2000))
-        await router.push('/flight-overview')
+        await goToLastTableName()
       }
     },
 
@@ -177,9 +180,6 @@ export const AddFlightView = () => {
           {missions ? (
             <SelectReactHookForm<AddFlightForm>
               register={register}
-              rules={{
-                required: 'Mission is required',
-              }}
               errors={errors}
               name="fkMission"
               options={missions}
@@ -199,27 +199,23 @@ export const AddFlightView = () => {
             name="pilot"
             register={register}
             errors={errors}
-            rules={{}}
             placeholder="Pilot"
           ></InputReactHookForm>
           <InputReactHookForm<AddFlightForm>
             name="observer"
             register={register}
-            rules={{}}
             errors={errors}
             placeholder="Observer"
           ></InputReactHookForm>
           <InputReactHookForm<AddFlightForm>
             name="notes"
             register={register}
-            rules={{}}
             errors={errors}
             placeholder="Notes"
           ></InputReactHookForm>
           <SelectReactHookForm<AddFlightForm>
             register={register}
             errors={errors}
-            rules={{}}
             name="droneNeedsRepair"
             options={[
               { name: 'Yes', value: 'yes' },
@@ -229,7 +225,6 @@ export const AddFlightView = () => {
           ></SelectReactHookForm>
           <SelectReactHookForm<AddFlightForm>
             register={register}
-            rules={{}}
             errors={errors}
             name="rating"
             options={(Object.keys(FlightRating) as Array<keyof typeof FlightRating>).map((key) => {
@@ -238,7 +233,6 @@ export const AddFlightView = () => {
             placeholder="Rating"
           ></SelectReactHookForm>
           <SelectReactHookForm<AddFlightForm>
-            rules={{}}
             register={register}
             options={(Object.keys(FlightPurpose) as Array<keyof typeof FlightPurpose>).map(
               (key) => {
@@ -288,7 +282,13 @@ export const AddFlightView = () => {
 
           <Button
             buttonStyle="Main"
-            className="absolute right-0 left-0 z-10 mt-12 h-16"
+            className={`absolute
+                        right-0
+                        left-0
+                        z-10
+                        mt-12
+                        h-16
+                        w-full`}
             type="submit"
           >
             Create new Flight

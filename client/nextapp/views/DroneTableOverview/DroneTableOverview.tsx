@@ -118,7 +118,18 @@ export const DroneTableOverview = ({
       const keysBelongingToDrones = changedKeys.filter((key) => key.includes(drone.id.toString()))
       const changedProps = keysBelongingToDrones
         .map((key) => {
-          return { [key.split('-')[0]]: formData[key] === 'delete' ? null : formData[key] }
+          return {
+            [key.split('-')[0]]:
+              formData[key] === 'delete'
+                ? null
+                : key.startsWith('fk') //fkKeys have to be numbers
+                ? parseInt(formData[key])
+                : formData[key] === 'true'
+                ? true
+                : formData[key] === 'false'
+                ? false
+                : formData[key],
+          }
         })
         .reduce((prev, cur) => {
           return { ...prev, ...cur }
@@ -182,7 +193,6 @@ export const DroneTableOverview = ({
       className={`flex-column
                   flex
                   min-h-screen
-                  pt-12
                  `}
     >
       <ToastContainer />
@@ -216,7 +226,7 @@ export const DroneTableOverview = ({
                       `}
         >
           <div
-            className={`mb-8
+            className={`mb-4
                         grid
                         grid-cols-[minmax(700px,_1fr)_200px]
                         grid-rows-2
@@ -235,7 +245,7 @@ export const DroneTableOverview = ({
               placeholder="Group by"
               options={[
                 { name: 'None', value: '' },
-                { name: 'Partner Organization', value: 'partnerOrganization' },
+                { name: 'Status', value: 'status' },
               ]}
               onSetValue={setGroupBy}
               defaultValue="None"
@@ -244,20 +254,27 @@ export const DroneTableOverview = ({
             />
           </div>
           <div className="flex">
-            <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.DRONE_DRAWER_EXTENDED} />
-            <div className="py-8 px-4">
+            <div
+              className={`pr-4
+                          pt-4`}
+            >
               <Button
                 isSpecial={true}
                 buttonStyle="Main"
-                className="w-[200px] px-6 py-4"
+                className={`w-[200px]
+                            px-6
+                            py-3`}
                 onClick={async () => {
-                  await router.push('/add/drone')
+                  await router.push(
+                    `/add/drone?curentPageSize=${pageSize}&currentPageCount=${pageCount}&totalNumber=${totalNumber}`,
+                  )
                 }}
               >
                 <FontAwesomeIcon icon={'plus-circle'} height="32" className="scale-150" />
                 <span className="ml-3">Add new drone</span>{' '}
               </Button>
             </div>
+            <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.DRONE_DRAWER_EXTENDED} />
           </div>
           <FormProvider {...methods}>
             <form onSubmit={onSubmit}>
@@ -291,7 +308,7 @@ export const DroneTableOverview = ({
                   type="submit"
                   className={`sticky
                               left-[100vw]
-                              bottom-8
+                              bottom-20
                               w-[350px]
                               p-4`}
                 >

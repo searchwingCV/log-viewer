@@ -64,28 +64,6 @@ export const FlightTableOverview = ({
   const router = useRouter()
   const queryClient = useQueryClient()
 
-  const parseVerboseNamesForForeignKeys = (data: FlightSerializer[]) => {
-    const dataCopy = [...data]
-
-    const parsedData = dataCopy.map((flight) => {
-      const { fkDrone, fkMission, ...rest } = flight
-
-      const verboseDroneName =
-        droneOptions?.find((drone) => drone.value === fkDrone)?.name || fkDrone
-      const verboseMissionName = missionOptions?.find(
-        (mission) => mission.value === fkMission,
-      )?.name
-
-      return { fkDrone: verboseDroneName, fkMission: verboseMissionName, ...rest }
-    })
-
-    return parsedData
-  }
-
-  const verboseData = React.useMemo(() => {
-    return parseVerboseNamesForForeignKeys(data)
-  }, [data])
-
   const { data: sideNavExtended } = useQuery([DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED], () => {
     return false
   })
@@ -148,7 +126,18 @@ export const FlightTableOverview = ({
       const keysBelongingToFlight = changedKeys.filter((key) => key.includes(flight.id.toString()))
       const changedProps = keysBelongingToFlight
         .map((key) => {
-          return { [key.split('-')[0]]: formData[key] === 'delete' ? null : formData[key] }
+          return {
+            [key.split('-')[0]]:
+              formData[key] === 'delete'
+                ? null
+                : key.startsWith('fk') //fkKeys have to be numbers
+                ? parseInt(formData[key])
+                : formData[key] === 'true'
+                ? true
+                : formData[key] === 'false'
+                ? false
+                : formData[key],
+          }
         })
         .reduce((prev, cur) => {
           return { ...prev, ...cur }
@@ -187,7 +176,7 @@ export const FlightTableOverview = ({
   } = useTable(
     {
       columns: columns,
-      data: verboseData,
+      data: data,
       defaultColumn,
       initialState: {},
       pageCount: Math.ceil(totalNumber / (parseInt(queryPageSize as string) || 10)),
@@ -260,7 +249,7 @@ export const FlightTableOverview = ({
       className={`flex-column
                   flex
                   min-h-screen
-                  pt-12`}
+                  `}
     >
       <ToastContainer />
       <CustomizeColumnsDrawer
@@ -270,9 +259,9 @@ export const FlightTableOverview = ({
       />
       <animated.div
         className={clsx(`ml-side-drawer-width
-                          h-screen
-                          overflow-x-hidden
-                          px-12`)}
+                         h-screen
+                         overflow-x-hidden
+                         px-12`)}
         style={slideX}
       >
         <div
@@ -284,12 +273,13 @@ export const FlightTableOverview = ({
                       pb-12`}
         >
           <div
-            className={`mb-8
+            className={`mb-4
                         grid
                         grid-cols-[minmax(700px,_1fr)_200px]
                         grid-rows-2
                         items-end
-                        gap-y-2 gap-x-8`}
+                        gap-y-2
+                        gap-x-8`}
           >
             <GlobalTextFilter
               preGlobalFilteredRows={preGlobalFilteredRows}
@@ -303,7 +293,8 @@ export const FlightTableOverview = ({
               options={[
                 { name: 'None', value: '' },
                 { name: 'Pilot', value: 'pilot' },
-                { name: 'Mission Id', value: 'missionId' },
+                { name: 'Mission Id', value: 'fkMission' },
+                { name: 'Drone Id', value: 'fkDrone' },
               ]}
               onSetValue={setGroupBy}
               defaultValue="None"
@@ -312,29 +303,37 @@ export const FlightTableOverview = ({
             />
           </div>
           <div className="flex">
-            <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED} />
-            <div className="py-8 px-4">
+            <div
+              className={`pr-4
+                          pt-4`}
+            >
               <Button
                 isSpecial={true}
                 buttonStyle="Main"
-                className="w-[200px] px-6 py-4"
+                className={`w-[200px]
+                            px-6
+                            py-3`}
                 onClick={async () => {
-                  await router.push('/add/flight')
+                  await router.push(
+                    `/add/flight?curentPageSize=${pageSize}&currentPageCount=${pageCount}&totalNumber=${totalNumber}`,
+                  )
                 }}
               >
                 <FontAwesomeIcon icon={'plus-circle'} height="32" className="scale-150" />
-                <span className="ml-3">Add new flight</span>{' '}
+                <span className="ml-3">Add new flight</span>
               </Button>
             </div>
+            <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED} />
           </div>
           <FormProvider {...methods}>
             <form onSubmit={onSubmit}>
-              <div className="overflow-x-scroll">
-                <table {...getTableProps()} className={`roundex-xl`}>
+              <div className="overflow-x-auto">
+                <table {...getTableProps()} className={`roundex-xl relative`}>
                   <TableHead
                     headerGroups={headerGroups}
                     allColumns={allColumns}
                     setColumnOrder={setColumnOrder}
+                    hasLongHeaderNames
                   ></TableHead>
                   <TableBody<FlightSerializer>
                     getTableBodyProps={getTableBodyProps}
@@ -357,7 +356,7 @@ export const FlightTableOverview = ({
                   type="button"
                   className={`sticky
                              left-[100vw]
-                             bottom-8
+                             bottom-20
                              w-[350px]
                              p-4`}
                   isSpecial
@@ -374,7 +373,7 @@ export const FlightTableOverview = ({
                   type="submit"
                   className={`sticky
                               left-[100vw]
-                              bottom-8
+                              bottom-20
                               w-[350px]
                               p-4`}
                 >

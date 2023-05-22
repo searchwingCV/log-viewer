@@ -26,7 +26,7 @@ export type InputProps = {
 export type FormInputProps<TFormValues extends FieldValues> = {
   name: Path<TFormValues>
   register: UseFormRegister<TFormValues>
-  rules: RegisterOptions
+  rules?: RegisterOptions
   errors: FieldErrors<TFormValues>
 } & Omit<InputProps, 'name'>
 
@@ -113,7 +113,7 @@ export const InputReactHookForm = <TFormValues extends FieldValues>({
                 setIsAutofillOnMountActive(false)
               },
 
-              ...rules,
+              ...(rules || {}),
             }))}
         ></input>
         {children}

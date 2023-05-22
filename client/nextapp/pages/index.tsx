@@ -4,7 +4,18 @@ import { Layout } from '~/modules/Layouts/Layout'
 const Index = ({}) => {
   return (
     <>
-      <Layout>Welcome to the log viewer dashboard</Layout>
+      <Layout>
+        <div
+          className={`flex
+                      h-screen
+                      w-screen
+                      items-center
+                      justify-center
+                      text-xl`}
+        >
+          Welcome to SearchWing's log viewer
+        </div>
+      </Layout>
     </>
   )
 }

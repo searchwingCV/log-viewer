@@ -1,16 +1,16 @@
 import { useForm } from 'react-hook-form'
 import type { AxiosError } from 'axios'
-import { useRouter } from 'next/router'
 import { ToastContainer, toast } from 'react-toastify'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { CreateMissionSerializer, DroneStatus } from '@schema'
+import { useMutation } from '@tanstack/react-query'
+import { CreateMissionSerializer } from '@schema'
 import Button from '~/modules/Button'
 import { InputReactHookForm } from '~/modules/Input/InputReactHookForm'
-import { SelectReactHookForm } from '~/modules/Select/SelectReactHookForm'
 import { postMission } from '~/api/mission/postMission'
+import { useGoToLastTablePage } from '@lib/hooks/useGoToLastTablePage'
 
 export const AddMissionView = () => {
-  const router = useRouter()
+  const goToLastTableName = useGoToLastTablePage({ tableName: 'missions' })
+
   const {
     register,
     handleSubmit,
@@ -28,9 +28,8 @@ export const AddMissionView = () => {
         type: 'success',
       })
       reset()
-
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      await router.push('/mission-overview')
+      await goToLastTableName()
     },
     onError: async (data: AxiosError) => {
       toast(
@@ -53,7 +52,11 @@ export const AddMissionView = () => {
   return (
     <>
       <ToastContainer />
-      <form className="w-[600px] [&>div]:mt-8" onSubmit={onSubmit}>
+      <form
+        className={`w-[600px]
+                    [&>div]:mt-8`}
+        onSubmit={onSubmit}
+      >
         <InputReactHookForm<CreateMissionSerializer>
           name="name"
           register={register}
@@ -75,7 +78,6 @@ export const AddMissionView = () => {
         <InputReactHookForm<CreateMissionSerializer>
           name="location"
           register={register}
-          rules={{}}
           errors={errors}
           placeholder="Location"
         ></InputReactHookForm>
@@ -102,11 +104,16 @@ export const AddMissionView = () => {
         <InputReactHookForm<CreateMissionSerializer>
           name="partnerOrganization"
           register={register}
-          rules={{}}
           errors={errors}
           placeholder="Partner Organization"
         ></InputReactHookForm>
-        <Button buttonStyle="Main" className="mt-12 h-16 w-full" type="submit">
+        <Button
+          buttonStyle="Main"
+          className={`mt-12
+                      h-16
+                      w-full`}
+          type="submit"
+        >
           Create new Mission
         </Button>
       </form>

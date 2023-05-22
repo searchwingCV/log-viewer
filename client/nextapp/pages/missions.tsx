@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import type { GetServerSideProps } from 'next'
 import { QueryClient, dehydrate } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
@@ -9,11 +9,19 @@ import type { NextPageWithLayout } from './_app'
 
 const MissionOverviewPage: NextPageWithLayout = () => {
   const router = useRouter()
-  const { page: queryPage, pagesize: queryPageSize } = router.query
-  const { data } = fetchAllMissionsQuery(
+
+  const { page: queryPage, pagesize: queryPageSize, backFromAddForm } = router.query
+
+  const { data, refetch } = fetchAllMissionsQuery(
     parseInt(queryPage as string) || 1,
     parseInt(queryPageSize as string) || 10,
   )
+
+  useEffect(() => {
+    if (backFromAddForm) {
+      refetch()
+    }
+  }, [backFromAddForm])
 
   if (!data || !data.items) {
     return null

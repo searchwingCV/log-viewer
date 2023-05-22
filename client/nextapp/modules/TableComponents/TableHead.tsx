@@ -7,9 +7,15 @@ type TableHeadProps = {
   headerGroups: HeaderGroup<any>[]
   allColumns: ColumnInstance<any>[]
   setColumnOrder: (updater: string[] | ((columnOrder: string[]) => string[])) => void
+  hasLongHeaderNames?: boolean
 }
 
-export const TableHead = ({ headerGroups, allColumns, setColumnOrder }: TableHeadProps) => {
+export const TableHead = ({
+  headerGroups,
+  allColumns,
+  setColumnOrder,
+  hasLongHeaderNames,
+}: TableHeadProps) => {
   const currentColOrder = useRef<string[]>([])
   const [toggleMatrix, setToggleMatrix] = useState<{ propName: string; visible: boolean }[]>(
     allColumns.map((col) => {
@@ -48,14 +54,14 @@ export const TableHead = ({ headerGroups, allColumns, setColumnOrder }: TableHea
                   ref={droppableProvided.innerRef}
                   className={clsx(
                     `!focus:border-black
-                      my-4
                       flex
                       w-full
+                      items-center
                       rounded-xl
                       rounded-b
                       bg-x-indigo-to-petrol
-                      pt-4
                       text-center
+                      text-xs
                       text-primary-white`,
                   )}
                 >
@@ -68,9 +74,13 @@ export const TableHead = ({ headerGroups, allColumns, setColumnOrder }: TableHea
                         key={key}
                         className={clsx(
                           `mx-4
-                           py-4
                            font-medium`,
                           column.width,
+                          hasLongHeaderNames
+                            ? ` -mb-4
+                                pt-2`
+                            : `-mb-2
+                               pt-4`,
                         )}
                       >
                         <Draggable key={column.id} draggableId={column.id} index={index}>
