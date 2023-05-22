@@ -53,3 +53,14 @@ class MavLinkTimeseriesRepository(BaseRepository):
         return MavLinkTimeseries.build_from_entries(
             flight_id=flight_id, message_type=message_type, message_field=message_field, entries=query.all()
         )
+
+    def delete_by_flight_id(self, session: Session, flight_id: ID_Type):
+        try:
+            query = session.query(self._model).filter_by(
+                flight_id=flight_id,
+            )
+            query.delete()
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            raise e

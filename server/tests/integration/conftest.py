@@ -1,18 +1,11 @@
 import random
-from datetime import datetime
 
 import pytest
 from common.config import TestConfig
 from domain.flight_file.value_objects import AllowedFiles
 from infrastructure.db.orm import Base, Drone, Flight, FlightFile, Mission
-from pymavlog import MavLinkMessageSeries
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-
-class MockMavLinkMessageSeries(MavLinkMessageSeries):
-    def __setitem__(self, key, value):
-        self._fields[key] = value
 
 
 @pytest.fixture(scope="function")
@@ -114,15 +107,3 @@ def add_sample_drone_to_db(test_db_session, get_sample_drone):
         test_db_session.refresh(drone_db)
 
     return wrapper
-
-
-@pytest.fixture(scope="function")
-def mavlink_series():
-    rows = 300
-    series = MockMavLinkMessageSeries(name="FOO", columns=["timestamp", "Bar", "Baz"], types=[datetime, int, float])
-
-    series["timestamp"] = [datetime.now() for _ in range(rows)]
-    series["Bar"] = [idx for idx in range(rows)]
-    series["Baz"] = [random.random() for _ in range(rows)]
-
-    return series
