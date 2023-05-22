@@ -159,7 +159,7 @@ class MavLinkTimeseries(Base):
     __tablename__ = "mavlink_timeseries"
 
     flight_id = Column(Integer, ForeignKey("flight.id"), nullable=False)
-    timestamp = Column(DateTime, nullable=False, unique=True)
+    timestamp = Column(DateTime, nullable=False)
     message_type = Column(String, nullable=False)
     message_field = Column(String, nullable=False)
     value = Column(Float)

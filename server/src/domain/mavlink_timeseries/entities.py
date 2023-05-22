@@ -1,19 +1,37 @@
+import typing as t
 from datetime import datetime
 
 from domain.types import ID_Type
 from pydantic import BaseModel
 
 
-class IMavLinkTimeseries(BaseModel):
+class TimeseriesValues(BaseModel):
+    timestamp: datetime
+    value: float
+
+
+class MavLinkTimeseries(BaseModel):
     class Config:
         orm_mode = True
 
     flight_id: ID_Type
-    timestamp: datetime
     message_type: str
     message_field: str
-    value: float
+    values: t.List[TimeseriesValues]
 
-
-class MavLinkTimeseries(IMavLinkTimeseries):
-    pass
+    @classmethod
+    def build_from_entries(
+        cls, flight_id: ID_Type, message_type: str, message_field: str, entries: t.List[datetime | float]
+    ):
+        return cls(
+            flight_id=flight_id,
+            message_type=message_type,
+            message_field=message_field,
+            values=[
+                TimeseriesValues(
+                    timestamp=entry.timestamp,
+                    value=entry.value,
+                )
+                for entry in entries
+            ],
+        )
