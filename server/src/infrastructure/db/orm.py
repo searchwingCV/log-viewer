@@ -158,13 +158,13 @@ class FlightFile(BaseModel):
 class MavLinkTimeseries(Base):
     __tablename__ = "mavlink_timeseries"
 
-    fk_flight = Column(Integer, ForeignKey("flight.id"), nullable=False)
+    flight_id = Column(Integer, ForeignKey("flight.id"), nullable=False)
     timestamp = Column(DateTime, nullable=False, unique=True)
     message_type = Column(String, nullable=False)
     message_field = Column(String, nullable=False)
     value = Column(Float)
 
-    __mapper_args__ = {"primary_key": [fk_flight, timestamp]}
+    __mapper_args__ = {"primary_key": [flight_id, timestamp, message_field]}
 
 
 @event.listens_for(Flight, "before_insert")
