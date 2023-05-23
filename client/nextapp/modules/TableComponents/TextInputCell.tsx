@@ -49,7 +49,7 @@ const Input = memo(
           content={newValue ? `${headerName}: ${newValue}` : `${headerName}: ${defaultValue}`}
           trigger="mouseenter"
         >
-          <div>
+          <div className="w-full">
             <input
               onFocus={() => {
                 if (defaultValue) {
@@ -105,11 +105,11 @@ const Input = memo(
             type="button"
             className={clsx(
               `absolute
-               right-2
                top-1/2
                -translate-y-1/2
                cursor-pointer
              text-primary-red`,
+              type === 'number' ? `left-2` : `right-2`,
             )}
           >
             <FontAwesomeIcon icon={'circle-xmark'} />

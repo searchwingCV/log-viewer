@@ -112,7 +112,7 @@ export const MissionTableOverview = ({
           return {
             [key.split('-')[0]]:
               formData[key] === 'delete'
-                ? null
+                ? ''
                 : key.startsWith('fk') //fkKeys have to be numbers
                 ? parseInt(formData[key])
                 : formData[key] === 'true'
@@ -133,7 +133,10 @@ export const MissionTableOverview = ({
     })
 
     if (!newMissions.length) {
-      toast('No new data inserted', { type: 'error', position: toast.POSITION.BOTTOM_CENTER })
+      toast(
+        'No new data inserted. Non-nullable fields will not change if empty string was inserted.',
+        { type: 'error', position: toast.POSITION.BOTTOM_CENTER },
+      )
     } else {
       updateMissions.mutate(newMissions)
     }
@@ -179,8 +182,8 @@ export const MissionTableOverview = ({
       totalNumber={totalNumber}
       pageOptions={pageOptions}
       pageIndex={pageIndex}
-      tableType={'drone'}
-      drawerExtensionType={DrawerExtensionTypes.DRONE_DRAWER_EXTENDED}
+      tableType={'mission'}
+      drawerExtensionType={DrawerExtensionTypes.MISSION_DRAWER_EXTENDED}
       groupByOptions={[
         { name: 'None', value: '' },
         { name: 'Partner Organization', value: 'partnerOrganization' },

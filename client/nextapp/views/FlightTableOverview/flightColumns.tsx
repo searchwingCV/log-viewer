@@ -71,7 +71,6 @@ export const flightColumns = (
             name={`fkMission-${props.row.values.id}-${props.row.index}`}
             options={missionOptions}
             defaultValue={parseInt(fkNumber) || undefined}
-            hasNoDeleteValue
           />
         )
       }
@@ -170,7 +169,7 @@ export const flightColumns = (
           options={(Object.keys(FlightRating) as Array<keyof typeof FlightRating>).map((key) => {
             return { name: FlightRating[key], value: FlightRating[key] }
           })}
-          //hasNoDeleteValue
+          hasNoDeleteValue
           defaultValue={props.row.values.rating || undefined}
         />
       )
@@ -224,7 +223,7 @@ export const flightColumns = (
       return (
         <SelectInputCell
           headerName={props.column.Header}
-          //hasNoDeleteValue
+          hasNoDeleteValue
           name={`purpose-${props.row.values.id}-${props.row.index}`}
           options={(Object.keys(FlightPurpose) as Array<keyof typeof FlightPurpose>).map((key) => {
             return { name: FlightPurpose[key], value: FlightPurpose[key] }

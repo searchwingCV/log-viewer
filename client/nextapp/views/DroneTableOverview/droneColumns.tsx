@@ -1,6 +1,6 @@
 import { format, parseISO, isValid } from 'date-fns'
-import { Column } from 'react-table'
-import { DroneSerializer, DroneStatus } from '@schema'
+import type { Column } from 'react-table'
+import { type DroneSerializer, DroneStatus } from '@schema'
 import {
   TextInputCell,
   determineWidth,
@@ -15,7 +15,7 @@ export const droneColumns = (): Column<DroneSerializer>[] => [
     width: determineWidth('number'),
   },
   {
-    Header: 'Name',
+    Header: 'Name (not nullable)',
     accessor: 'name',
     Aggregated: () => {
       return null
@@ -30,6 +30,7 @@ export const droneColumns = (): Column<DroneSerializer>[] => [
           headerName={props.column.Header}
           name={`name-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.name}
+          hasNoDeleteValue
         />
       )
     },
@@ -37,7 +38,7 @@ export const droneColumns = (): Column<DroneSerializer>[] => [
   },
 
   {
-    Header: 'Model',
+    Header: 'Model (not nullable)',
     accessor: 'model',
     Aggregated: () => {
       return null
@@ -52,6 +53,7 @@ export const droneColumns = (): Column<DroneSerializer>[] => [
           headerName={props.column.Header}
           name={`model-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.model}
+          hasNoDeleteValue
         />
       )
     },
@@ -80,7 +82,7 @@ export const droneColumns = (): Column<DroneSerializer>[] => [
             return { name: DroneStatus[key], value: DroneStatus[key] }
           })}
           defaultValue={props.row.values.status || undefined}
-          //hasNoDeleteValue
+          hasNoDeleteValue
         />
       )
     },
@@ -88,7 +90,7 @@ export const droneColumns = (): Column<DroneSerializer>[] => [
   },
 
   {
-    Header: 'SysThismav',
+    Header: 'SysThismav (not nullable)',
     accessor: 'sysThismav',
     Aggregated: () => {
       return null
@@ -105,6 +107,7 @@ export const droneColumns = (): Column<DroneSerializer>[] => [
           defaultValue={props.row.values.sysThismav}
           type="number"
           min={1}
+          hasNoDeleteValue
         />
       )
     },

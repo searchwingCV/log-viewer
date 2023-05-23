@@ -167,9 +167,11 @@ export const FlightTableOverview = ({
     })
 
     if (!newFlights.length) {
-      toast('No new data inserted', { type: 'error', position: toast.POSITION.BOTTOM_CENTER })
+      toast(
+        'No new data inserted. Non-nullable fields will not change if empty string was inserted.',
+        { type: 'error', position: toast.POSITION.BOTTOM_CENTER },
+      )
     } else {
-      console.log(newFlights)
       updateFlights.mutate(newFlights)
     }
   })

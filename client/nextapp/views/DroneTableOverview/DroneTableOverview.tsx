@@ -107,7 +107,7 @@ export const DroneTableOverview = ({
           return {
             [key.split('-')[0]]:
               formData[key] === 'delete'
-                ? null
+                ? ''
                 : key.startsWith('fk') //fkKeys have to be numbers
                 ? parseInt(formData[key])
                 : formData[key] === 'true'
@@ -126,7 +126,10 @@ export const DroneTableOverview = ({
     })
 
     if (!newDrones.length) {
-      toast('No new data inserted', { type: 'error', position: toast.POSITION.BOTTOM_CENTER })
+      toast(
+        'No new data inserted. Non-nullable fields will not change if empty string was inserted.',
+        { type: 'error', position: toast.POSITION.BOTTOM_CENTER },
+      )
     } else {
       updateDrones.mutate(newDrones)
     }
