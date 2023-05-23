@@ -7,7 +7,7 @@ import {
   determineWidth,
   TippyValueWrapper,
 } from '~/modules/TableComponents'
-import { type TableFlightSerializer } from './FlightTableOverView'
+import type { TableFlightSerializer } from './FlightTableOverView'
 
 export const flightColumns = (
   missionOptions?: { name: string; value: number }[],
