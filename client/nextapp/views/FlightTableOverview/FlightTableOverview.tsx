@@ -147,7 +147,7 @@ export const FlightTableOverview = ({
           return {
             [key.split('-')[0]]:
               formData[key] === 'delete'
-                ? null
+                ? ''
                 : key.startsWith('fk') //fkKeys have to be numbers
                 ? parseInt(formData[key])
                 : formData[key] === 'true'
