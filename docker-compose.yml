@@ -56,7 +56,7 @@ services:
     depends_on:
       - server
     ports:
-      - 3000:3000
+      - 4000:4000
     environment:
       NEXT_PUBLIC_API_URL: http://server
 

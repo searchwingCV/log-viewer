@@ -129,7 +129,7 @@ export const TableFrame = <TTableFrameColumnInstance extends object>({
               <Button
                 isSpecial={true}
                 buttonStyle="Main"
-                className={`w-[200px]
+                className={`w-[250px]
                             px-6
                             py-3`}
                 onClick={async () => {

@@ -15,7 +15,7 @@ export const missionColumns = (): Column<MissionSerializer>[] => [
     width: determineWidth('number'),
   },
   {
-    Header: 'Name',
+    Header: 'Name (not nullable)',
     accessor: 'name',
     Aggregated: () => {
       return null
@@ -30,6 +30,7 @@ export const missionColumns = (): Column<MissionSerializer>[] => [
           headerName={props.column.Header}
           name={`name-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.name}
+          hasNoDeleteValue
         />
       )
     },
@@ -37,7 +38,7 @@ export const missionColumns = (): Column<MissionSerializer>[] => [
   },
 
   {
-    Header: 'Location',
+    Header: 'Location (not nullable)',
     accessor: 'location',
     Aggregated: () => {
       return null
@@ -52,6 +53,7 @@ export const missionColumns = (): Column<MissionSerializer>[] => [
           headerName={props.column.Header}
           name={`location-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.location}
+          hasNoDeleteValue
         />
       )
     },
