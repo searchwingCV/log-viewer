@@ -1,7 +1,7 @@
 
 
 import axios from "axios";
-import { BatchUpdateResponse_FlightSerializer_, FlightUpdate } from '@schema'
+import type { BatchUpdateResponse_FlightSerializer_, FlightUpdate } from '@schema'
 
 
 export const patchFlights = async (items: FlightUpdate[]) => {

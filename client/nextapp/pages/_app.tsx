@@ -1,5 +1,4 @@
 import '../styles/globals.css'
-import 'react-tippy/dist/tippy.css'
 import 'tippy.js/dist/tippy.css'
 import 'react-toastify/dist/ReactToastify.css'
 import type { ReactElement, ReactNode } from 'react'

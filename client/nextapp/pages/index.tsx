@@ -1,3 +1,6 @@
+/*
+  Currently the user is immediately redirected to the flights view
+*/
 import type { GetStaticProps } from 'next'
 import { Layout } from '~/modules/Layouts/Layout'
 
@@ -13,7 +16,7 @@ const Index = ({}) => {
                       justify-center
                       text-xl`}
         >
-          Welcome to SearchWing's log viewer
+          {`Welcome to SearchWing's log viewer`}
         </div>
       </Layout>
     </>

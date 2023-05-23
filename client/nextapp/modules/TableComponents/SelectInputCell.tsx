@@ -1,6 +1,6 @@
 import React, { memo, useState, useEffect } from 'react'
 import clsx from 'clsx'
-import { useFormContext, UseFormReturn, FieldValues } from 'react-hook-form'
+import { useFormContext, type UseFormReturn, type FieldValues } from 'react-hook-form'
 import Tippy from '@tippyjs/react'
 
 type SelectInputCellProps = {
@@ -22,7 +22,6 @@ const Select = memo(
     options,
     defaultValue = '',
     getValues,
-    required,
     hasNoDeleteValue,
     headerName,
     isForeignKeyPicker,
@@ -33,7 +32,7 @@ const Select = memo(
       if (getValues(name) === '') {
         setValue('')
       }
-    }, [getValues(name)])
+    }, [getValues, name])
 
     return (
       <div
@@ -50,7 +49,7 @@ const Select = memo(
         >
           <div className="w-full">
             <select
-              {...register(name as `${string}` | `${string}.${string}` | `${string}.${number}`, {
+              {...register(name, {
                 onChange: (e) => {
                   setValue(
                     isForeignKeyPicker && e.target.value
@@ -124,6 +123,8 @@ const Select = memo(
   },
   (prevProps, nextProps) => prevProps.formState.isDirty === nextProps.formState.isDirty,
 )
+
+Select.displayName = 'Select'
 
 export const SelectInputCell = ({
   name,

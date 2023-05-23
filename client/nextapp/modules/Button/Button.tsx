@@ -4,7 +4,7 @@ import NextLink from 'next/link'
 
 export type ButtonStyle = 'Main' | 'Secondary' | 'Tertiary' | 'Link'
 
-export type Props = {
+export type ButtonProps = {
   children?: React.ReactNode | JSX.Element
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
   className?: string
@@ -29,7 +29,7 @@ export const Button = ({
   isSpecial,
   href = '',
   ...rest
-}: Props) => {
+}: ButtonProps) => {
   const getStyleClassesButton = (buttonStyle: ButtonStyle) => {
     switch (buttonStyle) {
       case 'Main':

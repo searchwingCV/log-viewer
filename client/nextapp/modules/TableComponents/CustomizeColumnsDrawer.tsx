@@ -1,7 +1,7 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useCallback } from 'react'
 import { animated, useSpring } from '@react-spring/web'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
-import { ColumnInstance } from 'react-table'
+import type { ColumnInstance } from 'react-table'
 import { useQueryClient, useQuery } from '@tanstack/react-query'
 import CircleIconButton from '~/modules/CircleIconButton'
 
@@ -30,9 +30,9 @@ export const CustomizeOrder = ({ allColumns, setColumnOrder }: CustomizeOrderPro
     >
       <DragDropContext
         onDragStart={() => {
-          currentColOrder.current = allColumns.map((o, i) => o.id)
+          currentColOrder.current = allColumns.map((o) => o.id)
         }}
-        onDragEnd={(dragUpdateObj, b) => {
+        onDragEnd={(dragUpdateObj) => {
           const colOrder = [...currentColOrder.current]
           const sIndex = dragUpdateObj.source.index
           const dIndex = dragUpdateObj.destination && dragUpdateObj.destination.index
@@ -45,11 +45,11 @@ export const CustomizeOrder = ({ allColumns, setColumnOrder }: CustomizeOrderPro
         }}
       >
         <Droppable droppableId="droppable">
-          {(provided, snapshot) => (
+          {(provided) => (
             <div {...provided.droppableProps} ref={provided.innerRef}>
               {allColumns.map((item, index) => (
-                <Draggable draggableId={item.id} index={index}>
-                  {(provided, snapshot) => (
+                <Draggable draggableId={item.id} index={index} key={`${item.id}-${index}`}>
+                  {(provided) => (
                     <div
                       className="py-1"
                       ref={provided.innerRef}
@@ -92,11 +92,11 @@ export const CustomizeColumnsDrawer = ({
 
   const queryClient = useQueryClient()
 
-  const closeDrawer = () => {
+  const closeDrawer = useCallback(() => {
     queryClient.setQueryData<boolean>([drawerKey], () => {
       return false
     })
-  }
+  }, [drawerKey, queryClient])
 
   const slideX = useSpring({
     transform: isExtended ? 'translate3d(0px,0,0)' : `translate3d(-280px,0,0)`,
@@ -119,7 +119,7 @@ export const CustomizeColumnsDrawer = ({
     return () => {
       document.removeEventListener('click', handleClick)
     }
-  }, [ref])
+  }, [ref, closeDrawer])
 
   return (
     <animated.div

@@ -1,7 +1,7 @@
-import { FieldValues, FieldErrors, UseFormSetValue, PathValue, Path } from 'react-hook-form'
+import type { FieldValues, FieldErrors, UseFormSetValue, PathValue, Path } from 'react-hook-form'
 import { ErrorMessage } from '@hookform/error-message'
-import Dropzone, { Accept } from 'react-dropzone'
-import { ChangeEventHandler } from 'react'
+import Dropzone, { type Accept } from 'react-dropzone'
+import type { ChangeEventHandler } from 'react'
 import Button from '../Button'
 
 export interface FileInputProps {

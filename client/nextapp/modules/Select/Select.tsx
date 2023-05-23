@@ -22,11 +22,8 @@ type SelectProps = {
 
 export const Select = ({
   children,
-  name,
   placeholder,
-  className,
   options,
-  type = 'text',
   disabled = false,
   defaultValue,
   onSetValue,

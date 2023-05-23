@@ -1,7 +1,7 @@
 import React, { memo, useState } from 'react'
 import clsx from 'clsx'
 import Tippy from '@tippyjs/react'
-import { useFormContext, UseFormReturn, FieldValues } from 'react-hook-form'
+import { useFormContext, type UseFormReturn, type FieldValues } from 'react-hook-form'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { format, parseISO, isValid } from 'date-fns'
 
@@ -44,7 +44,7 @@ const Input = memo(
           <>
             <input
               type={'date'}
-              {...register(name as `${string}` | `${string}.${string}` | `${string}.${number}`, {
+              {...register(name, {
                 onChange: (e) => {
                   if (e.target.value === defaultValue) {
                     setNewValue('')
@@ -167,6 +167,8 @@ const Input = memo(
     return prevProps.formState.isDirty === nextProps.formState.isDirty
   },
 )
+
+Input.displayName = 'DateInput'
 
 export const DateInputCell = ({
   name,

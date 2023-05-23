@@ -5,7 +5,13 @@ import * as React from 'react'
 import { useTranslation } from 'next-i18next'
 import clsx from 'clsx'
 import { ErrorMessage } from '@hookform/error-message'
-import { RegisterOptions, UseFormRegister, Path, FieldErrors, FieldValues } from 'react-hook-form'
+import type {
+  RegisterOptions,
+  UseFormRegister,
+  Path,
+  FieldErrors,
+  FieldValues,
+} from 'react-hook-form'
 
 export type InputProps = {
   children?: React.ReactNode
@@ -39,21 +45,17 @@ export const InputReactHookForm = <TFormValues extends FieldValues>({
   autoComplete,
   disabled,
   placeholder,
-  classNameInputELement = '',
   classNameInputContainer = '',
   classNameInputWrapper = '',
   register,
   rules,
   defaultValue = '',
-  hasInitialValue,
   type,
   ...rest
 }: FormInputProps<TFormValues>) => {
-  const hasError = !!errors?.[name]
   const { t } = useTranslation()
 
   //To ensure autofilled value is detected, animation on autofill-pseudo element is set up
-  const [isAutofillOnMountActive, setIsAutofillOnMountActive] = React.useState(false)
   const [value, setValue] = React.useState(defaultValue)
 
   return (
@@ -69,7 +71,6 @@ export const InputReactHookForm = <TFormValues extends FieldValues>({
           type={type}
           onAnimationStart={(e) => {
             if ((e.target as HTMLInputElement).value) {
-              setIsAutofillOnMountActive(true)
               setValue((e.target as HTMLInputElement).value)
             }
           }}
@@ -103,14 +104,12 @@ export const InputReactHookForm = <TFormValues extends FieldValues>({
           )}
           onFocus={(e) => {
             setValue(e.target.value)
-            setIsAutofillOnMountActive(false)
           }}
           {...rest}
           {...(register &&
             register(name, {
               onChange: (e) => {
                 setValue(e.target.value)
-                setIsAutofillOnMountActive(false)
               },
 
               ...(rules || {}),

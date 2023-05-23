@@ -1,5 +1,5 @@
 import { format, parseISO, isValid, intervalToDuration } from 'date-fns'
-import { Column } from 'react-table'
+import type { Column } from 'react-table'
 import { FlightRating, FlightPurpose } from '@schema'
 import {
   TextInputCell,
@@ -7,12 +7,12 @@ import {
   determineWidth,
   TippyValueWrapper,
 } from '~/modules/TableComponents'
-import { FlightSerializer } from '@schema'
+import { type TableFlightSerializer } from './FlightTableOverView'
 
 export const flightColumns = (
   missionOptions?: { name: string; value: number }[],
   droneOptions?: { name: string; value: number }[],
-): Column<FlightSerializer>[] => [
+): Column<TableFlightSerializer>[] => [
   {
     Header: 'Flight Id',
     accessor: 'id',
@@ -30,7 +30,7 @@ export const flightColumns = (
         return props.row.values.fkDrone
       }
       if (droneOptions && droneOptions.length) {
-        const fkNumber = props.row.values.fkDrone
+        const fkNumber = props.row.values.fkDrone.split('- ').pop()
 
         return (
           <div>
@@ -39,9 +39,9 @@ export const flightColumns = (
               headerName={props.column.Header}
               name={`fkDrone-${props.row.values.id}-${props.row.index}`}
               options={droneOptions}
-              defaultValue={fkNumber || undefined}
+              defaultValue={parseInt(fkNumber) || undefined}
               required
-              //hasNoDeleteValue
+              hasNoDeleteValue
             />
           </div>
         )
@@ -62,7 +62,7 @@ export const flightColumns = (
         return props.row.values.fkMission
       }
       if (missionOptions && missionOptions.length) {
-        const fkNumber = props.row.values?.fkMission
+        const fkNumber = props.row.values?.fkMission?.split('- ').pop()
 
         return (
           <SelectInputCell
@@ -70,8 +70,8 @@ export const flightColumns = (
             headerName={props.column.Header}
             name={`fkMission-${props.row.values.id}-${props.row.index}`}
             options={missionOptions}
-            defaultValue={fkNumber || undefined}
-            //hasNoDeleteValue
+            defaultValue={parseInt(fkNumber) || undefined}
+            hasNoDeleteValue
           />
         )
       }
@@ -126,7 +126,7 @@ export const flightColumns = (
   },
 
   {
-    Header: 'Location',
+    Header: 'Location (not nullable)',
     accessor: 'location',
     Aggregated: () => {
       return null
@@ -141,6 +141,7 @@ export const flightColumns = (
           headerName={props.column.Header}
           name={`location-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.location}
+          hasNoDeleteValue
         />
       )
     },
@@ -196,7 +197,7 @@ export const flightColumns = (
             { name: 'Yes', value: true },
             { name: 'No', value: false },
           ]}
-          //hasNoDeleteValue
+          hasNoDeleteValue
           defaultValue={
             props.row.values.droneNeedsRepair === true
               ? true

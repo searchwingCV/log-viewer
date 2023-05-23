@@ -1,6 +1,4 @@
-import NextLink from 'next/link'
 import Link from 'next/link'
-import clsx from 'clsx'
 
 /**
  * Turns an href like produkte/orthesen into

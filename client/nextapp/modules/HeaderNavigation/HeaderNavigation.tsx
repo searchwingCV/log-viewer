@@ -61,6 +61,7 @@ export const HeaderNavigation = ({ isHeaderMinimalist }: HeaderNavigationProps) 
                         text-white`}
             //TODO: Link to "/"" as soon as the index page contains useful content
             href="/flights"
+            isWhite={!isHeaderMinimalist}
           >
             Log Viewer
           </Link>

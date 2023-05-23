@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
-import { useTranslation } from 'next-i18next'
-import CircleIconButton from '~/modules/CircleIconButton'
 import { useRouter } from 'next/router'
+import CircleIconButton from '~/modules/CircleIconButton'
 
 type TablePaginationProps = {
   pageSize: number
@@ -12,23 +11,25 @@ type TablePaginationProps = {
 }
 
 export const Pagination = ({
-  pageSize,
   pageCount,
   pageIndex,
   pageOptions,
   totalNumber,
 }: TablePaginationProps) => {
-  const { t } = useTranslation()
   const router = useRouter()
   const { page: queryPage, pagesize: queryPageSize } = router.query
 
   useEffect(() => {
-    if (!router.asPath.includes('page') && !router.asPath.includes('pagesize')) {
-      router.push({ query: { page: 1, pagesize: '10' } }, undefined, {
-        shallow: true,
-      })
+    const addPageParams = async () => {
+      if (!router.asPath.includes('page') && !router.asPath.includes('pagesize')) {
+        await router.push({ query: { page: 1, pagesize: '10' } }, undefined, {
+          shallow: true,
+        })
+      }
     }
-  }, [queryPageSize, queryPage])
+
+    addPageParams().catch(console.error)
+  }, [queryPageSize, queryPage, router])
 
   return (
     <div
@@ -99,13 +100,13 @@ export const Pagination = ({
         />
       </span>
       <span className="ml-4">
-        {t('Page')}
+        Page
         <span className="mx-2">
           {pageIndex + 1} of {pageOptions.length}
         </span>
       </span>
       <span>
-        <span className="mr-2">{`| ${t('Go to page')}:   `}</span>
+        <span className="mr-2">{`| Go to page`} </span>
         <input
           max={pageCount}
           type="number"

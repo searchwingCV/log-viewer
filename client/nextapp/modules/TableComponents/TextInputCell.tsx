@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useState } from 'react'
 import clsx from 'clsx'
-import { useFormContext, UseFormReturn, FieldValues } from 'react-hook-form'
+import { useFormContext, type UseFormReturn, type FieldValues } from 'react-hook-form'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Tippy from '@tippyjs/react'
 
@@ -11,6 +11,7 @@ type TextInputCellProps = {
   min?: number
   max?: number
   headerName: string
+  hasNoDeleteValue?: boolean
 }
 
 interface InputProps extends UseFormReturn<FieldValues, any>, TextInputCellProps {}
@@ -26,6 +27,7 @@ const Input = memo(
     min,
     max,
     headerName,
+    hasNoDeleteValue,
   }: InputProps) => {
     const [newValue, setNewValue] = useState(getValues(name))
 
@@ -33,7 +35,7 @@ const Input = memo(
       if (getValues(name) === '') {
         setNewValue('')
       }
-    }, [getValues(name)])
+    }, [getValues, name])
 
     return (
       <div
@@ -58,7 +60,7 @@ const Input = memo(
               min={min}
               max={max}
               type={type || 'text'}
-              {...register(name as `${string}` | `${string}.${string}` | `${string}.${number}`, {
+              {...register(name, {
                 onChange: (e) => {
                   if (e.target.value === defaultValue) {
                     setNewValue('')
@@ -94,10 +96,10 @@ const Input = memo(
           </div>
         </Tippy>
 
-        {defaultValue !== '' ? (
+        {defaultValue !== '' && !hasNoDeleteValue ? (
           <button
             onClick={() => {
-              setValue(name, 'delete')
+              setValue(name, 'delete', { shouldDirty: true })
               setNewValue('delete')
             }}
             type="button"
@@ -144,6 +146,8 @@ const Input = memo(
   },
 )
 
+Input.displayName = 'Input'
+
 export const TextInputCell = ({
   name,
   defaultValue,
@@ -151,6 +155,7 @@ export const TextInputCell = ({
   min,
   max,
   headerName,
+  hasNoDeleteValue,
 }: TextInputCellProps) => {
   const methods = useFormContext()
 
@@ -163,6 +168,7 @@ export const TextInputCell = ({
       min={min}
       max={max}
       headerName={headerName}
+      hasNoDeleteValue={hasNoDeleteValue}
     />
   )
 }

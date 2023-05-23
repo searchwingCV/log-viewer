@@ -2,8 +2,8 @@ import { useRouter } from 'next/router'
 import clsx from 'clsx'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useQuery } from '@tanstack/react-query'
-import { LogOverallData } from '@schema'
-import database, { DexieLogOverallData } from '@idbSchema'
+import type { LogOverallData } from '@schema'
+import database, { type DexieLogOverallData } from '@idbSchema'
 import {
   PlotPropsDrawer,
   LineChartComponent,
@@ -16,9 +16,7 @@ export type FlightDetailViewProps = {
 
 export const FlightDetailView = ({ logOverallData }: FlightDetailViewProps) => {
   const router = useRouter()
-  const { data: isExtended } = useQuery([PLOT_DRAWER_EXTENDED], () => {
-    return true
-  })
+
   const { id } = router.query
 
   const overallData = useLiveQuery(() =>

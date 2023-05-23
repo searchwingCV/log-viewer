@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import type { GetServerSideProps } from 'next'
 import { QueryClient, dehydrate } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
-import { getMissions, ALL_MISSIONS_KEY, fetchAllMissionsQuery } from '~/api/mission/getMissions'
+import { getMissions, ALL_MISSIONS_KEY, useFetchAllMissionsQuery } from '~/api/mission/getMissions'
 import { Layout } from '~/modules/Layouts/Layout'
 import MissionTableOverview from '~/views/MissionTableOverview'
 import type { NextPageWithLayout } from './_app'
@@ -12,16 +12,19 @@ const MissionOverviewPage: NextPageWithLayout = () => {
 
   const { page: queryPage, pagesize: queryPageSize, backFromAddForm } = router.query
 
-  const { data, refetch } = fetchAllMissionsQuery(
+  const { data, refetch } = useFetchAllMissionsQuery(
     parseInt(queryPage as string) || 1,
     parseInt(queryPageSize as string) || 10,
   )
 
   useEffect(() => {
-    if (backFromAddForm) {
-      refetch()
+    const refetchData = async () => {
+      await refetch()
     }
-  }, [backFromAddForm])
+    if (backFromAddForm) {
+      refetchData().catch((e) => console.error(e))
+    }
+  }, [backFromAddForm, refetch])
 
   if (!data || !data.items) {
     return null

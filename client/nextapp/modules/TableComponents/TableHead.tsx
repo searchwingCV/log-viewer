@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import clsx from 'clsx'
-import { HeaderGroup, ColumnInstance } from 'react-table'
+import type { HeaderGroup, ColumnInstance } from 'react-table'
 
 type TableHeadProps = {
   headerGroups: HeaderGroup<any>[]
@@ -25,15 +25,15 @@ export const TableHead = ({
 
   return (
     <thead className="w-full">
-      {headerGroups.map((headerGroup, index) => {
+      {headerGroups.map((headerGroup) => {
         const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps()
         return (
           <DragDropContext
             onDragStart={() => {
-              currentColOrder.current = allColumns.map((o, i) => o.id)
+              currentColOrder.current = allColumns.map((o) => o.id)
             }}
             key={key}
-            onDragEnd={(dragUpdateObj, b) => {
+            onDragEnd={(dragUpdateObj) => {
               const colOrder = [...currentColOrder.current]
               const sIndex = dragUpdateObj.source.index
               const dIndex = dragUpdateObj.destination && dragUpdateObj.destination.index
@@ -84,7 +84,7 @@ export const TableHead = ({
                         )}
                       >
                         <Draggable key={column.id} draggableId={column.id} index={index}>
-                          {(provided, snapshot) => (
+                          {(provided) => (
                             <div
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}

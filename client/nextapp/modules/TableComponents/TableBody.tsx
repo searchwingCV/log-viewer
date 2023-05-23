@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { TableBodyPropGetter, TableBodyProps as ReactTableBodyProps, Row } from 'react-table'
+import type { TableBodyPropGetter, TableBodyProps as ReactTableBodyProps, Row } from 'react-table'
 
 export type TestProps<TColumnProps extends object> = {
   getTableBodyProps: (

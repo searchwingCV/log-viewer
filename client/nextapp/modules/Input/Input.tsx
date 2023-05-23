@@ -24,18 +24,15 @@ export type InputProps = {
 
 export const Input = ({
   required,
-  name,
   maxLength,
   autoComplete,
   disabled,
   placeholder,
   classNameInputContainer = '',
   defaultValue = '',
-  hasInitialValue,
   onChangeInput,
   hasResetButton,
   classNameResetButtonContainer,
-  ...rest
 }: InputProps) => {
   const [value, setValue] = React.useState(defaultValue)
 

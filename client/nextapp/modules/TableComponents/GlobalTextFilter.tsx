@@ -3,7 +3,11 @@ import { useTranslation } from 'next-i18next'
 import { useAsyncDebounce } from 'react-table'
 import Input from 'modules/Input'
 
-export const GlobalTextFilter = ({ globalFilter, setGlobalFilter }: any) => {
+export type GlobalTextFilterProps = {
+  globalFilter: string
+  setGlobalFilter: (filterValue: string) => void
+}
+export const GlobalTextFilter = ({ globalFilter, setGlobalFilter }: GlobalTextFilterProps) => {
   const { t } = useTranslation()
   const [value, setValue] = useState(globalFilter)
   const onChange = useAsyncDebounce((value) => {

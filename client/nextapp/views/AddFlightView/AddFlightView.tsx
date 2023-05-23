@@ -1,12 +1,10 @@
 import { useState } from 'react'
-import { useRouter } from 'next/router'
 import { animated, useSpring } from '@react-spring/web'
 import { useForm, Controller } from 'react-hook-form'
-import type { AxiosError } from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 import { pickBy } from 'lodash'
 import { useMutation, useQueries } from '@tanstack/react-query'
-import { FlightRating, FlightPurpose, CreateFlightSerializer, AllowedFiles } from '@schema'
+import { FlightRating, FlightPurpose, type CreateFlightSerializer, AllowedFiles } from '@schema'
 import Button from '~/modules/Button'
 import { getDrones, ALL_DRONES_KEY } from '~/api/drone/getDrones'
 import { getMissions, ALL_MISSIONS_KEY } from '~/api/mission/getMissions'
@@ -42,7 +40,6 @@ export const determineFileType = (file: File) => {
 }
 
 export const AddFlightView = () => {
-  const router = useRouter()
   const goToLastTableName = useGoToLastTablePage({ tableName: 'flights' })
 
   const [hasLogFile, setHasLogFile] = useState(false)
@@ -112,8 +109,8 @@ export const AddFlightView = () => {
         }
       }
     },
-    onError: async (data: AxiosError) => {
-      toast('error submitting meta data' as string, {
+    onError: async (error) => {
+      toast(`error submitting meta data ${error}`, {
         type: 'error',
         position: toast.POSITION.BOTTOM_CENTER,
       })
@@ -123,7 +120,7 @@ export const AddFlightView = () => {
   })
 
   const putFile = useMutation(putLogFile, {
-    onSuccess: async (data) => {
+    onSuccess: async () => {
       toast('Log file for new flight submitted', {
         type: 'success',
         position: toast.POSITION.BOTTOM_CENTER,
@@ -136,8 +133,8 @@ export const AddFlightView = () => {
       }
     },
 
-    onError: async (data: AxiosError) => {
-      toast('error submitting file' as string, {
+    onError: async (error) => {
+      toast(`error submitting meta data ${error}`, {
         type: 'error',
         position: toast.POSITION.BOTTOM_CENTER,
       })
@@ -268,7 +265,7 @@ export const AddFlightView = () => {
                 //     'File must be a MAVLink binary log file with .bin or .log extensions',
                 // },
               }}
-              render={({ field: { onChange, onBlur }, fieldState }) => (
+              render={() => (
                 <FileUpload<AddFlightForm>
                   errors={errors}
                   setValue={setValue}

@@ -1,7 +1,7 @@
 
 
 import axios from "axios";
-import { CreateDroneSerializer, DroneSerializer } from '@schema'
+import type { CreateDroneSerializer, DroneSerializer } from '@schema'
 
 
 export const postDrone = async (drone: CreateDroneSerializer) => {

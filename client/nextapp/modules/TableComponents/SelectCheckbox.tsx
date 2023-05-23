@@ -23,3 +23,5 @@ export const SelectCheckbox = React.forwardRef<HTMLInputElement, CheckboxType>(
     )
   },
 )
+
+SelectCheckbox.displayName = 'SelectCheckbox'

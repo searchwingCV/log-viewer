@@ -1,7 +1,6 @@
 import { format, parseISO, isValid } from 'date-fns'
-import { Column } from 'react-table'
-
-import { MissionSerializer } from '@schema'
+import type { Column } from 'react-table'
+import type { MissionSerializer } from '@schema'
 import {
   DateInputCell,
   TextInputCell,

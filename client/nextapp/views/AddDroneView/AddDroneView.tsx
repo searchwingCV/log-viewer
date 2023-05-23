@@ -1,8 +1,7 @@
 import { useForm } from 'react-hook-form'
-import type { AxiosError } from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 import { useMutation } from '@tanstack/react-query'
-import { CreateDroneSerializer, DroneStatus } from '@schema'
+import { type CreateDroneSerializer, DroneStatus } from '@schema'
 import Button from '~/modules/Button'
 import { InputReactHookForm } from '~/modules/Input/InputReactHookForm'
 import { SelectReactHookForm } from '~/modules/Select/SelectReactHookForm'
@@ -23,7 +22,7 @@ export const AddDroneView = () => {
   })
 
   const addDrone = useMutation(postDrone, {
-    onSuccess: async (data) => {
+    onSuccess: async () => {
       toast('Data changed.', {
         type: 'success',
       })
@@ -31,9 +30,9 @@ export const AddDroneView = () => {
       await reset()
       await goToLastTableName()
     },
-    onError: async (data: AxiosError) => {
+    onError: async (error) => {
       //TODO: better error messages
-      toast('error submitting data' as string, {
+      toast(`error submitting data ${error}`, {
         type: 'error',
       })
 
@@ -42,7 +41,7 @@ export const AddDroneView = () => {
     },
   })
 
-  const onSubmit = handleSubmit(async (data, e) => {
+  const onSubmit = handleSubmit((data, e) => {
     e?.preventDefault()
     addDrone.mutate(data)
   })

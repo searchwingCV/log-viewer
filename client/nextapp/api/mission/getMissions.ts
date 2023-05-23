@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import { Page_MissionSerializer_ } from '@schema'
+import type { Page_MissionSerializer_ } from '@schema'
 
 export const ALL_MISSIONS_KEY = "ALL_MISSIONS"
 
@@ -15,7 +15,7 @@ export const getMissions = async (page: number, size: number) => {
     return data
 }
 
-export const fetchAllMissionsQuery = (page: number, size: number) =>
+export const useFetchAllMissionsQuery = (page: number, size: number) =>
     useQuery<Page_MissionSerializer_>([ALL_MISSIONS_KEY, page, size], () =>
         getMissions(page, size),
         {
