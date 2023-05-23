@@ -52,11 +52,10 @@ services:
       context: ./client
     volumes:
       - ./client/nextapp:/app
-      - ./client/nextapp/node_modules:/app/node_modules
     depends_on:
       - server
     ports:
-      - 4000:4000
+      - 3000:3000
     environment:
       NEXT_PUBLIC_API_URL: http://server
 
