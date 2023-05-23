@@ -71,6 +71,7 @@ export const flightColumns = (
             name={`fkMission-${props.row.values.id}-${props.row.index}`}
             options={missionOptions}
             defaultValue={parseInt(fkNumber) || undefined}
+            hasNoDeleteValue
           />
         )
       }
