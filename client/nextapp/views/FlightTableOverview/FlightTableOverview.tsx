@@ -1,22 +1,18 @@
 //TODO: Refactor code of FlightTableOverview, MissionTableOverview & DroneTableOverview to avoid duplicate code
 import 'regenerator-runtime/runtime'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useRouter } from 'next/router'
-import clsx from 'clsx'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
-import { ToastContainer, toast } from 'react-toastify'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'react-toastify'
 import { useTranslation } from 'next-i18next'
-import { animated, useSpring } from '@react-spring/web'
-
 import {
   useTable,
-  Column,
+  type Column,
   usePagination,
   useRowSelect,
-  TableInstance,
-  UsePaginationInstanceProps,
-  UsePaginationState,
+  type TableInstance,
+  type UsePaginationInstanceProps,
+  type UsePaginationState,
   useGroupBy,
   useSortBy,
   useExpanded,
@@ -25,23 +21,19 @@ import {
   useColumnOrder,
 } from 'react-table'
 import { FormProvider, useForm } from 'react-hook-form'
-import Select from 'modules/Select'
 import Button from 'modules/Button'
 import { ALl_FLIGHTS_KEY } from '~/api/flight/getFlights'
-import { FlightSerializer, FlightUpdate } from '@schema'
+import type { FlightSerializer, FlightUpdate } from '@schema'
 import { patchFlights } from '~/api/flight/patchFlights'
 
 import {
-  GlobalTextFilter,
-  Pagination,
   SelectCheckbox,
   ColumnFilter,
   TableBody,
   TableHead,
-  CustomizeColumnsDrawer,
-  ToggleCustomizeOrder,
+  TableFrame,
   DrawerExtensionTypes,
-} from '~/modules/TableComponents'
+} from 'modules/TableComponents'
 
 import { flightColumns } from './flightColumns'
 
@@ -49,6 +41,12 @@ export type PaginationTableInstance<T extends object> = TableInstance<T> &
   UsePaginationInstanceProps<T> & {
     state: UsePaginationState<T>
   }
+
+//we need an adjusted Type because the fk keys should be represented by a string to be more verbose by the table
+export type TableFlightSerializer = Omit<FlightSerializer, 'fkMission' | 'fkDrone'> & {
+  fkMission: string | undefined
+  fkDrone: string | undefined
+}
 
 export const FlightTableOverview = ({
   data,
@@ -64,56 +62,50 @@ export const FlightTableOverview = ({
   const router = useRouter()
   const queryClient = useQueryClient()
 
-  const parseVerboseNamesForForeignKeys = (data: FlightSerializer[]) => {
-    const dataCopy = [...data]
+  const parseVerboseNamesForForeignKeys = useCallback(
+    (data: FlightSerializer[]) => {
+      const dataCopy = [...data]
 
-    const parsedData = dataCopy.map((flight) => {
-      const { fkDrone, fkMission, ...rest } = flight
+      const parsedData = dataCopy.map((flight) => {
+        const { fkDrone, fkMission, ...rest } = flight
 
-      const verboseDroneName =
-        droneOptions?.find((drone) => drone.value === fkDrone)?.name || fkDrone
-      const verboseMissionName = missionOptions?.find(
-        (mission) => mission.value === fkMission,
-      )?.name
+        const verboseDroneName =
+          droneOptions?.find((drone) => drone.value === fkDrone)?.name || fkDrone
+        const verboseMissionName = missionOptions?.find(
+          (mission) => mission.value === fkMission,
+        )?.name
 
-      return { fkDrone: verboseDroneName, fkMission: verboseMissionName, ...rest }
-    })
+        return { fkDrone: verboseDroneName, fkMission: verboseMissionName, ...rest }
+      })
 
-    return parsedData
-  }
+      return parsedData
+    },
 
-  const verboseData = React.useMemo(() => {
+    [droneOptions, missionOptions],
+  )
+
+  //TODO: Figure out why TableFlightSerializer[] does not work as a type
+  const verboseData: any = useMemo(() => {
     return parseVerboseNamesForForeignKeys(data)
-  }, [data])
+  }, [data, parseVerboseNamesForForeignKeys])
 
-  const { data: sideNavExtended } = useQuery([DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED], () => {
-    return false
-  })
-
-  const slideX = useSpring({
-    transform: sideNavExtended ? 'translate3d(20px,0,0)' : `translate3d(-240px,0,0)`,
-    minWidth: sideNavExtended ? 'calc(100vw - 270px)' : `calc(100vw - 0px)`,
-  })
   const { pagesize: queryPageSize } = router.query
 
   const updateFlights = useMutation(patchFlights, {
-    onSettled: () => {},
-    onSuccess: (data) => {
+    onSuccess: async () => {
       toast('Data changed.', {
         type: 'success',
         position: toast.POSITION.BOTTOM_CENTER,
       })
       methods.reset()
 
-      queryClient.invalidateQueries([ALl_FLIGHTS_KEY])
+      await queryClient.invalidateQueries([ALl_FLIGHTS_KEY])
     },
-    onError: (data) => {
-      toast('Error submitting data.', {
+    onError: (error) => {
+      toast(`Error submitting data.${error}`, {
         type: 'error',
         position: toast.POSITION.BOTTOM_CENTER,
       })
-      //TODO: implement scrolling to input if error from be
-      //scrollInputIntoView(`input-${data[0]}`)
     },
   })
   //TODO: find type
@@ -132,12 +124,12 @@ export const FlightTableOverview = ({
   )
 
   const { t } = useTranslation()
-  const columns = useMemo<Column<FlightSerializer>[]>(
+  const columns = useMemo<Column<TableFlightSerializer>[]>(
     () => flightColumns(missionOptions, droneOptions),
-    [missionOptions, droneOptions, data],
+    [missionOptions, droneOptions],
   )
 
-  const onSubmit = methods.handleSubmit(async (formData) => {
+  const onSubmit = methods.handleSubmit((formData) => {
     const changedKeys = Object.keys(formData).filter((item) => formData[item] !== '')
     const changedIds = changedKeys.map((key) => key.split('-')[1])
     const changedFlights = data.filter((flight) => {
@@ -145,10 +137,25 @@ export const FlightTableOverview = ({
     })
 
     const newFlights: FlightUpdate[] = changedFlights.map((flight) => {
-      const keysBelongingToFlight = changedKeys.filter((key) => key.includes(flight.id.toString()))
+      const keysBelongingToFlight = changedKeys.filter((key) => {
+        const flightid = key.split('-')[1]
+        return flight.id.toString() === flightid
+      })
+
       const changedProps = keysBelongingToFlight
         .map((key) => {
-          return { [key.split('-')[0]]: formData[key] === 'delete' ? null : formData[key] }
+          return {
+            [key.split('-')[0]]:
+              formData[key] === 'delete'
+                ? null
+                : key.startsWith('fk') //fkKeys have to be numbers
+                ? parseInt(formData[key])
+                : formData[key] === 'true'
+                ? true
+                : formData[key] === 'false'
+                ? false
+                : formData[key],
+          }
         })
         .reduce((prev, cur) => {
           return { ...prev, ...cur }
@@ -156,13 +163,13 @@ export const FlightTableOverview = ({
 
       const { id } = flight
       const newFlight = { ...changedProps, id }
-
       return newFlight
     })
 
     if (!newFlights.length) {
       toast('No new data inserted', { type: 'error', position: toast.POSITION.BOTTOM_CENTER })
     } else {
+      console.log(newFlights)
       updateFlights.mutate(newFlights)
     }
   })
@@ -179,7 +186,6 @@ export const FlightTableOverview = ({
     setGlobalFilter,
     rows,
     setGroupBy,
-    preGlobalFilteredRows,
     allColumns,
     setColumnOrder,
     selectedFlatRows,
@@ -234,15 +240,7 @@ export const FlightTableOverview = ({
         ...columns,
       ])
     },
-  ) as PaginationTableInstance<FlightSerializer>
-
-  const scrollInputIntoView = (id: string) => {
-    var element = document.getElementById(id)
-
-    if (element) {
-      element.scrollIntoView()
-    }
-  }
+  ) as PaginationTableInstance<TableFlightSerializer>
 
   const goToDetailView = async () => {
     if (selectedFlatRows.length === 1) {
@@ -256,144 +254,85 @@ export const FlightTableOverview = ({
   }
 
   return (
-    <div
-      className={`flex-column
-                  flex
-                  min-h-screen
-                  pt-12`}
+    <TableFrame<TableFlightSerializer>
+      pageCount={pageCount}
+      pageSize={pageSize}
+      totalNumber={totalNumber}
+      pageOptions={pageOptions}
+      pageIndex={pageIndex}
+      tableType={'flight'}
+      drawerExtensionType={DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED}
+      groupByOptions={[
+        { name: 'None', value: '' },
+        { name: 'Pilot', value: 'pilot' },
+        { name: 'Mission Id', value: 'fkMission' },
+        { name: 'Drone Id', value: 'fkDrone' },
+      ]}
+      allColumns={allColumns}
+      setColumnOrder={setColumnOrder}
+      setGlobalFilter={setGlobalFilter}
+      globalFilter={globalFilter}
+      setGroupBy={setGroupBy}
     >
-      <ToastContainer />
-      <CustomizeColumnsDrawer
-        allColumns={allColumns}
-        setColumnOrder={setColumnOrder}
-        drawerKey={DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED}
-      />
-      <animated.div
-        className={clsx(`ml-side-drawer-width
-                          h-screen
-                          overflow-x-hidden
-                          px-12`)}
-        style={slideX}
-      >
-        <div
-          className={`relative
-                      mb-40
-                      pl-2
-                      pr-8
-                      pt-20
-                      pb-12`}
-        >
-          <div
-            className={`mb-8
-                        grid
-                        grid-cols-[minmax(700px,_1fr)_200px]
-                        grid-rows-2
-                        items-end
-                        gap-y-2 gap-x-8`}
-          >
-            <GlobalTextFilter
-              preGlobalFilteredRows={preGlobalFilteredRows}
-              globalFilter={globalFilter}
-              setGlobalFilter={setGlobalFilter}
-            />
-
-            <Select
-              name="groupby"
-              placeholder="Group by"
-              options={[
-                { name: 'None', value: '' },
-                { name: 'Pilot', value: 'pilot' },
-                { name: 'Mission Id', value: 'missionId' },
-              ]}
-              onSetValue={setGroupBy}
-              defaultValue="None"
-              hasResetButton={true}
-              resetButtonText={'Reset Group'}
-            />
+      <FormProvider {...methods}>
+        <form onSubmit={onSubmit}>
+          <div className="overflow-x-auto">
+            <table {...getTableProps()} className={`roundex-xl relative`}>
+              <TableHead
+                headerGroups={headerGroups}
+                allColumns={allColumns}
+                setColumnOrder={setColumnOrder}
+                hasLongHeaderNames
+              ></TableHead>
+              <TableBody<TableFlightSerializer>
+                getTableBodyProps={getTableBodyProps}
+                page={page}
+                prepareRow={prepareRow}
+                firstColumnAccessor={columns[0].accessor as string}
+                hasRecords={!!rows?.length}
+                selectedOriginalRows={selectedFlatRows
+                  ?.filter((item) => !item.isGrouped)
+                  ?.map((item) => {
+                    return { id: item.id, index: item.index }
+                  })}
+                numberOfRows={rows.length}
+              ></TableBody>
+            </table>
           </div>
-          <div className="flex">
-            <ToggleCustomizeOrder drawerKey={DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED} />
-            <div className="py-8 px-4">
-              <Button
-                isSpecial={true}
-                buttonStyle="Main"
-                className="w-[200px] px-6 py-4"
-                onClick={async () => {
-                  await router.push('/add/flight')
-                }}
-              >
-                <FontAwesomeIcon icon={'plus-circle'} height="32" className="scale-150" />
-                <span className="ml-3">Add new flight</span>{' '}
-              </Button>
-            </div>
-          </div>
-          <FormProvider {...methods}>
-            <form onSubmit={onSubmit}>
-              <div className="overflow-x-scroll">
-                <table {...getTableProps()} className={`roundex-xl`}>
-                  <TableHead
-                    headerGroups={headerGroups}
-                    allColumns={allColumns}
-                    setColumnOrder={setColumnOrder}
-                  ></TableHead>
-                  <TableBody<FlightSerializer>
-                    getTableBodyProps={getTableBodyProps}
-                    page={page}
-                    prepareRow={prepareRow}
-                    firstColumnAccessor={columns[0].accessor as string}
-                    hasRecords={!!rows?.length}
-                    selectedOriginalRows={selectedFlatRows
-                      ?.filter((item) => !item.isGrouped)
-                      ?.map((item) => {
-                        return { id: item.id, index: item.index }
-                      })}
-                    numberOfRows={rows.length}
-                  ></TableBody>
-                </table>
-              </div>
-              {selectedFlatRows.length ? (
-                <Button
-                  buttonStyle="Main"
-                  type="button"
-                  className={`sticky
+          {selectedFlatRows.length ? (
+            <Button
+              buttonStyle="Main"
+              type="button"
+              className={`sticky
                              left-[100vw]
-                             bottom-8
+                             bottom-20
                              w-[350px]
                              p-4`}
-                  isSpecial
-                  onClick={() => {
-                    goToDetailView()
-                  }}
-                >
-                  {t('Go to detail view')}
-                </Button>
-              ) : !groupBy.length || groupBy?.[0] === '' ? (
-                <Button
-                  disabled={!methods.formState.isDirty}
-                  buttonStyle="Main"
-                  type="submit"
-                  className={`sticky
+              isSpecial
+              onClick={async () => {
+                await goToDetailView()
+              }}
+            >
+              {t('Go to detail view')}
+            </Button>
+          ) : !groupBy.length || groupBy?.[0] === '' ? (
+            <Button
+              disabled={!methods.formState.isDirty}
+              buttonStyle="Main"
+              type="submit"
+              className={`sticky
                               left-[100vw]
-                              bottom-8
+                              bottom-20
                               w-[350px]
                               p-4`}
-                >
-                  {t('Submit Changes')}
-                </Button>
-              ) : (
-                <div className="min-h-[40px]"></div>
-              )}
-            </form>
-          </FormProvider>
-          <Pagination
-            pageSize={pageSize}
-            pageCount={pageCount}
-            pageIndex={pageIndex}
-            pageOptions={pageOptions}
-            totalNumber={totalNumber}
-          />
-        </div>
-      </animated.div>
-    </div>
+            >
+              {t('Submit Changes')}
+            </Button>
+          ) : (
+            <div className="min-h-[40px]"></div>
+          )}
+        </form>
+      </FormProvider>
+    </TableFrame>
   )
 }

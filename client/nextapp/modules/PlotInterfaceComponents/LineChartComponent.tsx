@@ -3,7 +3,7 @@
    only the LineChart component from recharts is used here,
    plots individual timeseries & custom plots
  */
-import { type ReactNode, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useRouter } from 'next/router'
 import useMedia from '@charlietango/use-media'

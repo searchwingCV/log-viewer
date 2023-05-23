@@ -1,9 +1,9 @@
-import { ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import HeaderNavigation from '../HeaderNavigation'
 
-export type Props = { children: ReactNode; isHeaderMinimalist?: boolean }
+export type LayoutProps = { children: ReactNode; isHeaderMinimalist?: boolean }
 
-export const Layout = ({ children, isHeaderMinimalist }: Props) => {
+export const Layout = ({ children, isHeaderMinimalist }: LayoutProps) => {
   return (
     <>
       <div

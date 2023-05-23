@@ -1,6 +1,6 @@
 import { useQueryClient, useQuery } from '@tanstack/react-query'
 import Button from 'modules/Button'
-import { DrawerExtensionTypes } from './CustomizeColumnsDrawer'
+import type { DrawerExtensionTypes } from './CustomizeColumnsDrawer'
 
 export const ToggleCustomizeOrder = ({ drawerKey }: { drawerKey: DrawerExtensionTypes }) => {
   const { data: isExtended } = useQuery([drawerKey], () => {
@@ -17,7 +17,7 @@ export const ToggleCustomizeOrder = ({ drawerKey }: { drawerKey: DrawerExtension
 
   return (
     <div
-      className="py-8
+      className="py-4
                 text-primary-white"
     >
       <Button
@@ -25,8 +25,8 @@ export const ToggleCustomizeOrder = ({ drawerKey }: { drawerKey: DrawerExtension
         type="button"
         buttonStyle="Main"
         className={`min-w-[250px]
-                    py-4
-                    px-6
+                    py-3
+                    px-2
                     `}
         onClick={() => handleToggleDrawer()}
       >

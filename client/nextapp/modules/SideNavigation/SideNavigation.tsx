@@ -6,8 +6,6 @@ import { useQueryClient, useQuery } from '@tanstack/react-query'
 import CircleIconButton from '~/modules/CircleIconButton'
 import { NavItem } from './components/NavItem'
 
-type Props = {}
-
 const navItemsPlaceholder = [
   { name: 'Speed', href: '/speed', iconName: 'eye' },
   { name: 'Data', href: '/data', iconName: 'file' },
@@ -23,7 +21,7 @@ const navItemsPlaceholder = [
 ]
 
 const DRAWER_EXTENDED = 'drawer-extended'
-export const SideNavigation = ({}: Props) => {
+export const SideNavigation = ({}) => {
   const { data: isExtended } = useQuery([DRAWER_EXTENDED], () => {
     return false
   })

@@ -1,12 +1,10 @@
 import type { ReactNode } from 'react'
 import clsx from 'clsx'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
+import type { IconProp } from '@fortawesome/fontawesome-svg-core'
 import LinkWrapper from 'modules/LinkWrapper'
 
-import { IconProp } from '@fortawesome/fontawesome-svg-core'
-
-export type Props = {
+export type LinkProps = {
   children: ReactNode
   href: string
   className?: string
@@ -29,7 +27,7 @@ export const Link = ({
   icon,
   isIconRight,
   isWhite,
-}: Props) => {
+}: LinkProps) => {
   if (!href) return null
 
   const getStyle = () =>

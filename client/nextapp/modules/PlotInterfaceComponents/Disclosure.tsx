@@ -6,13 +6,12 @@ import { Disclosure as HeadlessDisclosure } from '@headlessui/react'
 import clsx from 'clsx'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-export const DisclosurePanel = ({
-  children,
-  className,
-}: {
+export type DisclosurePanelProps = {
   children: React.ReactNode
   className?: string
-}) => {
+}
+
+export const DisclosurePanel = ({ children, className }: DisclosurePanelProps) => {
   return (
     <HeadlessDisclosure.Panel
       className={clsx(
@@ -29,7 +28,7 @@ export const DisclosurePanel = ({
   )
 }
 
-type DisclosureProps = {
+export type DisclosureProps = {
   buttonContent: React.ReactNode
   children: React.ReactNode
   isSpecialButton?: boolean //for marking a more accentuated accordion level

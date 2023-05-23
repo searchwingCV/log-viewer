@@ -1,4 +1,4 @@
-version: "3.3"
+version: '3.3'
 
 services:
   server:
@@ -13,7 +13,7 @@ services:
       - ./server:/searchwing
       - ./storage:/data/
     ports:
-      - "80:80"
+      - '80:80'
     depends_on:
       - db
     environment:
@@ -52,6 +52,7 @@ services:
       context: ./client
     volumes:
       - ./client/nextapp:/app
+      - ./client/nextapp/node_modules:/app/node_modules
     depends_on:
       - server
     ports:
@@ -69,15 +70,14 @@ services:
       POSTGRES_PASSWORD: searchwing
       POSTGRES_DB: searchwing
     ports:
-      - "5432:5432"
+      - '5432:5432'
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 30s
       timeout: 30s
       retries: 3
     volumes:
       - ./server/db:/docker-entrypoint-initdb.d/
-
 
   test-db:
     container_name: test-db
@@ -89,9 +89,9 @@ services:
       POSTGRES_PASSWORD: searchwing
       POSTGRES_DB: searchwing
     ports:
-      - "5431:5432"
+      - '5431:5432'
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 30s
       timeout: 30s
       retries: 3
@@ -106,7 +106,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: root
     ports:
-      - "5050:80"
+      - '5050:80'
 
   grafana:
     container_name: grafana
@@ -115,7 +115,7 @@ services:
     environment:
       GF_INSTALL_PLUGINS: grafana-clock-panel 1.0.1,grafana-simple-json-datasource
     ports:
-      - "3000:3000"
+      - '3000:3000'
 
   redis:
     container_name: redis
@@ -123,7 +123,7 @@ services:
     image: redis
     restart: always
     ports:
-      - "6379:6379"
+      - '6379:6379'
 
   redis-commander:
     container_name: redis-commander
@@ -131,9 +131,9 @@ services:
     image: rediscommander/redis-commander:latest
     restart: always
     environment:
-    - REDIS_HOSTS=local:redis:6379
+      - REDIS_HOSTS=local:redis:6379
     ports:
-    - "8081:8081"
+      - '8081:8081'
 
   flower:
     image: mher/flower:0.9.7
@@ -141,7 +141,7 @@ services:
     expose:
       - 5555
     ports:
-    - "5555:5555"
+      - '5555:5555'
     depends_on:
       - redis
 

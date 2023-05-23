@@ -15,7 +15,7 @@ export const determineWidth = (columnType: ColumnType) => {
         case 'text':
             return 'w-[100px]'
         case 'date':
-            return 'w-[120px]'
+            return 'w-[130px]'
         case 'dateInput':
             return 'w-[200px]'
         case 'textInputLong':

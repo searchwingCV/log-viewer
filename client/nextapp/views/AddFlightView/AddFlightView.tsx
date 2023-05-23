@@ -1,12 +1,10 @@
 import { useState } from 'react'
-import { useRouter } from 'next/router'
 import { animated, useSpring } from '@react-spring/web'
 import { useForm, Controller } from 'react-hook-form'
-import type { AxiosError } from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 import { pickBy } from 'lodash'
 import { useMutation, useQueries } from '@tanstack/react-query'
-import { FlightRating, FlightPurpose, CreateFlightSerializer, AllowedFiles } from '@schema'
+import { FlightRating, FlightPurpose, type CreateFlightSerializer, AllowedFiles } from '@schema'
 import Button from '~/modules/Button'
 import { getDrones, ALL_DRONES_KEY } from '~/api/drone/getDrones'
 import { getMissions, ALL_MISSIONS_KEY } from '~/api/mission/getMissions'
@@ -14,6 +12,7 @@ import { InputReactHookForm } from '~/modules/Input/InputReactHookForm'
 import { SelectReactHookForm } from '~/modules/Select/SelectReactHookForm'
 import { postFlight } from '~/api/flight/postFlight'
 import { putLogFile } from '~/api/flight/putLogFile'
+import { useGoToLastTablePage } from '@lib/hooks/useGoToLastTablePage'
 import FileUpload from '~/modules/FileUpload'
 
 interface AddFlightForm extends CreateFlightSerializer {
@@ -41,7 +40,8 @@ export const determineFileType = (file: File) => {
 }
 
 export const AddFlightView = () => {
-  const router = useRouter()
+  const goToLastTableName = useGoToLastTablePage({ tableName: 'flights' })
+
   const [hasLogFile, setHasLogFile] = useState(false)
   const [selectedLogFile, setSelectedLogFile] = useState<Blob[] | undefined>(undefined)
 
@@ -98,7 +98,7 @@ export const AddFlightView = () => {
       if (!hasLogFile) {
         await new Promise((resolve) => setTimeout(resolve, 2000))
 
-        await router.push('/flight-overview')
+        await goToLastTableName()
       } else {
         if (selectedLogFile) {
           putFile.mutate({
@@ -109,8 +109,8 @@ export const AddFlightView = () => {
         }
       }
     },
-    onError: async (data: AxiosError) => {
-      toast('error submitting meta data' as string, {
+    onError: async (error) => {
+      toast(`error submitting meta data ${error}`, {
         type: 'error',
         position: toast.POSITION.BOTTOM_CENTER,
       })
@@ -120,7 +120,7 @@ export const AddFlightView = () => {
   })
 
   const putFile = useMutation(putLogFile, {
-    onSuccess: async (data) => {
+    onSuccess: async () => {
       toast('Log file for new flight submitted', {
         type: 'success',
         position: toast.POSITION.BOTTOM_CENTER,
@@ -129,12 +129,12 @@ export const AddFlightView = () => {
       await reset()
       if (hasLogFile) {
         await new Promise((resolve) => setTimeout(resolve, 2000))
-        await router.push('/flight-overview')
+        await goToLastTableName()
       }
     },
 
-    onError: async (data: AxiosError) => {
-      toast('error submitting file' as string, {
+    onError: async (error) => {
+      toast(`error submitting meta data ${error}`, {
         type: 'error',
         position: toast.POSITION.BOTTOM_CENTER,
       })
@@ -177,9 +177,6 @@ export const AddFlightView = () => {
           {missions ? (
             <SelectReactHookForm<AddFlightForm>
               register={register}
-              rules={{
-                required: 'Mission is required',
-              }}
               errors={errors}
               name="fkMission"
               options={missions}
@@ -199,27 +196,23 @@ export const AddFlightView = () => {
             name="pilot"
             register={register}
             errors={errors}
-            rules={{}}
             placeholder="Pilot"
           ></InputReactHookForm>
           <InputReactHookForm<AddFlightForm>
             name="observer"
             register={register}
-            rules={{}}
             errors={errors}
             placeholder="Observer"
           ></InputReactHookForm>
           <InputReactHookForm<AddFlightForm>
             name="notes"
             register={register}
-            rules={{}}
             errors={errors}
             placeholder="Notes"
           ></InputReactHookForm>
           <SelectReactHookForm<AddFlightForm>
             register={register}
             errors={errors}
-            rules={{}}
             name="droneNeedsRepair"
             options={[
               { name: 'Yes', value: 'yes' },
@@ -229,7 +222,6 @@ export const AddFlightView = () => {
           ></SelectReactHookForm>
           <SelectReactHookForm<AddFlightForm>
             register={register}
-            rules={{}}
             errors={errors}
             name="rating"
             options={(Object.keys(FlightRating) as Array<keyof typeof FlightRating>).map((key) => {
@@ -238,7 +230,6 @@ export const AddFlightView = () => {
             placeholder="Rating"
           ></SelectReactHookForm>
           <SelectReactHookForm<AddFlightForm>
-            rules={{}}
             register={register}
             options={(Object.keys(FlightPurpose) as Array<keyof typeof FlightPurpose>).map(
               (key) => {
@@ -274,7 +265,7 @@ export const AddFlightView = () => {
                 //     'File must be a MAVLink binary log file with .bin or .log extensions',
                 // },
               }}
-              render={({ field: { onChange, onBlur }, fieldState }) => (
+              render={() => (
                 <FileUpload<AddFlightForm>
                   errors={errors}
                   setValue={setValue}
@@ -288,7 +279,13 @@ export const AddFlightView = () => {
 
           <Button
             buttonStyle="Main"
-            className="absolute right-0 left-0 z-10 mt-12 h-16"
+            className={`absolute
+                        right-0
+                        left-0
+                        z-10
+                        mt-12
+                        h-16
+                        w-full`}
             type="submit"
           >
             Create new Flight

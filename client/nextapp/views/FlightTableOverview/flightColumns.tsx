@@ -1,17 +1,18 @@
-import { format, parseISO, isValid } from 'date-fns'
-import { Column } from 'react-table'
-import { FlightSerializer, FlightRating, FlightPurpose } from '@schema'
+import { format, parseISO, isValid, intervalToDuration } from 'date-fns'
+import type { Column } from 'react-table'
+import { FlightRating, FlightPurpose } from '@schema'
 import {
-  DateInputCell,
   TextInputCell,
   SelectInputCell,
   determineWidth,
+  TippyValueWrapper,
 } from '~/modules/TableComponents'
+import type { TableFlightSerializer } from './FlightTableOverview'
 
 export const flightColumns = (
   missionOptions?: { name: string; value: number }[],
   droneOptions?: { name: string; value: number }[],
-): Column<FlightSerializer>[] => [
+): Column<TableFlightSerializer>[] => [
   {
     Header: 'Flight Id',
     accessor: 'id',
@@ -29,15 +30,18 @@ export const flightColumns = (
         return props.row.values.fkDrone
       }
       if (droneOptions && droneOptions.length) {
-        const fkNumber = parseInt(props.row.values.fkDrone?.slice(-1))
+        const fkNumber = props.row.values.fkDrone.split('- ').pop()
 
         return (
           <div>
             <SelectInputCell
+              isForeignKeyPicker
+              headerName={props.column.Header}
               name={`fkDrone-${props.row.values.id}-${props.row.index}`}
               options={droneOptions}
-              defaultValue={fkNumber || undefined}
+              defaultValue={parseInt(fkNumber) || undefined}
               required
+              hasNoDeleteValue
             />
           </div>
         )
@@ -58,13 +62,16 @@ export const flightColumns = (
         return props.row.values.fkMission
       }
       if (missionOptions && missionOptions.length) {
-        const fkNumber = parseInt(props.row.values?.fkMission?.slice(-1))
+        const fkNumber = props.row.values?.fkMission?.split('- ').pop()
 
         return (
           <SelectInputCell
+            isForeignKeyPicker
+            headerName={props.column.Header}
             name={`fkMission-${props.row.values.id}-${props.row.index}`}
             options={missionOptions}
-            defaultValue={fkNumber || undefined}
+            defaultValue={parseInt(fkNumber) || undefined}
+            hasNoDeleteValue
           />
         )
       }
@@ -87,6 +94,7 @@ export const flightColumns = (
 
       return (
         <TextInputCell
+          headerName={props.column.Header}
           name={`pilot-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.pilot}
         />
@@ -108,6 +116,7 @@ export const flightColumns = (
 
       return (
         <TextInputCell
+          headerName={props.column.Header}
           name={`observer-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.observer}
         />
@@ -115,29 +124,9 @@ export const flightColumns = (
     },
     width: determineWidth('textInputSmall'),
   },
-  // {
-  //   Header: 'Description',
-  //   accessor: 'description',
-  //   Aggregated: () => {
-  //     return null
-  //   },
-  //   Cell: (props: any) => {
-  //     if (props.cell.isGrouped || props.onlyGroupedFlatRows.length) {
-  //       return <div>{props.row.values.description}</div>
-  //     }
-
-  //     return (
-  //       <TextInputCell
-  //         name={`description-${props.row.values.id}-${props.row.index}`}
-  //         defaultValue={props.row.values.description}
-  //       />
-  //     )
-  //   },
-  //   width: determineWidth('textInputLong'),
-  // },
 
   {
-    Header: 'Location',
+    Header: 'Location (not nullable)',
     accessor: 'location',
     Aggregated: () => {
       return null
@@ -149,8 +138,10 @@ export const flightColumns = (
 
       return (
         <TextInputCell
+          headerName={props.column.Header}
           name={`location-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.location}
+          hasNoDeleteValue
         />
       )
     },
@@ -174,10 +165,12 @@ export const flightColumns = (
 
       return (
         <SelectInputCell
+          headerName={props.column.Header}
           name={`rating-${props.row.values.id}-${props.row.index}`}
           options={(Object.keys(FlightRating) as Array<keyof typeof FlightRating>).map((key) => {
             return { name: FlightRating[key], value: FlightRating[key] }
           })}
+          //hasNoDeleteValue
           defaultValue={props.row.values.rating || undefined}
         />
       )
@@ -198,12 +191,20 @@ export const flightColumns = (
 
       return (
         <SelectInputCell
+          headerName={props.column.Header}
           name={`droneNeedsRepair-${props.row.values.id}-${props.row.index}`}
           options={[
-            { name: 'Yes', value: 'yes' },
-            { name: 'No', value: 'no' },
+            { name: 'Yes', value: true },
+            { name: 'No', value: false },
           ]}
-          defaultValue={props.row.values.droneNeedsRepair || undefined}
+          hasNoDeleteValue
+          defaultValue={
+            props.row.values.droneNeedsRepair === true
+              ? true
+              : props.row.values.droneNeedsRepair === false
+              ? false
+              : undefined
+          }
         />
       )
     },
@@ -222,6 +223,8 @@ export const flightColumns = (
 
       return (
         <SelectInputCell
+          headerName={props.column.Header}
+          //hasNoDeleteValue
           name={`purpose-${props.row.values.id}-${props.row.index}`}
           options={(Object.keys(FlightPurpose) as Array<keyof typeof FlightPurpose>).map((key) => {
             return { name: FlightPurpose[key], value: FlightPurpose[key] }
@@ -244,6 +247,7 @@ export const flightColumns = (
       }
       return (
         <TextInputCell
+          headerName={props.column.Header}
           name={`notes-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.notes}
         />
@@ -254,27 +258,29 @@ export const flightColumns = (
 
   //weather api /computed
 
-  // {
-  //   Header: 'Weather Conditions',
-  //   accessor: 'weatherConditions',
-  //   Cell: (props: any) => {
-  //     if (props.row.values.weatherConditions && props.row.values.weatherConditions.length) {
-  //       return props.row.values.weatherConditions.join(', ')
-  //     }
-  //     return null
-  //   },
-
-  //   width: determineWidth('text'),
-  // },
   {
     Header: 'Wind',
     accessor: 'wind',
     width: determineWidth('text'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'Temperature',
     accessor: 'temperatureCelsius',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
 
   //from log
@@ -283,7 +289,11 @@ export const flightColumns = (
     accessor: 'logStartTime',
     Cell: (props: any) => {
       if (isValid(parseISO(props.row.values.startTime))) {
-        return <div>{format(parseISO(props.row.values.startTime), 'hh:ss:mm dd.MM.yyyy')}</div>
+        return (
+          <TippyValueWrapper tableHeadName={props.column.Header}>
+            <div>{format(parseISO(props.row.values.startTime), 'hh:ss:mm dd.MM.yyyy')}</div>
+          </TippyValueWrapper>
+        )
       } else {
         return <div></div>
       }
@@ -295,7 +305,11 @@ export const flightColumns = (
     accessor: 'logEndTime',
     Cell: (props: any) => {
       if (isValid(parseISO(props.row.values.startTime))) {
-        return <div>{format(parseISO(props.row.values.startTime), 'hh:ss:mm dd.MM.yyyy')}</div>
+        return (
+          <TippyValueWrapper tableHeadName={props.column.Header}>
+            <div>{format(parseISO(props.row.values.startTime), 'hh:ss:mm dd.MM.yyyy')}</div>
+          </TippyValueWrapper>
+        )
       } else {
         return <div></div>
       }
@@ -306,13 +320,39 @@ export const flightColumns = (
     Header: 'Log Duration in hh:mm:ss',
     accessor: 'logDuration',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      const interval = intervalToDuration({ start: 0, end: props.cell.value * 1000 })
+
+      if (interval) {
+        return (
+          <TippyValueWrapper tableHeadName={props.column.Header}>
+            {`${interval?.hours && (interval.hours === 0 ? '00' : interval.hours < 10 ? '0' : '')}${
+              interval.hours
+            }:${
+              interval.minutes && (interval.minutes === 0 ? '00' : interval.minutes < 10 ? '0' : '')
+            }${interval.minutes}:${
+              interval.seconds && (interval.minutes === 0 ? '00' : interval.seconds < 10 ? '0' : '')
+            }${interval.seconds}`}
+          </TippyValueWrapper>
+        )
+      }
+
+      return null
+    },
   },
   {
     Header: 'CreatedAt',
     accessor: 'createdAt',
     Cell: (props: any) => {
       if (isValid(parseISO(props.row.values.createdAt))) {
-        return <div>{format(parseISO(props.row.values.createdAt), 'hh:ss:mm dd.MM.yyyy')}</div>
+        return (
+          <div>
+            {' '}
+            <TippyValueWrapper tableHeadName={props.column.Header}>
+              {format(parseISO(props.row.values.createdAt), 'hh:ss:mm dd.MM.yyyy')}
+            </TippyValueWrapper>
+          </div>
+        )
       } else {
         return <div></div>
       }
@@ -324,7 +364,14 @@ export const flightColumns = (
     accessor: 'updatedAt',
     Cell: (props: any) => {
       if (isValid(parseISO(props.row.values.createdAt))) {
-        return <div>{format(parseISO(props.row.values.createdAt), 'hh:ss:mm dd.MM.yyyy')}</div>
+        return (
+          <div>
+            {' '}
+            <TippyValueWrapper tableHeadName={props.column.Header}>
+              {format(parseISO(props.row.values.createdAt), 'hh:ss:mm dd.MM.yyyy')}
+            </TippyValueWrapper>
+          </div>
+        )
       } else {
         return <div></div>
       }
@@ -335,152 +382,291 @@ export const flightColumns = (
     Header: 'Start Latitude',
     accessor: 'startLatitude',
     width: determineWidth('text'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
-    Header: 'Start Longitufe',
+    Header: 'Start Longitude',
     accessor: 'startLongitude',
     width: determineWidth('text'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'End Latitude',
     accessor: 'endLatitude',
     width: determineWidth('text'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'End Longitude',
     accessor: 'endLongitude',
     width: determineWidth('text'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'Energy consumed in Wh',
     accessor: 'energyConsumedWh',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'Min Power in W',
     accessor: 'minPowerW',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'Max Power in W',
     accessor: 'maxPowerW',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'Avg Power in W',
     accessor: 'avgPowerW',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'Min Battery Voltage in V',
     accessor: 'minBatteryVoltage',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'Max Battery Voltage in V',
     accessor: 'maxBatteryVoltage',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
-  // {
-  //   Header: 'Avg Battery Voltage in V',
-  //   accessor: 'avgBatteryVoltage',
-  //   width: determineWidth('number'),
-  // },
   {
     Header: 'Delta Battery Voltage in V',
     accessor: 'deltaBatteryVoltage',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
-  // {
-  //   Header: 'Min Battery Current in A',
-  //   accessor: 'minBatteryCurrent',
-  //   width: determineWidth('number'),
-  // },
-  // {
-  //   Header: 'Max Battery Current in A',
-  //   accessor: 'maxBatCurrent',
-  //   width: determineWidth('number'),
-  // },
-  // {
-  //   Header: 'Avg Battery Current in A',
-  //   accessor: 'avgBatCurrent',
-  //   width: determineWidth('number'),
-  // },
+
   {
     Header: 'Min Ground Speed in km/h',
     accessor: 'minGroundspeedKmh',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'Max Ground Speed in km/h',
     accessor: 'maxGroundspeedKmh',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'Avg Ground Speed in km/h',
     accessor: 'avgGroundspeedKmh',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'Min Air Speed in km/h',
     accessor: 'minAirspeedKmh',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'Max Air Speed in km/h',
     accessor: 'maxAirspeedKmh',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'Avg Air Speed in km/h',
     accessor: 'avgAirspeedKmh',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
 
   {
     Header: 'Avg Wind Speed in km/h',
     accessor: 'avgWindspeedKmh',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'Max Vertical Speed Upwards in km/h',
     accessor: 'maxVerticalSpeedUpKmh',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'Max Vertical Speed Downwards km/h',
     accessor: 'maxVerticalSpeedDownKmh',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
-  // {
-  //   Header: 'Max Speed Horizontal in km/h',
-  //   accessor: 'maxSpeedHorizontal',
-  //   width: determineWidth('number'),
-  // },
   {
     Header: 'Max Telemetry Distance in km',
     accessor: 'maxTelemetryDistanceKm',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'Total Distance in km',
     accessor: 'distanceKm',
     width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
-  // {
-  //   Header: 'Flight Duration in hh:mm:ss',
-  //   accessor: 'flightDuration',
-  //   width: determineWidth('number'),
-  // },
 
   {
     Header: 'Hardware Version',
     accessor: 'hardwareVersion',
     width: determineWidth('text'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
   {
     Header: 'Firmware Version',
     accessor: 'firmwareVersion',
     width: determineWidth('text'),
+    Cell: (props: any) => {
+      return (
+        <TippyValueWrapper tableHeadName={props.column.Header}>
+          {props.cell.value}
+        </TippyValueWrapper>
+      )
+    },
   },
 ]

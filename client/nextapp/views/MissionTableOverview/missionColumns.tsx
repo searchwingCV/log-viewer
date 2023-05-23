@@ -1,8 +1,12 @@
 import { format, parseISO, isValid } from 'date-fns'
-import { Column } from 'react-table'
-
-import { MissionSerializer } from '@schema'
-import { DateInputCell, TextInputCell, determineWidth } from '~/modules/TableComponents'
+import type { Column } from 'react-table'
+import type { MissionSerializer } from '@schema'
+import {
+  DateInputCell,
+  TextInputCell,
+  determineWidth,
+  TippyValueWrapper,
+} from '~/modules/TableComponents'
 
 export const missionColumns = (): Column<MissionSerializer>[] => [
   {
@@ -23,6 +27,7 @@ export const missionColumns = (): Column<MissionSerializer>[] => [
 
       return (
         <TextInputCell
+          headerName={props.column.Header}
           name={`name-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.name}
         />
@@ -44,6 +49,7 @@ export const missionColumns = (): Column<MissionSerializer>[] => [
 
       return (
         <TextInputCell
+          headerName={props.column.Header}
           name={`location-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.location}
         />
@@ -65,6 +71,7 @@ export const missionColumns = (): Column<MissionSerializer>[] => [
 
       return (
         <TextInputCell
+          headerName={props.column.Header}
           name={`partnerOrganization-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.partnerOrganization}
         />
@@ -85,6 +92,7 @@ export const missionColumns = (): Column<MissionSerializer>[] => [
 
       return (
         <TextInputCell
+          headerName={props.column.Header}
           name={`description-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.description}
         />
@@ -107,6 +115,7 @@ export const missionColumns = (): Column<MissionSerializer>[] => [
         <DateInputCell
           name={`startDate-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.startDate}
+          headerName={props.column.Header}
         />
       )
     },
@@ -127,6 +136,7 @@ export const missionColumns = (): Column<MissionSerializer>[] => [
         <DateInputCell
           name={`endDate-${props.row.values.id}-${props.row.index}`}
           defaultValue={props.row.values.endDate}
+          headerName={props.column.Header}
         />
       )
     },
@@ -137,7 +147,11 @@ export const missionColumns = (): Column<MissionSerializer>[] => [
     accessor: 'createdAt',
     Cell: (props: any) => {
       if (isValid(parseISO(props.row.values.createdAt))) {
-        return <div>{format(parseISO(props.row.values.createdAt), 'hh:ss:mm dd.MM.yyyy')}</div>
+        return (
+          <TippyValueWrapper tableHeadName={props.column.Header}>
+            <div>{format(parseISO(props.row.values.createdAt), 'hh:ss:mm dd.MM.yyyy')}</div>
+          </TippyValueWrapper>
+        )
       } else {
         return <div></div>
       }
@@ -150,7 +164,11 @@ export const missionColumns = (): Column<MissionSerializer>[] => [
     accessor: 'updatedAt',
     Cell: (props: any) => {
       if (isValid(parseISO(props.row.values.createdAt))) {
-        return <div>{format(parseISO(props.row.values.createdAt), 'hh:ss:mm dd.MM.yyyy')}</div>
+        return (
+          <TippyValueWrapper tableHeadName={props.column.Header}>
+            <div>{format(parseISO(props.row.values.createdAt), 'hh:ss:mm dd.MM.yyyy')}</div>{' '}
+          </TippyValueWrapper>
+        )
       } else {
         return <div></div>
       }

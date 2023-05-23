@@ -1,7 +1,7 @@
 
 
 import axios from "axios";
-import { CreateMissionSerializer, MissionSerializer } from '@schema'
+import type { CreateMissionSerializer, MissionSerializer } from '@schema'
 
 
 export const postMission = async (mission: CreateMissionSerializer) => {

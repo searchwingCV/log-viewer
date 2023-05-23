@@ -1,26 +1,38 @@
-import { Tooltip } from 'react-tippy'
 import React, { memo, useState, useEffect } from 'react'
 import clsx from 'clsx'
-import { useFormContext, UseFormReturn, FieldValues } from 'react-hook-form'
+import { useFormContext, type UseFormReturn, type FieldValues } from 'react-hook-form'
+import Tippy from '@tippyjs/react'
 
 type SelectInputCellProps = {
   name: string
-  options: { name: string; value: string | number }[]
-  defaultValue?: string | number
+  options: { name: string; value: any }[]
+  defaultValue?: string | number | boolean
   required?: boolean
+  hasNoDeleteValue?: boolean
+  headerName: string
+  isForeignKeyPicker?: boolean //in this case we have to return a number
 }
 
 interface InputProps extends UseFormReturn<FieldValues, any>, SelectInputCellProps {}
 
 const Select = memo(
-  ({ register, name, options, defaultValue = '', getValues, required }: InputProps) => {
+  ({
+    register,
+    name,
+    options,
+    defaultValue = '',
+    getValues,
+    hasNoDeleteValue,
+    headerName,
+    isForeignKeyPicker,
+  }: InputProps) => {
     const [selectedValue, setValue] = useState(getValues(name))
 
     useEffect(() => {
       if (getValues(name) === '') {
         setValue('')
       }
-    }, [getValues(name)])
+    }, [getValues, name])
 
     return (
       <div
@@ -28,24 +40,26 @@ const Select = memo(
                     relative
                     flex`}
       >
-        {/* // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore */}
-        <Tooltip
-          content={`${
+        <Tippy
+          content={`${headerName}: ${
             options.find((item) => item.value === (selectedValue || defaultValue))?.name
           }`}
-          position="top"
           trigger="mouseenter"
           className="w-full"
         >
-          <select
-            {...register(name as `${string}` | `${string}.${string}` | `${string}.${number}`, {
-              onChange: (e) => {
-                setValue(e.target.value)
-              },
-            })}
-            className={clsx(
-              `
+          <div className="w-full">
+            <select
+              {...register(name, {
+                onChange: (e) => {
+                  setValue(
+                    isForeignKeyPicker && e.target.value
+                      ? parseInt(e.target.value)
+                      : e.target.value,
+                  )
+                },
+              })}
+              className={clsx(
+                `
                 pointer-events-auto
                 w-full
                 rounded-md
@@ -55,39 +69,38 @@ const Select = memo(
                 focus:ring-0
                 focus:ring-offset-0
                 `,
-
-              getValues(name) === 'delete'
-                ? `bg-primary-red
+                getValues(name) === 'delete'
+                  ? `bg-primary-red
                    text-primary-white`
-                : getValues(name) && getValues(name) !== defaultValue
-                ? `text-primary-white
+                  : getValues(name) && getValues(name) !== defaultValue
+                  ? `text-primary-white
                    odd:bg-primary-dark-petrol`
-                : `bg-grey-light
+                  : `bg-grey-light
                    text-primary-rose`,
-            )}
-          >
-            <option></option>
-            {!required ? (
-              <option key="delete" value="delete">
-                delete / no value
-              </option>
-            ) : null}
-            {options.map((option: { name: string; value: string | number }) => {
-              return (
-                <option
-                  key={option.value}
-                  value={option.value}
-                  disabled={defaultValue === option.value}
-                >
-                  {defaultValue === option.value ? '* ' : ''}
-                  {option.value === '' ? '' : option.name}
+              )}
+            >
+              <option></option>
+              {!hasNoDeleteValue ? (
+                <option key="delete" value="delete">
+                  delete / no value
                 </option>
-              )
-            })}
-          </select>
-          {!getValues(name) && getValues(name) !== defaultValue ? (
-            <span
-              className={`absolute
+              ) : null}
+              {options.map((option: { name: string; value: string | number }) => {
+                return (
+                  <option
+                    key={option.value}
+                    value={option.value}
+                    disabled={defaultValue === option.value}
+                  >
+                    {defaultValue === option.value ? '* ' : ''}
+                    {option.value === '' ? '' : option.name}
+                  </option>
+                )
+              })}
+            </select>
+            {!getValues(name) && getValues(name) !== defaultValue ? (
+              <span
+                className={`absolute
                           top-1/2
                           left-1/2
                           h-[18px]
@@ -99,22 +112,28 @@ const Select = memo(
                           truncate
                           text-ellipsis
                           break-words`}
-            >
-              {options ? options.find((item) => item.value === defaultValue)?.name : ''}
-            </span>
-          ) : null}
-        </Tooltip>
+              >
+                {options ? options.find((item) => item.value === defaultValue)?.name : ''}
+              </span>
+            ) : null}
+          </div>
+        </Tippy>
       </div>
     )
   },
   (prevProps, nextProps) => prevProps.formState.isDirty === nextProps.formState.isDirty,
 )
 
+Select.displayName = 'Select'
+
 export const SelectInputCell = ({
   name,
   options,
   defaultValue,
   required,
+  hasNoDeleteValue,
+  headerName,
+  isForeignKeyPicker,
 }: SelectInputCellProps) => {
   const methods = useFormContext()
 
@@ -125,6 +144,9 @@ export const SelectInputCell = ({
       options={options}
       defaultValue={defaultValue}
       required={required}
+      hasNoDeleteValue={hasNoDeleteValue}
+      headerName={headerName}
+      isForeignKeyPicker={isForeignKeyPicker}
     />
   )
 }

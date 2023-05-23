@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import { Page_FlightSerializer_ } from '@schema'
+import type { Page_FlightSerializer_ } from '@schema'
 
 export const ALl_FLIGHTS_KEY = "ALL_FLIGHTS"
 
@@ -14,7 +14,7 @@ export const getFlights = async (page: number, size: number) => {
 
     return data
 }
-export const fetchAllFlightsQuery = (page: number, size: number) =>
+export const useFetchAllFlightsQuery = (page: number, size: number) =>
     useQuery<Page_FlightSerializer_>([ALl_FLIGHTS_KEY, page, size], () =>
         getFlights(page, size),
 

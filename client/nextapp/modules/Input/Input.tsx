@@ -24,18 +24,15 @@ export type InputProps = {
 
 export const Input = ({
   required,
-  name,
   maxLength,
   autoComplete,
   disabled,
   placeholder,
   classNameInputContainer = '',
   defaultValue = '',
-  hasInitialValue,
   onChangeInput,
   hasResetButton,
   classNameResetButtonContainer,
-  ...rest
 }: InputProps) => {
   const [value, setValue] = React.useState(defaultValue)
 
@@ -51,7 +48,8 @@ export const Input = ({
           className={clsx(
             classNameInputContainer && classNameInputContainer,
             `input-wrapper
-             relative h-16`,
+             relative
+             h-12`,
           )}
         >
           <input
@@ -67,7 +65,7 @@ export const Input = ({
               top-6
               bottom-0
               z-10
-              h-10
+              h-6
               w-full
               border-0
               border-b
@@ -103,7 +101,7 @@ export const Input = ({
               value
                 ? `top-0
                    text-xs`
-                : 'top-7',
+                : 'top-4',
               disabled && 'text-grey-medium',
             )}
           >
@@ -129,7 +127,7 @@ export const Input = ({
         <div className={classNameResetButtonContainer}>
           <Button
             buttonStyle="Secondary"
-            className={`h-[50px]
+            className={`h-12
                         w-[200px]`}
             type="reset"
             onClick={handleClickReset}

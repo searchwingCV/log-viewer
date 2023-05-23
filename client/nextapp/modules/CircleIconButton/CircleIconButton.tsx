@@ -3,14 +3,19 @@ import clsx from 'clsx'
 import { animated, useSpring } from '@react-spring/web'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-export type Props = {
+export type CircleIconButtonProps = {
   addClasses?: string
   iconClassName: string
   onClick: () => void
   disabled?: boolean
 }
 
-export const CircleIconButton = ({ iconClassName, disabled, onClick, addClasses }: Props) => {
+export const CircleIconButton = ({
+  iconClassName,
+  disabled,
+  onClick,
+  addClasses,
+}: CircleIconButtonProps) => {
   const [isHovered, setIsHovered] = useState(false)
 
   const growShrink = useSpring({

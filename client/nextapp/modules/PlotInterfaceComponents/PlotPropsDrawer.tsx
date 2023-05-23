@@ -7,6 +7,7 @@ import { useRouter } from 'next/router'
 import { ToastContainer } from 'react-toastify'
 import { useQueryClient, useQuery } from '@tanstack/react-query'
 import clsx from 'clsx'
+import Link from 'next/link'
 import type { GroupedProps } from '@schema'
 import database, {
   type DexieLogFileTimeSeries,
@@ -16,16 +17,15 @@ import database, {
 import CircleIconButton from 'modules/CircleIconButton'
 import { CurrentPlotSetup } from './CurrentPlotSetup'
 import { PropertyList } from './PropertyList'
-import Link from 'next/link'
 
-type Props = {
+export type PlotPropsDrawerProps = {
   overallData: DexieLogOverallData
   groupedProperties: GroupedProps[]
 }
 
 export const PLOT_DRAWER_EXTENDED = 'PLOT_DRAWER_EXTENDED'
 
-export const PlotPropsDrawer = ({ overallData, groupedProperties }: Props) => {
+export const PlotPropsDrawer = ({ overallData, groupedProperties }: PlotPropsDrawerProps) => {
   const router = useRouter()
   const { id: flightid } = router.query
 

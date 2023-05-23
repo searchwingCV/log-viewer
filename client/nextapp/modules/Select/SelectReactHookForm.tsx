@@ -5,7 +5,13 @@ import * as React from 'react'
 import { useTranslation } from 'next-i18next'
 import clsx from 'clsx'
 import { ErrorMessage } from '@hookform/error-message'
-import { RegisterOptions, UseFormRegister, Path, FieldValues, FieldErrors } from 'react-hook-form'
+import type {
+  RegisterOptions,
+  UseFormRegister,
+  Path,
+  FieldValues,
+  FieldErrors,
+} from 'react-hook-form'
 
 type SelectProps = {
   name: string
@@ -25,7 +31,7 @@ type SelectProps = {
 export type FormSelectProps<TFormValues extends FieldValues> = {
   name: Path<TFormValues>
   register: UseFormRegister<TFormValues>
-  rules: RegisterOptions
+  rules?: RegisterOptions
   errors: FieldErrors<TFormValues>
 } & Omit<SelectProps, 'name'>
 
@@ -34,21 +40,14 @@ export const SelectReactHookForm = <TFormValues extends FieldValues>({
   name,
   placeholder,
   errors,
-  className,
   register,
   rules,
-  hint,
   options,
-  type = 'text',
   disabled = false,
-  alternate = false,
-  required = false,
-  hideLabel = false,
   defaultValue,
   ...rest
 }: FormSelectProps<TFormValues>) => {
   const [value, setValue] = React.useState(defaultValue || '')
-  const hasError = !!errors?.[name]
   const { t } = useTranslation()
 
   return (
@@ -85,7 +84,7 @@ export const SelectReactHookForm = <TFormValues extends FieldValues>({
               onChange: (e) => {
                 setValue(e.target.value)
               },
-              ...rules,
+              ...(rules || {}),
             }))}
         >
           <option></option>

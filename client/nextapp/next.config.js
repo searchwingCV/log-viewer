@@ -9,12 +9,21 @@ const nextConfig = {
   },
   reactStrictMode: false,
   swcMinify: true,
-  //experimental: { newNextLinkBehavior: true },
   images: {
     // domains: [],
     // formats: [],
   },
-  i18n,
+  //i18n,
+  //TODO: Remove the redirect as soon as the index page contains useful content
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/flights',
+        permanent: true,
+      },
+    ]
+  },
   rewrites() {
     return [
       {
@@ -23,7 +32,6 @@ const nextConfig = {
       },
     ]
   },
-  //   async redirects() {},
 }
 
 module.exports = nextConfig

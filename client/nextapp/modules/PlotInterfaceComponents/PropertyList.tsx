@@ -24,13 +24,6 @@ import { Disclosure, DisclosurePanel } from './Disclosure'
 import { PlotCustomizeButtons } from './PlotCustomizeButtons'
 import { getFreeColor } from './colorUpdateFunctions'
 
-export type PropertyListType = {
-  groupedProperties: GroupedProps[]
-  activeTimeSeries: DexieLogFileTimeSeries[]
-  customPlots: DexieCustomPlot[]
-  overallData: DexieLogOverallData
-}
-
 type DrawerProperty = {
   label: string
   name: string
@@ -39,12 +32,19 @@ type DrawerProperty = {
   groupName: string
 }
 
+export type PropertyListProps = {
+  groupedProperties: GroupedProps[]
+  activeTimeSeries: DexieLogFileTimeSeries[]
+  customPlots: DexieCustomPlot[]
+  overallData: DexieLogOverallData
+}
+
 export const PropertyList = ({
   groupedProperties,
   activeTimeSeries,
   customPlots,
   overallData,
-}: PropertyListType) => {
+}: PropertyListProps) => {
   const [ref, size] = useElementSize()
 
   const router = useRouter()
