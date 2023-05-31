@@ -16,7 +16,7 @@ import database, {
   OverallDataForFlightTable,
 } from '@idbSchema'
 
-type PlotCustomizeButtons = {
+export type PlotCustomizeButtonsProps = {
   currentColor?: string
   hidden?: boolean
   overallData: DexieLogOverallData
@@ -42,7 +42,7 @@ export const PlotCustomizeButtons = ({
   isValid,
   initialValue,
   isInPropertyList,
-}: PlotCustomizeButtons) => {
+}: PlotCustomizeButtonsProps) => {
   const switchColor = async (chosenNewColor: string) => {
     //if switching colors, the colorMatrix in the overallData has to be updated
     const newColorMatrix = overallData?.colorMatrix?.map((colorItem: DexieTakenColorMatrix) => ({

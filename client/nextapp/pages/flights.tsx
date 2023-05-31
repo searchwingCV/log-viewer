@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import type { GetServerSideProps } from 'next'
 import { QueryClient, dehydrate, useQueries } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
-import { fetchAllFlightsQuery, getFlights, ALl_FLIGHTS_KEY } from '~/api/flight/getFlights'
+import { useFetchAllFlightsQuery, getFlights, ALl_FLIGHTS_KEY } from '~/api/flight/getFlights'
 import { getDrones, ALL_DRONES_KEY } from '~/api/drone/getDrones'
 import { getMissions, ALL_MISSIONS_KEY } from '~/api/mission/getMissions'
 import { Layout } from '~/modules/Layouts/Layout'
@@ -11,9 +11,9 @@ import type { NextPageWithLayout } from './_app'
 
 const FlightOverviewPage: NextPageWithLayout = () => {
   const router = useRouter()
-  const { page: queryPage, pagesize: queryPageSize } = router.query
+  const { page: queryPage, pagesize: queryPageSize, backFromAddForm } = router.query
 
-  const { data } = fetchAllFlightsQuery(
+  const { data, refetch } = useFetchAllFlightsQuery(
     parseInt(queryPage as string) || 1,
     parseInt(queryPageSize as string) || 10,
   )
@@ -47,6 +47,15 @@ const FlightOverviewPage: NextPageWithLayout = () => {
       name: `${mission.name} - ${mission.id}`,
     }
   })
+
+  useEffect(() => {
+    const refetchData = async () => {
+      await refetch()
+    }
+    if (backFromAddForm) {
+      refetchData().catch((e) => console.error(e))
+    }
+  }, [backFromAddForm, refetch])
 
   if (!data || !data.items) {
     return null

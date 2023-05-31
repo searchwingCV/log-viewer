@@ -1,7 +1,7 @@
 
 
 import axios from "axios";
-import { BatchUpdateResponse_DroneSerializer_, DroneUpdate } from '@schema'
+import type { BatchUpdateResponse_DroneSerializer_, DroneUpdate } from '@schema'
 
 
 export const patchDrones = async (items: DroneUpdate[]) => {
@@ -11,9 +11,7 @@ export const patchDrones = async (items: DroneUpdate[]) => {
         })
         .then((res) => {
             return res.data
-        }).catch((e) =>
-            console.error(e)
-        )
+        })
 
     return response
 }

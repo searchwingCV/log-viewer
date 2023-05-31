@@ -1,7 +1,7 @@
 
 
 import axios from "axios";
-import { CreateFlightSerializer, FlightSerializer } from '@schema'
+import type { CreateFlightSerializer, FlightSerializer } from '@schema'
 
 
 export const postFlight = async (flight: CreateFlightSerializer) => {

@@ -1,10 +1,10 @@
-import { ReactNode } from 'react'
-import Button from '~/modules/Button'
+import { type ReactNode } from 'react'
 import { useRouter } from 'next/router'
+import Button from '~/modules/Button'
 
-export type Props = { children: ReactNode }
+export type CreateObjectLayoutProps = { children: ReactNode }
 
-export const CreateObjectLayout = ({ children }: Props) => {
+export const CreateObjectLayout = ({ children }: CreateObjectLayoutProps) => {
   const router = useRouter()
   const { model } = router.query
 
@@ -25,7 +25,7 @@ export const CreateObjectLayout = ({ children }: Props) => {
         <Button
           className="pb-12"
           buttonStyle="Link"
-          onClick={async () => await router.push(`/${model}-overview`)}
+          onClick={async () => await router.push(`/${model}s`)}
         >
           Back To Table Overview
         </Button>

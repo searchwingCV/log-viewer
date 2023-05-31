@@ -6,9 +6,9 @@ import clsx from 'clsx'
 import Link from 'modules/Link'
 
 const navItems = [
-  { name: 'FLIGHT TABLE', url: '/flight-overview/' },
-  { name: 'MISSION TABLE', url: '/mission-overview/' },
-  { name: 'DRONE TABLE', url: '/drone-overview/' },
+  { name: 'FLIGHTS', url: '/flights/' },
+  { name: 'MISSIONS', url: '/missions/' },
+  { name: 'DRONES', url: '/drones/' },
 ]
 
 export type HeaderNavigationProps = {
@@ -35,7 +35,7 @@ export const HeaderNavigation = ({ isHeaderMinimalist }: HeaderNavigationProps) 
              text-primary-black`
           : `justify-between
              bg-primary-light-petrol
-             text-primary-white`,
+             !text-primary-white`,
       )}
     >
       <div
@@ -59,7 +59,9 @@ export const HeaderNavigation = ({ isHeaderMinimalist }: HeaderNavigationProps) 
                         leading-relaxed
                         text-inherit
                         text-white`}
-            href="/"
+            //TODO: Link to "/"" as soon as the index page contains useful content
+            href="/flights"
+            isWhite={!isHeaderMinimalist}
           >
             Log Viewer
           </Link>
@@ -78,7 +80,7 @@ export const HeaderNavigation = ({ isHeaderMinimalist }: HeaderNavigationProps) 
               className={clsx(
                 `nav-item
                  flex
-                 w-[150px]
+                 w-[120px]
                  justify-end
                  text-inherit`,
                 isHeaderMinimalist ? `text-primary-black` : `text-primary-white`,

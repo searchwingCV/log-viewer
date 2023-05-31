@@ -1,19 +1,28 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import type { GetServerSideProps } from 'next'
 import { QueryClient, dehydrate } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
-import { getDrones, ALL_DRONES_KEY, fetchAllDronesQuery } from '~/api/drone/getDrones'
+import { getDrones, ALL_DRONES_KEY, useFetchAllDronesQuery } from '~/api/drone/getDrones'
 import DroneTableOverview from '~/views/DroneTableOverview'
 import { Layout } from '~/modules/Layouts/Layout'
 import type { NextPageWithLayout } from './_app'
 
 const DroneTablePage: NextPageWithLayout = () => {
   const router = useRouter()
-  const { page: queryPage, pagesize: queryPageSize } = router.query
-  const { data } = fetchAllDronesQuery(
+  const { page: queryPage, pagesize: queryPageSize, backFromAddForm } = router.query
+  const { data, refetch } = useFetchAllDronesQuery(
     parseInt(queryPage as string) || 1,
     parseInt(queryPageSize as string) || 10,
   )
+
+  useEffect(() => {
+    const refetchData = async () => {
+      await refetch()
+    }
+    if (backFromAddForm) {
+      refetchData().catch((e) => console.error(e))
+    }
+  }, [backFromAddForm, refetch])
 
   if (!data || !data.items) {
     return null

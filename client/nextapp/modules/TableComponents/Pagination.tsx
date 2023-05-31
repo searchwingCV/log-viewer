@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
-import { useTranslation } from 'next-i18next'
-import CircleIconButton from '~/modules/CircleIconButton'
 import { useRouter } from 'next/router'
+import CircleIconButton from '~/modules/CircleIconButton'
 
 type TablePaginationProps = {
   pageSize: number
@@ -12,23 +11,25 @@ type TablePaginationProps = {
 }
 
 export const Pagination = ({
-  pageSize,
   pageCount,
   pageIndex,
   pageOptions,
   totalNumber,
 }: TablePaginationProps) => {
-  const { t } = useTranslation()
   const router = useRouter()
   const { page: queryPage, pagesize: queryPageSize } = router.query
 
   useEffect(() => {
-    if (!router.asPath.includes('page') && !router.asPath.includes('pagesize')) {
-      router.push({ query: { page: 1, pagesize: '10' } }, undefined, {
-        shallow: true,
-      })
+    const addPageParams = async () => {
+      if (!router.asPath.includes('page') && !router.asPath.includes('pagesize')) {
+        await router.push({ query: { page: 1, pagesize: '10' } }, undefined, {
+          shallow: true,
+        })
+      }
     }
-  }, [queryPageSize, queryPage])
+
+    addPageParams().catch(console.error)
+  }, [queryPageSize, queryPage, router])
 
   return (
     <div
@@ -39,8 +40,8 @@ export const Pagination = ({
       <span className="">
         <CircleIconButton
           disabled={parseInt(queryPage as string) === 1}
-          onClick={() => {
-            router.push({ query: { page: 1, pagesize: queryPageSize } }, undefined, {
+          onClick={async () => {
+            await router.push({ query: { page: 1, pagesize: queryPageSize } }, undefined, {
               shallow: true,
             })
           }}
@@ -51,8 +52,8 @@ export const Pagination = ({
         />
         <CircleIconButton
           disabled={parseInt(queryPage as string) === 1}
-          onClick={() => {
-            router.push(
+          onClick={async () => {
+            await router.push(
               { query: { page: parseInt(queryPage as string) - 1, pagesize: queryPageSize } },
               undefined,
               {
@@ -68,8 +69,8 @@ export const Pagination = ({
         <CircleIconButton
           disabled={parseInt(queryPage as string) === pageCount}
           iconClassName={'angle-right'}
-          onClick={() => {
-            router.push(
+          onClick={async () => {
+            await router.push(
               { query: { page: parseInt(queryPage as string) + 1, pagesize: queryPageSize } },
               undefined,
               {
@@ -82,10 +83,14 @@ export const Pagination = ({
                        ml`}
         ></CircleIconButton>
         <CircleIconButton
-          onClick={() => {
-            router.push({ query: { page: pageCount - 1, pagesize: queryPageSize } }, undefined, {
-              shallow: true,
-            })
+          onClick={async () => {
+            await router.push(
+              { query: { page: pageCount - 1, pagesize: queryPageSize } },
+              undefined,
+              {
+                shallow: true,
+              },
+            )
           }}
           iconClassName={'angle-double-right'}
           disabled={parseInt(queryPage as string) === pageCount}
@@ -95,13 +100,13 @@ export const Pagination = ({
         />
       </span>
       <span className="ml-4">
-        {t('Page')}
+        Page
         <span className="mx-2">
           {pageIndex + 1} of {pageOptions.length}
         </span>
       </span>
       <span>
-        <span className="mr-2">{`| ${t('Go to page')}:   `}</span>
+        <span className="mr-2">{`| Go to page`} </span>
         <input
           max={pageCount}
           type="number"
@@ -113,8 +118,8 @@ export const Pagination = ({
                       shadow-subtle`}
           defaultValue={queryPage}
           value={queryPage}
-          onChange={(e) => {
-            router.push(
+          onChange={async (e) => {
+            await router.push(
               { query: { page: Number(e.target.value), pagesize: queryPageSize } },
               undefined,
               {
@@ -133,11 +138,11 @@ export const Pagination = ({
                     py-[11px]
                     px-6
                     shadow-subtle`}
-        onChange={(e) => {
+        onChange={async (e) => {
           const isSelectionPossible =
             parseInt(queryPageSize as string) * parseInt(queryPage as string) < totalNumber
 
-          router.push(
+          await router.push(
             { query: { page: isSelectionPossible ? queryPage : 1, pagesize: e.target.value } },
             undefined,
             {

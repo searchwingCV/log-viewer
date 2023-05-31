@@ -11,9 +11,7 @@ export const patchMissions = async (items: MissionUpdate[]) => {
         })
         .then((res) => {
             return res.data
-        }).catch((e) =>
-            console.error(e)
-        )
+        })
 
     return response
 }

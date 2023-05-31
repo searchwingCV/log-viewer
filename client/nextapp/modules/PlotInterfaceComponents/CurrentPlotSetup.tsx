@@ -17,15 +17,17 @@ import database, {
 import { Disclosure, DisclosurePanel } from './Disclosure'
 import { PlotInput } from './PlotInput'
 
+export type CurrentPlotSetupProps = {
+  activeTimeSeries: DexieLogFileTimeSeries[]
+  customPlots: DexieCustomPlot[]
+  overallData: DexieLogOverallData
+}
+
 export const CurrentPlotSetup = ({
   activeTimeSeries,
   customPlots,
   overallData,
-}: {
-  activeTimeSeries: DexieLogFileTimeSeries[]
-  customPlots: DexieCustomPlot[]
-  overallData: DexieLogOverallData
-}) => {
+}: CurrentPlotSetupProps) => {
   const router = useRouter()
   const { id: flightid } = router.query
 

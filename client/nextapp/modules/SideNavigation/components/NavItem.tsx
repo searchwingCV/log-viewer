@@ -15,7 +15,7 @@ export type Props = {
   isExtended?: boolean
 }
 
-export const NavItem = ({ name, iconName, isActive, href, isExtended }: Props) => {
+export const NavItem = ({ name, iconName, href, isExtended }: Props) => {
   const [isHovered, setIsHovered] = useState(false)
 
   const growShrink = useSpring({
