@@ -17,3 +17,4 @@ pyhumps>=3.8.0
 celery==5.2.7
 redis==4.5.4
 pymavlog>=0.1.2
+paramiko==3.2.0
