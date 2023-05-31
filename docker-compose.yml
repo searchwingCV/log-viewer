@@ -22,6 +22,8 @@ services:
       POSTGRES_DB: searchwing
       POSTGRES_SERVER: db
       POSTGRES_PORT: 5432
+      POSTGRES_TEST_SERVER: test-db
+      POSTGRES_TEST_PORT: 5432
       REDIS_HOST: redis
       STORAGE_HOST: u353116.your-storagebox.de
       STORAGE_USER: u353116-sub1
