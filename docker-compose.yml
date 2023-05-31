@@ -126,14 +126,15 @@ services:
       - '6379:6379'
 
   flower:
-    image: mher/flower:0.9.7
-    command: ['flower', '--broker=redis://:searchwing@redis:6379', '--port=5555']
+    image: mher/flower:1.2
     expose:
       - 5555
     ports:
       - '5555:5555'
     depends_on:
       - redis
+    environment:
+      CELERY_BROKER_URL: redis://:searchwing@redis:6379
 
 volumes:
   storage:
