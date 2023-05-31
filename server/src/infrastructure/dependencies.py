@@ -12,6 +12,6 @@ def get_storage():
     storage = Storage(
         rootpath=Config.STORAGE_ROOT,
         protocol=Config.STORAGE_PROTOCOL,
-        options={option for option in Config.STORAGE_OPTIONS if option is not None},
+        options={option: value for option, value in Config.STORAGE_OPTIONS.items() if option is not None},
     )
     yield storage
