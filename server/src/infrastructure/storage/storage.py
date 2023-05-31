@@ -7,9 +7,10 @@ from fsspec import AbstractFileSystem
 
 
 class Storage:
-    def __init__(self, rootpath: str, protocol: str):
+    def __init__(self, rootpath: str, protocol: str, options: dict = {}):
         self.rootpath = self.__validate_root(rootpath)
         self.protocol = protocol
+        self.options = options
         self.fs = self.__get_filesystem()
 
     def __validate_root(self, root: str) -> str:
@@ -25,7 +26,7 @@ class Storage:
 
     def __get_filesystem(self) -> AbstractFileSystem:
         try:
-            return fsspec.filesystem(self.protocol)
+            return fsspec.filesystem(self.protocol, **self.options)
         except (ImportError, ValueError):
             raise UndefinedProtocol(self.protocol)
 

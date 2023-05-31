@@ -18,6 +18,12 @@ class BaseConfig(object):
     STORAGE_PROTOCOL = os.getenv("STORAGE_PROTOCOL", "file")
     STORAGE_ROOT = os.getenv("STORAGE_ROOT", "/data")
 
+    STORAGE_OPTIONS = {
+        "host": os.getenv("STORAGE_HOST"),
+        "username": os.getenv("STORAGE_USERNAME"),
+        "password": os.getenv("STORAGE_PASSWORD"),
+    }
+
     REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
     REDIS_PORT = os.getenv("REDIS_PORT", "6379")
     REDIS_DB = os.getenv("REDIS_DB", "0")
