@@ -9,5 +9,9 @@ def get_db():
 
 
 def get_storage():
-    storage = Storage(Config.STORAGE_ROOT, Config.STORAGE_PROTOCOL)
+    storage = Storage(
+        rootpath=Config.STORAGE_ROOT,
+        protocol=Config.STORAGE_PROTOCOL,
+        options={option: value for option, value in Config.STORAGE_OPTIONS.items() if option is not None},
+    )
     yield storage
