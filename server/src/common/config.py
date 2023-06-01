@@ -18,15 +18,20 @@ class BaseConfig(object):
     STORAGE_PROTOCOL = os.getenv("STORAGE_PROTOCOL", "file")
     STORAGE_ROOT = os.getenv("STORAGE_ROOT", "/data")
 
+    STORAGE_OPTIONS = {
+        "host": os.getenv("STORAGE_HOST"),
+        "username": os.getenv("STORAGE_USERNAME"),
+        "password": os.getenv("STORAGE_PASSWORD"),
+    }
+
     REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
     REDIS_PORT = os.getenv("REDIS_PORT", "6379")
     REDIS_DB = os.getenv("REDIS_DB", "0")
-    REDIS_USER = os.getenv("REDIS_USER")
-    REDIS_PWD = os.getenv("REDIS_PWD")
+    REDIS_PWD = os.getenv("REDIS_PWD", "searchwing")
 
     CELERY_CONFIG = {
-        "broker_url": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
-        "result_backend": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
+        "broker_url": f"redis://:{REDIS_PWD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
+        "result_backend": f"redis://:{REDIS_PWD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
     }
 
 

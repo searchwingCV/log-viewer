@@ -23,6 +23,11 @@ services:
       POSTGRES_SERVER: db
       POSTGRES_PORT: 5432
       REDIS_HOST: redis
+      STORAGE_HOST: u353116.your-storagebox.de
+      STORAGE_USER: u353116-sub1
+      STORAGE_PASSWORD: TCLkKjuzBM4rjcqQ
+      STORAGE_ROOT: log-viewer-storage
+      STORAGE_PROTOCOL: sftp
   worker:
     container_name: worker
     build:
@@ -121,28 +126,20 @@ services:
     hostname: redis
     image: redis
     restart: always
+    command:  redis-server --save 20 1 --loglevel warning --requirepass searchwing
     ports:
       - '6379:6379'
 
-  redis-commander:
-    container_name: redis-commander
-    hostname: redis-commander
-    image: rediscommander/redis-commander:latest
-    restart: always
-    environment:
-      - REDIS_HOSTS=local:redis:6379
-    ports:
-      - '8081:8081'
-
   flower:
-    image: mher/flower:0.9.7
-    command: ['flower', '--broker=redis://redis:6379', '--port=5555']
+    image: mher/flower:1.2
     expose:
       - 5555
     ports:
       - '5555:5555'
     depends_on:
       - redis
+    environment:
+      CELERY_BROKER_URL: redis://:searchwing@redis:6379
 
 volumes:
   storage:
