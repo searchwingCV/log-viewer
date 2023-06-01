@@ -9,7 +9,7 @@ const Series = require('time-series-data-generator')
 
 const numOfData = 30
 
-export const LOG_OVERALL_DATA = 'LOG_OVERALL_DATA'
+export const LOG_OVERALL_DATA_MULTIPLE = 'LOG_OVERALL_DATA_MULTIPLE'
 
 const series2 = new Series({
     from: '2016-01-01T00:24:33Z',
@@ -231,13 +231,16 @@ const mockData: LogOverallData[] = [{
 ]
 
 
-export const getLogOverallDataMock = (flightid: number) => {
+export const getMultipleLogOverallDataMock = (flightids: number[]): LogOverallData[] => {
 
-    return mockData.find(item => item.flightid === flightid) || mockData[0]
+    return flightids.map((id) => {
+        return mockData.find(item => item.flightid === id) || mockData[0]
+    }) || mockData[0]
+
 }
 
 
-export const useFetchLogPropertyOverallData = (flightid: number) =>
-    useQuery<LogOverallData>([LOG_OVERALL_DATA, flightid], () =>
-        getLogOverallDataMock(flightid),
+export const useFetchLogPropertyOverallData = (flightids: number[]) =>
+    useQuery<LogOverallData[]>([LOG_OVERALL_DATA_MULTIPLE, flightids], () =>
+        getMultipleLogOverallDataMock(flightids),
     )

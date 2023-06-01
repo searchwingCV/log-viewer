@@ -5,7 +5,6 @@
  */
 import { useMemo } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useRouter } from 'next/router'
 import useMedia from '@charlietango/use-media'
 import {
   LineChart,
@@ -21,7 +20,11 @@ import {
   Label,
 } from 'recharts'
 import { differenceInSeconds, intervalToDuration } from 'date-fns'
-import database, { type DexieCustomPlot, type DexieLogFileTimeSeries } from '@idbSchema'
+import database, {
+  type DexieCustomPlot,
+  type DexieLogFileTimeSeries,
+  type DexieLogOverallData,
+} from '@idbSchema'
 
 const calculateSignatureNumbers = ({ name, values }: { name: string; values: number[] }) => {
   //Calculate the Max, Min and AVG for each plot and limit decial numbers to 2 digits
@@ -110,8 +113,7 @@ const flightModes = [
 export type FlightModeTime = { time: string; mode: string }
 
 export type LineChartComponentProps = {
-  flightModeData: FlightModeTime[]
-  flightId: number
+  overallData: DexieLogOverallData
 }
 
 export interface LineChartProps extends LineChartComponentProps {
@@ -119,16 +121,13 @@ export interface LineChartProps extends LineChartComponentProps {
   customPlots: DexieCustomPlot[]
 }
 
-export const LineChartComponent = ({ flightModeData, flightId }: LineChartComponentProps) => {
-  const router = useRouter()
-  const { id: flightid } = router.query
-
+export const LineChartComponent = ({ overallData }: LineChartComponentProps) => {
   const customPlots = useLiveQuery(() =>
     //TODO: solve dexie ts error
     // @ts-expect-error: Dexie not working with TS right now
     database.customFunction
       .orderBy('timestamp')
-      .filter((plot: DexieCustomPlot) => plot.flightid === parseInt(flightid as string))
+      .filter((plot: DexieCustomPlot) => plot.overallDataId === overallData.id)
       .toArray(),
   )
 
@@ -137,7 +136,7 @@ export const LineChartComponent = ({ flightModeData, flightId }: LineChartCompon
     // @ts-expect-error: Dexie not working with TS right now
     database.logFileTimeSeries
       .orderBy('timestamp')
-      .filter((series: DexieLogFileTimeSeries) => series.flightid === parseInt(flightid as string))
+      .filter((series: DexieLogFileTimeSeries) => series.overallDataId === overallData.id)
       .toArray(),
   )
 
@@ -161,19 +160,17 @@ export const LineChartComponent = ({ flightModeData, flightId }: LineChartCompon
 
   return (
     <LineChartGraph
-      flightModeData={flightModeData}
-      flightId={flightId}
       activeTimeSeries={activeTimeSeries}
       customPlots={customPlots}
+      overallData={overallData}
     />
   )
 }
 
 export const LineChartGraph = ({
-  flightModeData,
-  flightId,
   activeTimeSeries, //only timeseries that are saved in IndexedDB are shown
   customPlots, //only customPlots that are saved in IndexedDB are shown
+  overallData,
 }: LineChartProps) => {
   const matches = useMedia({ maxWidth: 1440 })
 
@@ -191,7 +188,7 @@ export const LineChartGraph = ({
       (propTypes: DexieLogFileTimeSeries) =>
         propTypes?.values?.length
           ? calculateSignatureNumbers({
-              name: propTypes.name,
+              name: propTypes.calculatorExpression,
               values: propTypes.values.map((valPair) => valPair.value),
             })
           : null,
@@ -209,6 +206,7 @@ export const LineChartGraph = ({
         ? customPlots?.filter((plot) => !!plot.customFunction).map((plot) => plot.values)
         : []),
     ]
+
     const longestTimeseries = unsorted?.length
       ? unsorted.reduce((a, b) => a && b && (Object.keys(a).length > Object.keys(b).length ? a : b))
       : undefined
@@ -219,7 +217,7 @@ export const LineChartGraph = ({
             const timeseriesPlotValueInfo = activeTimeSeries?.length
               ? activeTimeSeries
                   .map((plot) => ({
-                    [plot.name]: plot?.values?.[indexValueUnit]?.value || NaN,
+                    [plot.calculatorExpression]: plot?.values?.[indexValueUnit]?.value || NaN,
                   }))
                   ?.reduce((a, b) => ({
                     ...a,
@@ -254,14 +252,16 @@ export const LineChartGraph = ({
   //Data formatted to represent flight modes on the x-axis, rendered with rechart's ReferenceArea
   const flightModeAreas = useMemo(
     () =>
-      prepareFlightModeAreas(
-        flightModeData,
-        preparedLineData.map((item) => ({
-          timestring: item.timestring,
-          formatted: item.name,
-        })) as { timestring: string; formatted: string }[],
-      ),
-    [flightModeData, preparedLineData],
+      overallData?.flightModeTimeSeries
+        ? prepareFlightModeAreas(
+            overallData.flightModeTimeSeries,
+            preparedLineData.map((item) => ({
+              timestring: item.timestring,
+              formatted: item.name,
+            })) as { timestring: string; formatted: string }[],
+          )
+        : undefined,
+    [overallData, preparedLineData],
   )
 
   //plot name data for labelling plots in chart and brush
@@ -276,8 +276,8 @@ export const LineChartGraph = ({
     const activeTimeSeriesNames = activeTimeSeries
       ?.filter((timeseries) => !timeseries.hidden)
       ?.map((plotTypes: DexieLogFileTimeSeries) => ({
-        name: plotTypes.name,
-        label: `${plotTypes.group}-${plotTypes.name}`,
+        name: plotTypes.calculatorExpression,
+        label: plotTypes.calculatorExpression,
         color: plotTypes.color,
       }))
 
@@ -344,7 +344,7 @@ export const LineChartGraph = ({
                                 top-2
                                 right-8
                                 text-grey-dark`}
-                  >{`FLIGHT ${flightId}`}</div>
+                  >{`FLIGHT ${overallData.flightid}`}</div>
                 </ul>
               )
             }}
@@ -363,7 +363,8 @@ export const LineChartGraph = ({
               label={
                 <Label
                   stroke={plot?.color}
-                  className={`text-[9px] font-thin`}
+                  className={`text-[9px]
+                              font-thin`}
                   position="bottom"
                   value={plot?.label}
                   angle={-90}
@@ -401,7 +402,7 @@ export const LineChartGraph = ({
             </LineChart>
           </Brush>
 
-          {flightModeAreas.map((areaData) => (
+          {flightModeAreas?.map((areaData) => (
             <ReferenceArea
               key={`area-${areaData.start}`}
               x1={areaData.start}

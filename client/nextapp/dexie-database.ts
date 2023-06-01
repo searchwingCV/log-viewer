@@ -13,6 +13,8 @@ export interface DexieLogFileTimeSeries extends LogFileTimeSeries {
     timestamp: Date
     hidden?: boolean
     flightid: number
+    calculatorExpression: string
+    overallDataId: string
 }
 
 export interface DexieCustomPlot {
@@ -26,9 +28,17 @@ export interface DexieCustomPlot {
         timestamp: string;
         value: number;
     }[]
+    overallDataId: string
 }
 
-export type DexieOverallDataTimeSeries = { name: string; id: string, unit: string, dexieKey: string, calculatorExpression: string }
+export type DexieOverallDataTimeSeries = {
+    name: string;
+    id: string,
+    unit: string,
+    calculatorExpression: string
+    messageField: string,
+    messageType: string
+}
 
 export type DexieGroupedProps = Omit<GroupedProps, 'timeSeriesProperties'> & {
     timeSeriesProperties: DexieOverallDataTimeSeries[]
@@ -38,7 +48,8 @@ export type DexieLogOverallData = Omit<LogOverallData, 'groupedProperties'> & {
     groupedProperties: DexieGroupedProps[]
     timestamp: Date
     colorMatrix: DexieTakenColorMatrix[]
-    id: number
+    id: string
+    isIndividualFlight: boolean
 }
 
 export type DexieTakenColorMatrix = {
@@ -48,9 +59,9 @@ export type DexieTakenColorMatrix = {
 
 
 database.version(1).stores({
-    logFileTimeSeries: '++id, propId,  name, group, values, flightid, unit, color, timestamp',
-    overallDataForFlight: '++id, flightid, flightModeTimeSeries, groupedProperties, timestamp, colorMatrix',
-    customFunction: '++id, flightid, customFunction, color, timestamp, hidden',
+    logFileTimeSeries: '++id, propId,  messageField, messageType, values, flightid, unit, color, timestamp, calculatorExpression, overallDataId',
+    overallDataForFlight: '++id, flightid, flightModeTimeSeries, groupedProperties, timestamp, colorMatrix, isIndividualFlight',
+    customFunction: '++id, flightid, customFunction, color, timestamp, hidden, overallDataId',
 });
 
 export const LogFileTimeSeriesTable = database.table('logFileTimeSeries');

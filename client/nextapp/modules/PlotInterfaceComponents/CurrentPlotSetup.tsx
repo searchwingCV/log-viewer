@@ -4,6 +4,7 @@
     with input fields
 */
 import { useRouter } from 'next/router'
+import { useLiveQuery } from 'dexie-react-hooks'
 import { toast } from 'react-toastify'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Button from 'modules/Button'
@@ -28,14 +29,12 @@ export const CurrentPlotSetup = ({
   customPlots,
   overallData,
 }: CurrentPlotSetupProps) => {
-  const router = useRouter()
-  const { id: flightid } = router.query
-
   const clearAllPlots = () => {
     //delete all logFileTimeSeries and customPlots from IndexedDB
     database
       .table('logFileTimeSeries')
-      .clear()
+      .filter((series: DexieCustomPlot) => series.overallDataId === overallData.id)
+      .delete()
       .then(() => {
         console.info('logFileTimeSeries data for flight deleted')
       })
@@ -47,7 +46,8 @@ export const CurrentPlotSetup = ({
 
     database
       .table('customFunction')
-      .clear()
+      .filter((customPlot: DexieCustomPlot) => customPlot.overallDataId === overallData.id)
+      .delete()
       .then(() => {
         console.info('customFunction data for flight deleted')
       })
@@ -78,7 +78,8 @@ export const CurrentPlotSetup = ({
     const emptyCustomFunction = {
       timestamp: new Date(),
       customFunction: '',
-      flightid: parseInt(flightid as string),
+      flightid: overallData.flightid,
+      overallDataId: overallData.id,
     }
     await CustomFunctionTable.add(emptyCustomFunction)
   }
@@ -86,7 +87,8 @@ export const CurrentPlotSetup = ({
   return (
     <div
       className={`
-                     px-4
+                     pl-2
+                     pr-1
                      pt-4
                      text-white`}
     >
@@ -118,18 +120,18 @@ export const CurrentPlotSetup = ({
             ) : null}
 
             {activeTimeSeries?.map((currentChosenTimeSeries) => (
-              <PlotInput
-                key={currentChosenTimeSeries.id}
-                hidden={currentChosenTimeSeries.hidden}
-                activeTimeSeries={activeTimeSeries}
-                initialValue={`${currentChosenTimeSeries.group
-                  .replace('[', '$')
-                  .replace(']', '')}_${currentChosenTimeSeries.name}`.toUpperCase()}
-                timeseriesId={currentChosenTimeSeries.id}
-                customPlots={customPlots}
-                currentColor={currentChosenTimeSeries.color}
-                overallData={overallData}
-              />
+              <>
+                <PlotInput
+                  key={currentChosenTimeSeries.id}
+                  hidden={currentChosenTimeSeries.hidden}
+                  activeTimeSeries={activeTimeSeries}
+                  initialValue={currentChosenTimeSeries.calculatorExpression}
+                  timeseriesId={currentChosenTimeSeries.id}
+                  customPlots={customPlots}
+                  currentColor={currentChosenTimeSeries.color}
+                  overallData={overallData}
+                />
+              </>
             ))}
 
             {customPlots?.length ? (

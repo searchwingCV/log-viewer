@@ -80,6 +80,7 @@ export const PlotCustomizeButtons = ({
       color: colorItem.color,
       taken: colorItem.color === currentColor ? false : colorItem.taken,
     }))
+
     if (overallData?.id) {
       await OverallDataForFlightTable.update(overallData.id, {
         colorMatrix: newColorMatrix,

@@ -11,16 +11,17 @@ import type { NextPageWithLayout } from '../_app'
 const FlightDetailScreen: NextPageWithLayout = ({}) => {
   const router = useRouter()
   const { id } = router.query
+
   const activeOverallData = useLiveQuery(
     () =>
       id
         ? //TODO: solve dexie ts error
           // @ts-expect-error: Dexie not working with TS right now
           database.overallDataForFlight
-            .orderBy('timestamp')
-            .filter((data: DexieLogOverallData) => data.flightid === parseInt(id as string))
-            .reverse()
-            .toArray()
+            ?.orderBy('timestamp')
+            ?.filter((data: DexieLogOverallData) => data.id === id)
+            ?.reverse()
+            ?.toArray()
         : null,
     [id],
   )
@@ -30,22 +31,24 @@ const FlightDetailScreen: NextPageWithLayout = ({}) => {
     () => getLogOverallDataMock(parseInt(id as string)),
     {
       onSuccess: (data) => {
-        const { groupedProperties, ...rest } = data
+        const { groupedProperties, flightid, ...rest } = data
         const dataForIDB = {
           ...rest,
+          id: flightid,
+          flightid: flightid,
           colorMatrix: colorArr.map((color) => ({
             color: color,
             taken: false,
           })),
+          isIndividualFlight: true,
           timestamp: new Date(),
           groupedProperties: groupedProperties.map((groupedProp) => {
             const { timeSeriesProperties } = groupedProp
             const newTimeSeriesProperties = timeSeriesProperties.map((timeseriesProp) => ({
               ...timeseriesProp,
-              dexieKey: `${id}-${timeseriesProp.id}`,
-              calculatorExpression: `${groupedProp.name.replace('[', '$').replace(']', '')}_${
-                timeseriesProp.name
-              }`,
+              calculatorExpression: `${groupedProp.messageType
+                .replace('[', '$')
+                .replace(']', '')}_${timeseriesProp.messageField}`,
             }))
             return {
               ...groupedProp,
@@ -72,14 +75,7 @@ const FlightDetailScreen: NextPageWithLayout = ({}) => {
 
   return (
     <>
-      <FlightDetailView
-        logOverallData={
-          data ||
-          activeOverallData?.find(
-            (item: DexieLogOverallData) => item.flightid === parseInt(id as string),
-          )
-        }
-      />
+      <FlightDetailView />
     </>
   )
 }
