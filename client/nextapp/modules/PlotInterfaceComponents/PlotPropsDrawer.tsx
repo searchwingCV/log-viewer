@@ -3,12 +3,10 @@
  */
 
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useRouter } from 'next/router'
 import { ToastContainer } from 'react-toastify'
 import { useQueryClient, useQuery } from '@tanstack/react-query'
 import clsx from 'clsx'
 import Link from 'next/link'
-import type { GroupedProps } from '@schema'
 import database, {
   type DexieLogFileTimeSeries,
   type DexieCustomPlot,
@@ -19,23 +17,22 @@ import { CurrentPlotSetup } from './CurrentPlotSetup'
 import { PropertyList } from './PropertyList'
 
 export type PlotPropsDrawerProps = {
-  overallData: DexieLogOverallData
-  groupedProperties: GroupedProps[]
+  overallData: DexieLogOverallData[]
 }
 
 export const PLOT_DRAWER_EXTENDED = 'PLOT_DRAWER_EXTENDED'
 
-export const PlotPropsDrawer = ({ overallData, groupedProperties }: PlotPropsDrawerProps) => {
-  const router = useRouter()
-  const { id: flightid } = router.query
+type InteractiveDrawerSectionProps = {
+  flightData: DexieLogOverallData
+}
 
-  //get customPlots from IndexedDB
+export const InteractiveDrawerSection = ({ flightData }: InteractiveDrawerSectionProps) => {
   const customPlots = useLiveQuery(() =>
     //TODO: solve dexie ts error
     // @ts-expect-error: Dexie not working with TS right now
     database.customFunction
       .orderBy('timestamp')
-      .filter((customPlot: DexieCustomPlot) => customPlot.flightid === parseInt(flightid as string))
+      .filter((customPlot: DexieCustomPlot) => customPlot.overallDataId === flightData.id)
       .toArray(),
   )
 
@@ -45,10 +42,28 @@ export const PlotPropsDrawer = ({ overallData, groupedProperties }: PlotPropsDra
     // @ts-expect-error: Dexie not working with TS right now
     database.logFileTimeSeries
       .orderBy('timestamp')
-      .filter((series: DexieLogFileTimeSeries) => series.flightid === parseInt(flightid as string))
+      .filter((series: DexieLogFileTimeSeries) => series.overallDataId === flightData.id)
       .toArray(),
   )
 
+  return (
+    <>
+      <div className="px-4 pt-4 text-xs text-white">{`FLIGHT ${flightData.flightid}`} </div>
+      <CurrentPlotSetup
+        activeTimeSeries={activeTimeSeries}
+        customPlots={customPlots}
+        overallData={flightData}
+      />
+      <PropertyList
+        overallData={flightData}
+        activeTimeSeries={activeTimeSeries}
+        customPlots={customPlots}
+      />
+    </>
+  )
+}
+
+export const PlotPropsDrawer = ({ overallData }: PlotPropsDrawerProps) => {
   const { data: isExtended } = useQuery([PLOT_DRAWER_EXTENDED], () => {
     return true
   })
@@ -74,21 +89,22 @@ export const PlotPropsDrawer = ({ overallData, groupedProperties }: PlotPropsDra
          bottom-0
          z-10
          h-full
-         w-side-drawer
          `,
-
-        isExtended
-          ? `translate-x-0
-             translate-y-0`
-          : 'translate-x-[-200px]',
       )}
+      style={{
+        width: overallData.length * 270,
+        transform: isExtended
+          ? `translateX(0px)`
+          : `translateX(-${overallData.length * 270 - 40}px`,
+      }}
     >
       <>
         <ToastContainer />
         <div
           className={`relative
-                    h-full
-                    overflow-scroll 
+                    flex
+                    h-full 
+                    flex-row
                     bg-y-indigo-to-petrol
                     `}
         >
@@ -106,33 +122,39 @@ export const PlotPropsDrawer = ({ overallData, groupedProperties }: PlotPropsDra
           {isExtended ? (
             <>
               <div
-                className={`pl-6
-                            pt-4`}
+                className={`absolute
+                            left-2
+                            top-4
+                            z-[50]`}
               >
-                <Link href={'/flight-overview'}>
+                <Link href={'/flights'}>
                   <span
-                    className={`text-xs
-                              text-white
-                                hover:underline
-                                hover:underline-offset-8
+                    className={`cursor-pointer rounded-md
+                                bg-[#a3a3e2]
+                                px-2
+                                py-1
+                                text-xs
+                                text-white
+                                hover:bg-[#b8b8ee]
                                `}
                   >
                     Back to FLIGHTS
                   </span>
                 </Link>
               </div>
-              <CurrentPlotSetup
-                activeTimeSeries={activeTimeSeries}
-                customPlots={customPlots}
-                overallData={overallData}
-              />
 
-              <PropertyList
-                groupedProperties={groupedProperties}
-                activeTimeSeries={activeTimeSeries}
-                customPlots={customPlots}
-                overallData={overallData}
-              />
+              {overallData?.map((flightData) => (
+                <div
+                  key={`drawer-${flightData.id}`}
+                  className={`h-full
+                              w-full
+                              overflow-scroll
+                              pt-12
+                              pr-3`}
+                >
+                  <InteractiveDrawerSection flightData={flightData} />
+                </div>
+              ))}
             </>
           ) : null}
         </div>

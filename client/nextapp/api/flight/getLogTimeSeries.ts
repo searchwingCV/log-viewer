@@ -23,72 +23,208 @@ const series2 = new Series({
 
 const mockData: LogFileTimeSeries[] = [
     {
-        name: 'VE',
-        group: 'XKF1[0]',
-        id: 've-xkf10',
+        messageField: 'VE',
+        messageType: 'XKF1[0]',
+        //id: 've-xkf10',
         flightid: 1,
         values: series1.cos().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 10,
         })),
-        unit: "V"
+        //unit: "V"
     },
     {
-        name: 'VN',
-        group: 'XKF1[0]',
-        id: 'vn-xkf10',
+        messageField: 'VN',
+        messageType: 'XKF1[0]',
+        //id: 'vn-xkf10',
         flightid: 1,
         values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 20,
         })),
-        unit: "V"
+        //unit: "V"
 
     },
     {
-        name: 'Curr',
-        group: 'BAT',
-        id: 'curr-bat',
+        messageField: 'Curr',
+        messageType: 'BAT',
+        //id: 'curr-bat',
         flightid: 1,
         values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 10 + 100,
         })),
-        unit: "A"
+        //unit: "A"
 
     },
     {
-        name: 'Temp',
-        group: 'BAT',
-        id: 'temp-bat',
+        messageField: 'Temp',
+        messageType: 'BAT',
+        //id: 'temp-bat',
         flightid: 1,
         values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 40,
         })),
-        unit: "Celsius"
+        //unit: "Celsius"
     },
     {
-        name: 'I',
-        group: 'BARO',
-        id: 'i-baro',
+        messageField: 'I',
+        messageType: 'BARO',
+        //id: 'i-baro',
         flightid: 1,
         values: series2.sin().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 10,
         })),
-        unit: "instance"
+        //unit: "instance"
     },
     {
-        name: 'GndTemp',
-        group: 'BARO',
+        messageField: 'GndTemp',
+        messageType: 'BARO',
         flightid: 1,
-        id: 'gndtemp-baro',
+        //id: 'gndtemp-baro',
         values: series2.cos().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
-            value: item.value * 20,
+            value: item.value * 25 + 100,
         })),
-        unit: "Celsius"
+        //unit: "Celsius"
+    },
+    {
+        messageField: 'MagX',
+        messageType: 'MAG[0]',
+        flightid: 1,
+        //id: 'gndtemp-baro',
+        values: series2.cos().map((item: { timestamp: string; value: number }) => ({
+            timestamp: item.timestamp,
+            value: item.value * 100 + 20,
+        })),
+        //unit: "Celsius"
+    },
+
+    {
+        messageField: 'MagY',
+        messageType: 'MAG[0]',
+        flightid: 1,
+        //id: 'gndtemp-baro',
+        values: series2.cos().map((item: { timestamp: string; value: number }) => ({
+            timestamp: item.timestamp,
+            value: item.value * 20 + 134,
+        })),
+        //unit: "Celsius"
+    },
+    {
+        messageField: 'MOX',
+        messageType: 'MAG[0]',
+        flightid: 1,
+        //id: 'gndtemp-baro',
+        values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
+            timestamp: item.timestamp,
+            value: item.value * 3,
+        })),
+        //unit: "Celsius"
+    },
+    {
+        messageField: 'VE',
+        messageType: 'XKF1[0]',
+        //id: 've-xkf10',
+        flightid: 2,
+        values: series1.cos().map((item: { timestamp: string; value: number }) => ({
+            timestamp: item.timestamp,
+            value: item.value * 100,
+        })),
+        //unit: "V"
+    },
+    {
+        messageField: 'VN',
+        messageType: 'XKF1[0]',
+        //id: 'vn-xkf10',
+        flightid: 2,
+        values: series2.sin().map((item: { timestamp: string; value: number }) => ({
+            timestamp: item.timestamp,
+            value: item.value * 200,
+        })),
+        //unit: "V"
+
+    },
+    {
+        messageField: 'Curr',
+        messageType: 'BAT',
+        //id: 'curr-bat',
+        flightid: 2,
+        values: series2.cos().map((item: { timestamp: string; value: number }) => ({
+            timestamp: item.timestamp,
+            value: item.value * 100 + 100,
+        })),
+        //unit: "A"
+
+    },
+    {
+        messageField: 'Temp',
+        messageType: 'BAT',
+        //id: 'temp-bat',
+        flightid: 2,
+        values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
+            timestamp: item.timestamp,
+            value: item.value * 400,
+        })),
+        //unit: "Celsius"
+    },
+    {
+        messageField: 'I',
+        messageType: 'BARO',
+        //id: 'i-baro',
+        flightid: 2,
+        values: series2.cos().map((item: { timestamp: string; value: number }) => ({
+            timestamp: item.timestamp,
+            value: item.value * 100,
+        })),
+        //unit: "instance"
+    },
+    {
+        messageField: 'GndTemp',
+        messageType: 'BARO',
+        flightid: 2,
+        //id: 'gndtemp-baro',
+        values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
+            timestamp: item.timestamp,
+            value: item.value * 25 + 150,
+        })),
+        //unit: "Celsius"
+    },
+    {
+        messageField: 'MagX',
+        messageType: 'MAG[0]',
+        flightid: 2,
+        //id: 'gndtemp-baro',
+        values: series2.sin().map((item: { timestamp: string; value: number }) => ({
+            timestamp: item.timestamp,
+            value: item.value / 150 + 20,
+        })),
+        //unit: "Celsius"
+    },
+
+    {
+        messageField: 'MagY',
+        messageType: 'MAG[0]',
+        flightid: 2,
+        //id: 'gndtemp-baro',
+        values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
+            timestamp: item.timestamp,
+            value: item.value * 80 + 134,
+        })),
+        //unit: "Celsius"
+    },
+    {
+        messageField: 'MOX',
+        messageType: 'MAG[0]',
+        flightid: 2,
+        //id: 'gndtemp-baro',
+        values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
+            timestamp: item.timestamp,
+            value: item.value / 3 + 134,
+        })),
+        //unit: "Celsius"
     },
 ]
 
@@ -96,8 +232,8 @@ const mockData: LogFileTimeSeries[] = [
 
 
 
-export const getLogPropertyTimeSeriesMock = async (logSeriesParams: { key: string, flightid: number }) => {
-    const timeseries = await mockData.find((item) => logSeriesParams.key === item.id) || mockData[0]
+export const getLogPropertyTimeSeriesMock = async (logSeriesParams: { messageType: string, messageField: string, flightid: number }) => {
+    const timeseries = await mockData.find((item) => logSeriesParams.messageField === item.messageField && logSeriesParams.messageType === item.messageType && logSeriesParams.flightid === item.flightid) || mockData[0]
     return timeseries
 }
 

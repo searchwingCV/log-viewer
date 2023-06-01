@@ -1,3 +1,3 @@
-import { MissionTableOverview } from "./MissionTableOberview";
+import { MissionTableOverview } from "./MissionTableOverview";
 
 export default MissionTableOverview

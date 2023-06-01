@@ -7,7 +7,6 @@ import { useState, useMemo } from 'react'
 import Tippy from '@tippyjs/react'
 import useElementSize from '@charlietango/use-element-size'
 import { useMutation } from '@tanstack/react-query'
-import { useRouter } from 'next/router'
 import { toast } from 'react-toastify'
 import clsx from 'clsx'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -17,52 +16,54 @@ import {
   type DexieCustomPlot,
   type DexieLogOverallData,
 } from '@idbSchema'
-import type { GroupedProps } from '@schema'
 import { getLogPropertyTimeSeriesMock } from 'api/flight/getLogTimeSeries'
-
 import { Disclosure, DisclosurePanel } from './Disclosure'
 import { PlotCustomizeButtons } from './PlotCustomizeButtons'
 import { getFreeColor } from './colorUpdateFunctions'
 
 type DrawerProperty = {
   label: string
-  name: string
+  combinedName: string
   originalName: string
-  id: string
-  groupName: string
+  messageType: string
 }
 
 export type PropertyListProps = {
-  groupedProperties: GroupedProps[]
+  overallData: DexieLogOverallData
   activeTimeSeries: DexieLogFileTimeSeries[]
   customPlots: DexieCustomPlot[]
-  overallData: DexieLogOverallData
 }
 
-export const PropertyList = ({
-  groupedProperties,
-  activeTimeSeries,
-  customPlots,
-  overallData,
-}: PropertyListProps) => {
+export const PropertyList = ({ overallData, activeTimeSeries, customPlots }: PropertyListProps) => {
   const [ref, size] = useElementSize()
-
-  const router = useRouter()
-  const { id: flightid } = router.query
 
   //fetch timeseries on click
   const fetchTimeSeriesOnClick = useMutation(getLogPropertyTimeSeriesMock, {
     onSuccess: async (data) => {
-      const { id, ...rest } = data
+      const { messageType, messageField, flightid, ...rest } = data
       const assignedColor = await getFreeColor({ overallData })
+
       const dataForIDB = {
         ...rest,
-        id: `${parseInt(flightid as string)}-${id}`,
-        propId: id,
-        flightid: parseInt(flightid as string),
+        id: `${
+          overallData.isIndividualFlight
+            ? `${flightid}-${messageField}-${messageType}`
+            : `${flightid}-${overallData.id}-${messageField}-${messageType}`
+        }`
+          .toLowerCase()
+          .replace(',', '')
+          .replace('[', '')
+          .replace(']', ''),
+        propId: `${messageField}-${messageType}`.toLowerCase().replace('[', '').replace(']', ''),
+        overallDataId: overallData.id,
+        messageField,
+        messageType,
         timestamp: new Date(),
         hidden: false,
         color: assignedColor,
+        calculatorExpression: `${messageType
+          .replace('[', '$')
+          .replace(']', '')}_${messageField}`.toUpperCase(),
       }
 
       await LogFileTimeSeriesTable.add(dataForIDB)
@@ -77,45 +78,44 @@ export const PropertyList = ({
 
   const [query, setQuery] = useState('')
 
-  const isSavedToIndexedDB = (id: string) => {
-    //checks if timeseries is already in IndexedDB
-    return activeTimeSeries?.map((item: DexieLogFileTimeSeries) => item.propId).includes(id)
-  }
-
-  const fetchClickedProperty = (timeseriesId: string) => {
+  const fetchClickedProperty = (messageType: string, messageField: string) => {
     //performs fetch mutation
     fetchTimeSeriesOnClick.mutate({
-      key: timeseriesId,
-      flightid: parseInt(flightid as string),
+      messageType,
+      messageField,
+      flightid: overallData.flightid,
     })
   }
 
   //timeseries data are grouped, each group is a disclosure in PropertyList
   const groups = useMemo(
     () =>
-      groupedProperties?.map((prop) => ({
-        name: prop.name,
+      overallData.groupedProperties?.map((prop) => ({
+        messageType: prop.messageType,
         items: prop.timeSeriesProperties.map((item) => ({
-          label: `${item.name} (${item.unit})`,
-          name: `${prop.name} ${item.id} ${item.name}`,
-          originalName: item.name,
-          id: item.id,
-          groupName: prop.name,
+          label: `${item.messageField}` + (item?.unit ? `(${item?.unit})` : ''),
+          combinedName: `${prop.messageType} ${item.messageField}`,
+          originalName: item.messageField,
+          propId: `${item.messageField}-${prop.messageType}`
+            .toLowerCase()
+            .replace('[', '')
+            .replace(']', ''),
+          messageType: prop.messageType,
         })),
       })),
-    [groupedProperties],
+    [overallData],
   )
 
   const getExpresson = (propItem: DrawerProperty) => {
     //get the calculator expression that is important for PlotInput
-    return `${propItem.groupName.replace('[', '$').replace(']', '')}_${
+    return `${propItem.messageType.replace('[', '$').replace(']', '')}_${
       propItem.originalName
     }`.toUpperCase()
   }
 
-  const getDexieActiveTimeSeries = (id: string) => {
+  const getDexieActiveTimeSeries = (propId: string) => {
     //returns timeseries linked the the given id from IndexedDb
-    return activeTimeSeries?.find((item) => item.id === `${flightid}-${id}`)
+    return activeTimeSeries?.find((item) => item.propId === propId)
   }
 
   return (
@@ -128,7 +128,8 @@ export const PropertyList = ({
         ref={ref}
         className={`
                    overflow-visible
-                  px-4`}
+                   pl-2
+                   pr-1`}
       >
         <Disclosure buttonContent={'Plot individual fields'} isSpecialButton>
           <DisclosurePanel>
@@ -155,22 +156,23 @@ export const PropertyList = ({
                   placeholder="Search for individual property..."
                 />
                 {groups
-                  .filter((group) => {
+                  ?.filter((group) => {
                     return (
                       group.items.filter((item) =>
-                        item.name.toLowerCase().includes(query.toLowerCase()),
+                        item.combinedName.toLowerCase().includes(query.toLowerCase()),
                       ).length > 0
                     )
                   })
                   .map((group) => (
-                    <Disclosure buttonContent={group.name} key={group.name}>
+                    <Disclosure buttonContent={group.messageType} key={group.messageType}>
                       <>
                         {group.items.map((item) => (
-                          <DisclosurePanel key={`${group.name}-${item.name}`}>
+                          <DisclosurePanel key={`${group.messageType}-${item.combinedName}`}>
                             <Tippy
-                              content={`Copy calculator expression ${item.groupName
+                              content={`Copy calculator expression ${item.messageType
                                 .replace('[', '$')
-                                .replace(']', '')}_${item.originalName} to clipboard`}
+                                .replace(']', '')
+                                .toUpperCase()}_${item.originalName.toUpperCase()} to clipboard`}
                             >
                               <div
                                 className={`pl-2
@@ -183,9 +185,9 @@ export const PropertyList = ({
                                   onClick={async () => {
                                     await navigator.clipboard
                                       .writeText(
-                                        `${item.groupName.replace('[', '$').replace(']', '')}_${
+                                        `${item.messageType.replace('[', '$').replace(']', '')}_${
                                           item.originalName
-                                        }`,
+                                        }`.toUpperCase(),
                                       )
                                       .then(() => console.info('copied'))
                                       .catch((e) => console.error(e))
@@ -203,27 +205,32 @@ export const PropertyList = ({
                                     pl-2
                                     text-left
                                     text-xs`,
-                                isSavedToIndexedDB(item.id)
+                                getDexieActiveTimeSeries(item.propId)
                                   ? `pointer-events-none
                                      w-full
                                    text-grey-light
                                     `
                                   : 'text-grey-light',
                               )}
-                              onClick={() => fetchClickedProperty(item.id)}
+                              onClick={() =>
+                                fetchClickedProperty(item.messageType, item.originalName)
+                              }
                             >
                               <span>{item.label}</span>
                             </button>
 
-                            {getDexieActiveTimeSeries(item.id) ? (
+                            {getDexieActiveTimeSeries(item.propId) ? (
                               <PlotCustomizeButtons
-                                hidden={getDexieActiveTimeSeries(item.id)?.hidden}
+                                hidden={getDexieActiveTimeSeries(item.propId)?.hidden}
                                 activeTimeSeries={activeTimeSeries}
                                 isValid={true}
                                 customPlots={customPlots}
                                 initialValue={getExpresson(item)}
-                                timeseriesId={`${flightid}-${item.id}`}
-                                currentColor={getDexieActiveTimeSeries(item.id)?.color}
+                                timeseriesId={`${overallData.id}-${item.originalName}-${item.messageType}`
+                                  .toLowerCase()
+                                  .replace('[', '')
+                                  .replace(']', '')}
+                                currentColor={getDexieActiveTimeSeries(item.propId)?.color}
                                 overallData={overallData}
                                 value={getExpresson(item)}
                                 isInPropertyList
