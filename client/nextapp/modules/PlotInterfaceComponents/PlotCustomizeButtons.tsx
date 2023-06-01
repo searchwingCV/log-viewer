@@ -166,7 +166,10 @@ export const PlotCustomizeButtons = ({
   }
 
   return (
-    <div className={`flex`}>
+    <div
+      className={`relative
+                  flex`}
+    >
       {initialValue ? (
         <Menu>
           {({ open }) => (
@@ -174,6 +177,7 @@ export const PlotCustomizeButtons = ({
               <Menu.Button
                 className={clsx(
                   `
+                   relative
                    mr-1
                    flex
                    h-4
@@ -204,17 +208,16 @@ export const PlotCustomizeButtons = ({
               </Menu.Button>
               <Menu.Items
                 className={clsx(
-                  `fixed
+                  ` absolute
+                    top-8
+                    right-3
                     z-[200]
-                    w-7
+                    grid
+                    w-36
+                    grid-cols-6
                     rounded-md
-                  bg-black
+                    bg-black
                     shadow-xl`,
-                  isInPropertyList
-                    ? `bottom-0
-                       right-3`
-                    : `top-6
-                       right-3`,
                 )}
               >
                 {overallData?.colorMatrix
