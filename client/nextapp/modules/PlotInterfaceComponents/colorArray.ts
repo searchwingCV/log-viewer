@@ -50,5 +50,11 @@ export const
         '#FF1A66',
         '#E6331A',
         '#33FFCC',
-
+        "#DBA2E6",
+        "#76FC1B",
+        "#608FA4",
+        "#20F6BA",
+        "#07D7F6",
+        "#DCE77A",
+        "#77ECCA"
     ]
