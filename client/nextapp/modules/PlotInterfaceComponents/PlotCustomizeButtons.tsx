@@ -107,7 +107,7 @@ export const PlotCustomizeButtons = ({
 
   const togglePlotVisibility = async ({ isHidden }: { isHidden: boolean }) => {
     try {
-      //just hides the plot or the timeseries and does not delete it
+      //just hides or shows the plot or the timeseries and does not delete it
       if (timeseriesId) {
         //TODO: solve dexie ts error
         // @ts-expect-error: Dexie not working with TS right now
