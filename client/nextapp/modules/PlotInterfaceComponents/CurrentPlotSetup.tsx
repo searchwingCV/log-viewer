@@ -3,9 +3,8 @@
     shows the currently fetched timeseries and created custom plots
     with input fields
 */
-import { useRouter } from 'next/router'
-import { useLiveQuery } from 'dexie-react-hooks'
 import { toast } from 'react-toastify'
+import type { DexieError } from 'dexie'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Button from 'modules/Button'
 import database, {
@@ -15,6 +14,7 @@ import database, {
   OverallDataForFlightTable,
   type DexieLogOverallData,
 } from '@idbSchema'
+import { IndexDBErrorMessage } from '@lib/ErrorMessage'
 import { Disclosure, DisclosurePanel } from './Disclosure'
 import { PlotInput } from './PlotInput'
 
@@ -29,51 +29,42 @@ export const CurrentPlotSetup = ({
   customPlots,
   overallData,
 }: CurrentPlotSetupProps) => {
-  const clearAllPlots = () => {
-    //delete all logFileTimeSeries and customPlots from IndexedDB
-    database
-      .table('logFileTimeSeries')
-      .filter((series: DexieCustomPlot) => series.overallDataId === overallData.id)
-      .delete()
-      .then(() => {
-        console.info('logFileTimeSeries data for flight deleted')
-      })
-      .catch((e) =>
-        toast(`deleting logFileTimeSeries, ${e}`, {
-          type: 'error',
-        }),
-      )
+  const clearAllPlots = async () => {
+    try {
+      //delete all logFileTimeSeries and customPlots from IndexedDB
+      await database
+        .table('logFileTimeSeries')
+        .filter((series: DexieCustomPlot) => series.overallDataId === overallData.id)
+        .delete()
+        .then(() => {
+          console.info('logFileTimeSeries data for flight deleted')
+        })
 
-    database
-      .table('customFunction')
-      .filter((customPlot: DexieCustomPlot) => customPlot.overallDataId === overallData.id)
-      .delete()
-      .then(() => {
-        console.info('customFunction data for flight deleted')
-      })
-      .catch((e) =>
-        toast(`deleting customFunctions, ${e}`, {
-          type: 'error',
-        }),
-      )
+      await database
+        .table('customFunction')
+        .filter((customPlot: DexieCustomPlot) => customPlot.overallDataId === overallData.id)
+        .delete()
 
-    OverallDataForFlightTable.update(overallData.id, {
-      colorMatrix: overallData.colorMatrix.map((color) => ({
-        color: color.color,
-        taken: false,
-      })),
-    })
-      .then(() => {
+      await OverallDataForFlightTable.update(overallData.id, {
+        colorMatrix: overallData.colorMatrix.map((color) => ({
+          color: color.color,
+          taken: false,
+        })),
+      }).then(() => {
         console.info('Colormatrix data for flight reset')
       })
-      .catch((e) =>
-        toast(`error resetting color matrix , ${e}`, {
+    } catch (e: any) {
+      if ('message' in e && 'name' in e) {
+        toast(<IndexDBErrorMessage error={e} event="clear plots" />, {
           type: 'error',
-        }),
-      )
+          delay: 1,
+          position: toast.POSITION.BOTTOM_CENTER,
+        })
+      }
+    }
   }
 
-  const addEmptyField = async () => {
+  const addEmptyField = () => {
     //for adding an empty CustomPlot
     const emptyCustomFunction = {
       timestamp: new Date(),
@@ -81,7 +72,13 @@ export const CurrentPlotSetup = ({
       flightid: overallData.flightid,
       overallDataId: overallData.id,
     }
-    await CustomFunctionTable.add(emptyCustomFunction)
+    CustomFunctionTable.add(emptyCustomFunction).catch((e: DexieError) => {
+      toast(<IndexDBErrorMessage error={e} event="add empty plot input field" />, {
+        type: 'error',
+        delay: 1,
+        position: toast.POSITION.BOTTOM_CENTER,
+      })
+    })
   }
 
   return (

@@ -1,6 +1,7 @@
 //TODO: Refactor code of FlightTableOverview, MissionTableOverview & DroneTableOverview to avoid duplicate code
 import 'regenerator-runtime/runtime'
 import React, { useMemo } from 'react'
+import type { AxiosError } from 'axios'
 import useElementSize from '@charlietango/use-element-size'
 import { useRouter } from 'next/router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -23,6 +24,7 @@ import {
 import { FormProvider, useForm } from 'react-hook-form'
 import Button from 'modules/Button'
 import type { DroneSerializer, DroneUpdate } from '@schema'
+import { ApiErrorMessage } from '@lib/ErrorMessage'
 import { patchDrones } from '~/api/drone/patchDrones'
 import { ALL_DRONES_KEY } from '~/api/drone/getDrones'
 import {
@@ -63,10 +65,11 @@ export const DroneTableOverview = ({
 
       await queryClient.invalidateQueries([ALL_DRONES_KEY])
     },
-    onError: (error) => {
-      toast(`Error submitting data.${error}`, {
+    onError: (error: AxiosError<any>) => {
+      toast(<ApiErrorMessage error={error} />, {
         type: 'error',
         position: toast.POSITION.BOTTOM_CENTER,
+        delay: 1,
       })
     },
   })

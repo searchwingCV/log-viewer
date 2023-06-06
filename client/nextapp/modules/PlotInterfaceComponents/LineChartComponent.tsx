@@ -127,7 +127,7 @@ export const LineChartComponent = ({ overallData }: LineChartComponentProps) => 
     // @ts-expect-error: Dexie not working with TS right now
     database.customFunction
       .orderBy('timestamp')
-      .filter((plot: DexieCustomPlot) => plot.overallDataId === overallData.id)
+      .filter((plot: DexieCustomPlot) => plot.overallDataId === overallData?.id)
       .toArray(),
   )
 
@@ -136,7 +136,7 @@ export const LineChartComponent = ({ overallData }: LineChartComponentProps) => 
     // @ts-expect-error: Dexie not working with TS right now
     database.logFileTimeSeries
       .orderBy('timestamp')
-      .filter((series: DexieLogFileTimeSeries) => series.overallDataId === overallData.id)
+      .filter((series: DexieLogFileTimeSeries) => series.overallDataId === overallData?.id)
       .toArray(),
   )
 
@@ -344,7 +344,7 @@ export const LineChartGraph = ({
                                 top-2
                                 right-8
                                 text-grey-dark`}
-                  >{`FLIGHT ${overallData.flightid}`}</div>
+                  >{`FLIGHT ${overallData?.flightid}`}</div>
                 </ul>
               )
             }}
