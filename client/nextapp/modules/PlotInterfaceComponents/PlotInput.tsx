@@ -124,11 +124,17 @@ export const PlotInput = ({
         }
       } catch (e: any) {
         if ('message' in e && 'name' in e) {
-          toast(<IndexDBErrorMessage error={e} />, {
-            type: 'error',
-            delay: 1,
-            position: toast.POSITION.BOTTOM_CENTER,
-          })
+          toast(
+            <IndexDBErrorMessage
+              error={e}
+              event="adding timeseries to indexeddb on typing in expression"
+            />,
+            {
+              type: 'error',
+              delay: 1,
+              position: toast.POSITION.BOTTOM_CENTER,
+            },
+          )
         }
       }
     },
