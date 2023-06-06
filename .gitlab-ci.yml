@@ -3,8 +3,8 @@ test-server:
     - merge_requests
   image: python:3.10.10-slim-buster
   variables:
-    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-    PYTHONPATH: "./server:./server/src"
+    PIP_CACHE_DIR: '$CI_PROJECT_DIR/.cache/pip'
+    PYTHONPATH: './server:./server/src'
     POSTGRES_USER: searchwing
     POSTGRES_PASSWORD: searchwing
     POSTGRES_DB: searchwing
@@ -19,22 +19,23 @@ test-server:
     paths:
       - .cache/pip
       - venv/
+      - client/nextapp/node_modules
   before_script:
-  - apt update -y && apt install make -y
-  - apt-get update && apt-get -y install libpq-dev gcc curl
-  - make --version
-  - python --version
-  - pip install virtualenv
-  - virtualenv venv
-  - source venv/bin/activate
-  - make install-back-deps
-  - make install-back-test-deps
+    - apt update -y && apt install make -y
+    - apt-get update && apt-get -y install libpq-dev gcc curl
+    - make --version
+    - python --version
+    - pip install virtualenv
+    - virtualenv venv
+    - source venv/bin/activate
+    - make install-back-deps
+    - make install-back-test-deps
   script:
-  - make lint-server
-  - make test-server
-  - curl -Os https://uploader.codecov.io/latest/linux/codecov
-  - chmod +x codecov
-  - ./codecov -t $CODECOV_TOKEN -R $CI_PROJECT_DIR
+    - make lint-server
+    - make test-server
+    - curl -Os https://uploader.codecov.io/latest/linux/codecov
+    - chmod +x codecov
+    - ./codecov -t $CODECOV_TOKEN -R $CI_PROJECT_DIR
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     reports:
@@ -62,7 +63,7 @@ deploy-dev:
     BACKEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/server:$CI_COMMIT_REF_SLUG
     FRONTEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/client:$CI_COMMIT_REF_SLUG
     WORKER_IMAGE_TAG: $CI_REGISTRY_IMAGE/worker:$CI_COMMIT_REF_SLUG
-    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_CERTDIR: '/certs'
     ENVIRONMENT: staging
   environment: staging
   image: docker:latest
@@ -88,7 +89,7 @@ deploy:
     BACKEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/server:$CI_COMMIT_REF_SLUG
     WORKER_IMAGE_TAG: $CI_REGISTRY_IMAGE/worker:$CI_COMMIT_REF_SLUG
     FRONTEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/client:$CI_COMMIT_REF_SLUG
-    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_CERTDIR: '/certs'
     ENVIRONMENT: production
   environment: production
   image: docker:latest
