@@ -8,9 +8,11 @@
 import { useState, useEffect, useMemo } from 'react'
 import { toast } from 'react-toastify'
 import { evaluate } from 'mathjs'
+import type { AxiosError } from 'axios'
 import { useMutation } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { useRouter } from 'next/router'
+import { ApiErrorMessage, IndexDBErrorMessage } from '@lib/ErrorMessage'
 import { getBulkLogPropertyTimeSeriesMock } from '~/api/flight/getBulkLogTImeSeries'
 
 import database, {
@@ -120,11 +122,20 @@ export const PlotInput = ({
             await deleteCustomIfIndividualField()
           })
         }
-      } catch (e) {}
+      } catch (e: any) {
+        if ('message' in e && 'name' in e) {
+          toast(<IndexDBErrorMessage error={e} />, {
+            type: 'error',
+            delay: 1,
+            position: toast.POSITION.BOTTOM_CENTER,
+          })
+        }
+      }
     },
-    onError: (e) => {
-      toast(`error fetching, ${e}`, {
+    onError: (error: AxiosError<any>) => {
+      toast(<ApiErrorMessage error={error} />, {
         type: 'error',
+        delay: 1,
       })
     },
   })
@@ -148,45 +159,61 @@ export const PlotInput = ({
 
     const finalNewTimeseriesArray = createFinalTimeseriesArray(scope, value)
 
-    if (!isCustom) {
-      const assignedColor = await getFreeColor({ overallData })
+    try {
+      if (!isCustom) {
+        const assignedColor = await getFreeColor({ overallData })
 
-      //if the original input field was for plotting individualFields and has be en
-      //enriched with custom expressions
-      //we create a new custom function but keep the original individual field
-      const customFunction = {
-        timestamp: new Date(),
-        customFunction: value,
-        flightid: parseInt(flightid as string),
-        values: finalNewTimeseriesArray,
-        color: assignedColor,
-        overallDataId: overallData.id,
+        //if the original input field was for plotting individualFields and has be en
+        //enriched with custom expressions
+        //we create a new custom function but keep the original individual field
+        const customFunction = {
+          timestamp: new Date(),
+          customFunction: value,
+          flightid: parseInt(flightid as string),
+          values: finalNewTimeseriesArray,
+          color: assignedColor,
+          overallDataId: overallData.id,
+        }
+        await CustomFunctionTable.add(customFunction)
+        setValue(initialValue)
+      } else {
+        //otherwise we update the customplot
+        await CustomFunctionTable.update(customPlotId, {
+          customFunction: value,
+          overallDataId: overallData.id,
+          values: finalNewTimeseriesArray,
+          ...(!initialValue && { color: await getFreeColor({ overallData }) }),
+        })
       }
-      await CustomFunctionTable.add(customFunction)
-      setValue(initialValue)
-    } else {
-      //otherwise we update the customplot
-      await CustomFunctionTable.update(customPlotId, {
-        customFunction: value,
-        overallDataId: overallData.id,
-        values: finalNewTimeseriesArray,
-        ...(!initialValue && { color: await getFreeColor({ overallData }) }),
-      })
+    } catch (e: any) {
+      if ('message' in e && 'name' in e) {
+        toast(<IndexDBErrorMessage error={e} event="create or update custom plot" />, {
+          type: 'error',
+          delay: 1,
+          position: toast.POSITION.BOTTOM_CENTER,
+        })
+      }
     }
   }
 
-  const clearCustomPlot = async (customPlotId: string) => {
+  const clearCustomPlot = (customPlotId: string) => {
     //deletes custom plot, here we need to delete empty customPlots
 
     // TODO: solve dexie ts error
     // @ts-expect-error: Dexie not working with TS right now
-    await database.customFunction.delete(customPlotId)
+    database.customFunction.delete(customPlotId).catch((e) =>
+      toast(<IndexDBErrorMessage error={e} event="clear custom plots" />, {
+        type: 'error',
+        delay: 1,
+        position: toast.POSITION.BOTTOM_CENTER,
+      }),
+    )
   }
 
-  const deleteCustomIfIndividualField = async () => {
+  const deleteCustomIfIndividualField = () => {
     //if input only represents one individual field and used to be a customPlot, delete the custom
     if (isCustom && containsOnlyIndividualField(value, flatCalculatorVarArray) && customPlotId) {
-      await clearCustomPlot(customPlotId)
+      clearCustomPlot(customPlotId)
     }
   }
 

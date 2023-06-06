@@ -22,3 +22,7 @@ html {
 .row-pointer-events-none select {
   pointer-events: none !important;
 }
+
+.Toastify__toast-body {
+  white-space: pre-line;
+}

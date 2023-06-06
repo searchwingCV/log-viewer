@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { AxiosError } from 'axios'
 import { animated, useSpring } from '@react-spring/web'
 import { useForm, Controller } from 'react-hook-form'
 import { ToastContainer, toast } from 'react-toastify'
@@ -13,6 +14,7 @@ import { SelectReactHookForm } from '~/modules/Select/SelectReactHookForm'
 import { postFlight } from '~/api/flight/postFlight'
 import { putLogFile } from '~/api/flight/putLogFile'
 import { useGoToLastTablePage } from '@lib/hooks/useGoToLastTablePage'
+import { ApiErrorMessage } from '@lib/ErrorMessage'
 import FileUpload from '~/modules/FileUpload'
 
 interface AddFlightForm extends CreateFlightSerializer {
@@ -109,13 +111,12 @@ export const AddFlightView = () => {
         }
       }
     },
-    onError: async (error) => {
-      toast(`error submitting meta data ${error}`, {
+    onError: (error: AxiosError<any>) => {
+      toast(<ApiErrorMessage error={error} />, {
         type: 'error',
         position: toast.POSITION.BOTTOM_CENTER,
+        delay: 1,
       })
-      //TODO find out why error message disappears immediately without a timeout
-      await new Promise((resolve) => setTimeout(resolve, 100))
     },
   })
 
@@ -133,13 +134,12 @@ export const AddFlightView = () => {
       }
     },
 
-    onError: async (error) => {
-      toast(`error submitting meta data ${error}`, {
+    onError: (error: AxiosError<any>) => {
+      toast(<ApiErrorMessage error={error} />, {
         type: 'error',
         position: toast.POSITION.BOTTOM_CENTER,
+        delay: 1,
       })
-      //TODO find out why error message disappears immediately without a timeout
-      await new Promise((resolve) => setTimeout(resolve, 100))
     },
   })
 
@@ -162,8 +162,6 @@ export const AddFlightView = () => {
       <>
         <ToastContainer />
         <form className="relative w-[600px] [&>div]:mt-8" onSubmit={onSubmit}>
-          <ToastContainer autoClose={5000} />
-
           <SelectReactHookForm<AddFlightForm>
             register={register}
             rules={{

@@ -1,6 +1,9 @@
 import { useRouter } from 'next/router'
 import { useQuery } from '@tanstack/react-query'
+import type { DexieError } from 'dexie'
 import { useLiveQuery } from 'dexie-react-hooks'
+import { ToastContainer, toast } from 'react-toastify'
+import { IndexDBErrorMessage } from '@lib/ErrorMessage'
 import { colorArr } from 'modules/PlotInterfaceComponents/colorArray'
 import FlightComparisonView from 'views/FlightComparisonView'
 import { Layout } from '~/modules/Layouts/Layout'
@@ -72,7 +75,13 @@ const FlightCompareScreen: NextPageWithLayout = ({}) => {
               .then(() => {
                 console.info('overall data for flight added')
               })
-              .catch((e) => console.error(e))
+              .catch((e: DexieError) => {
+                toast(<IndexDBErrorMessage error={e} event="fetch overall log data" />, {
+                  type: 'error',
+                  delay: 1,
+                  position: toast.POSITION.BOTTOM_CENTER,
+                })
+              })
           })
         }
       },
@@ -94,6 +103,7 @@ const FlightCompareScreen: NextPageWithLayout = ({}) => {
 
   return (
     <>
+      <ToastContainer />
       <FlightComparisonView />
     </>
   )

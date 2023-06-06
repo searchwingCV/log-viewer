@@ -3,7 +3,6 @@
  */
 
 import { useLiveQuery } from 'dexie-react-hooks'
-import { ToastContainer } from 'react-toastify'
 import { useQueryClient, useQuery } from '@tanstack/react-query'
 import clsx from 'clsx'
 import Link from 'next/link'
@@ -99,7 +98,6 @@ export const PlotPropsDrawer = ({ overallData }: PlotPropsDrawerProps) => {
       }}
     >
       <>
-        <ToastContainer />
         <div
           className={`relative
                     flex

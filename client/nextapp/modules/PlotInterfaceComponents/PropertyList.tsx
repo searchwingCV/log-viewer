@@ -5,6 +5,7 @@
 
 import { useState, useMemo } from 'react'
 import Tippy from '@tippyjs/react'
+import type { AxiosError } from 'axios'
 import useElementSize from '@charlietango/use-element-size'
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
@@ -16,6 +17,7 @@ import {
   type DexieCustomPlot,
   type DexieLogOverallData,
 } from '@idbSchema'
+import { ApiErrorMessage, IndexDBErrorMessage } from '@lib/ErrorMessage'
 import { getLogPropertyTimeSeriesMock } from 'api/flight/getLogTimeSeries'
 import { Disclosure, DisclosurePanel } from './Disclosure'
 import { PlotCustomizeButtons } from './PlotCustomizeButtons'
@@ -40,37 +42,48 @@ export const PropertyList = ({ overallData, activeTimeSeries, customPlots }: Pro
   //fetch timeseries on click
   const fetchTimeSeriesOnClick = useMutation(getLogPropertyTimeSeriesMock, {
     onSuccess: async (data) => {
-      const { messageType, messageField, flightid, ...rest } = data
-      const assignedColor = await getFreeColor({ overallData })
+      try {
+        const { messageType, messageField, flightid, ...rest } = data
+        const assignedColor = await getFreeColor({ overallData })
 
-      const dataForIDB = {
-        ...rest,
-        id: `${
-          overallData.isIndividualFlight
-            ? `${flightid}-${messageField}-${messageType}`
-            : `${flightid}-${overallData.id}-${messageField}-${messageType}`
-        }`
-          .toLowerCase()
-          .replace(',', '')
-          .replace('[', '')
-          .replace(']', ''),
-        propId: `${messageField}-${messageType}`.toLowerCase().replace('[', '').replace(']', ''),
-        overallDataId: overallData.id,
-        messageField,
-        messageType,
-        timestamp: new Date(),
-        hidden: false,
-        color: assignedColor,
-        calculatorExpression: `${messageType
-          .replace('[', '$')
-          .replace(']', '')}_${messageField}`.toUpperCase(),
+        const dataForIDB = {
+          ...rest,
+          id: `${
+            overallData.isIndividualFlight
+              ? `${flightid}-${messageField}-${messageType}`
+              : `${flightid}-${overallData.id}-${messageField}-${messageType}`
+          }`
+            .toLowerCase()
+            .replace(',', '')
+            .replace('[', '')
+            .replace(']', ''),
+          propId: `${messageField}-${messageType}`.toLowerCase().replace('[', '').replace(']', ''),
+          overallDataId: overallData.id,
+          messageField,
+          messageType,
+          timestamp: new Date(),
+          hidden: false,
+          color: assignedColor,
+          calculatorExpression: `${messageType
+            .replace('[', '$')
+            .replace(']', '')}_${messageField}`.toUpperCase(),
+        }
+
+        await LogFileTimeSeriesTable.add(dataForIDB)
+      } catch (e: any) {
+        if ('message' in e && 'name' in e) {
+          toast(<IndexDBErrorMessage error={e} event="fetch new timeseries on click" />, {
+            type: 'error',
+            delay: 1,
+            position: toast.POSITION.BOTTOM_CENTER,
+          })
+        }
       }
-
-      await LogFileTimeSeriesTable.add(dataForIDB)
     },
-    onError: (e) => {
-      toast(`error fetching timeseries data, ${e}`, {
+    onError: (error: AxiosError<any>) => {
+      toast(<ApiErrorMessage error={error} />, {
         type: 'error',
+        delay: 1,
         position: toast.POSITION.BOTTOM_CENTER,
       })
     },

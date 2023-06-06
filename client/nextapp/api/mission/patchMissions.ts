@@ -1,7 +1,7 @@
 
 
 import axios from "axios";
-import { BatchUpdateResponse_MissionSerializer_, MissionUpdate } from '@schema'
+import type { BatchUpdateResponse_MissionSerializer_, MissionUpdate } from '@schema'
 
 
 export const patchMissions = async (items: MissionUpdate[]) => {
