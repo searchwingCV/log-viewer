@@ -10,7 +10,7 @@
     "tsc": "tsc",
     "lint": "next lint",
     "generate-client": "openapi --input  http://0.0.0.0/openapi.json --output ./types --client axios",
-    "prepare": "cd ../../ && husky install ./client/nextapp/.husky"
+    "prepare": "cd ../.. && husky install client/nextapp/.husky"
   },
   "dependencies": {
     "@charlietango/hooks": "^1.10.3",
