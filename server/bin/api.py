@@ -65,6 +65,7 @@ def build_api() -> FastAPI:
         "http://localhost:3001",
         "https://staging.flight-data.searchwing.org",
         "https://flight-data.searchwing.org",
+        "https://frontend-flight-log.caprover.rmargar.net"
     ]
     app.add_middleware(
         CORSMiddleware,
