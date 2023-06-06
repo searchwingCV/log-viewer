@@ -1,6 +1,13 @@
+/*
+  Special error message component formatting API errors and IndexedDB errors
+  for more elaborate and readable error messages.
+*/
+
 import type { AxiosError } from 'axios'
 import type { DexieError } from 'dexie'
+
 export const ApiErrorMessage = ({ error }: { error: AxiosError<any> }) => {
+  //shape of the error message is defined by the backend and can be looked up in the API docs
   const getErrorMessage = () => {
     const status = error?.response?.status
     const statusText = error?.response?.statusText
@@ -10,6 +17,7 @@ export const ApiErrorMessage = ({ error }: { error: AxiosError<any> }) => {
 
     if (status) {
       if (status === 422) {
+        //422 is a validation error
         errorDetail.forEach((detailObject: any) => {
           finalErrorDetail =
             finalErrorDetail +
@@ -33,6 +41,8 @@ export const ApiErrorMessage = ({ error }: { error: AxiosError<any> }) => {
 }
 
 export const IndexDBErrorMessage = ({ error, event }: { error: DexieError; event: string }) => {
+  //all dexie errors implement this interface https://dexie.org/docs/DexieErrors/DexieError
+
   const getErrorMessage = () => {
     return `Error caused by event: ${event} <br/> IndexedDB Error Message: ${error.message} <br/>
     Consult the FE Dev if an IndexedDB error occurs.`

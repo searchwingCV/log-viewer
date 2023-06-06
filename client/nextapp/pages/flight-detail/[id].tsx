@@ -1,3 +1,8 @@
+/*
+  This next.js page is representing the flight detail page of one flight
+   dynamically routed to the id of the id of the flight
+*/
+
 import { useLiveQuery } from 'dexie-react-hooks'
 import { ToastContainer } from 'react-toastify'
 import { toast } from 'react-toastify'
