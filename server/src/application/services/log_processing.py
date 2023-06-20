@@ -49,7 +49,7 @@ class LogProcessingService:
         logger.info("success")
         return flight_updates.json(exclude_none=True)
 
-    def _read_and_parse_log(self, flight_id: ID_Type, types: t.List[str] | None) -> MavLog:
+    def _read_and_parse_log(self, flight_id: ID_Type, types: t.List[str] | None, max_rate: float = None) -> MavLog:
         iofile = self._file_service.get_by_flight_id_type(flight_id, AllowedFiles.log)
 
         logger.debug(f"grabbing log file {iofile.flight_file.id}")
@@ -57,16 +57,18 @@ class LogProcessingService:
         with open(tmp_path, "wb+") as f:
             f.write(iofile.io.getbuffer())
 
-        mlog = MavLog(filepath=tmp_path, types=types, to_datetime=True)
+        mlog = MavLog(filepath=tmp_path, types=types, to_datetime=True, max_rate_hz=max_rate)
         mlog.parse()
         return mlog
 
-    def save_timeseries(self, flight_id: ID_Type) -> dict:
+    def save_timeseries(self, flight_id: ID_Type, max_rate: float) -> dict:
         logger.info(f"processing timeseries for flight: {flight_id}")
 
-        mlog = self._read_and_parse_log(flight_id=flight_id, types=None)
+        mlog = self._read_and_parse_log(flight_id=flight_id, types=None, max_rate=max_rate)
         logger.info(f"deleting previous values for flight: {flight_id}")
-        self._mavlink_timeseries_repository.delete_by_flight_id(flight_id)
+
+        with self._session as session:
+            self._mavlink_timeseries_repository.delete_by_flight_id(session=session, flight_id=flight_id)
 
         errors = []
 

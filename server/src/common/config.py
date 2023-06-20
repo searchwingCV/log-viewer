@@ -34,6 +34,8 @@ class BaseConfig(object):
         "result_backend": f"redis://:{REDIS_PWD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
     }
 
+    MAVLOG_TIMESERIES_MAX_RATE_HZ = os.getenv("MAVLOG_TIMESERIES_MAX_RATE_HZ", 2)
+
 
 class Config(BaseConfig):
     LOG_LEVEL = 20

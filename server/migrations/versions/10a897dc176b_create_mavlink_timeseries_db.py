@@ -28,7 +28,6 @@ def upgrade():
             ["fk_flight"],
             ["flight.id"],
         ),
-        sa.UniqueConstraint("timestamp"),
     )
     op.execute("create extension if not exists timescaledb cascade;")
     op.execute("SELECT create_hypertable('mavlink_timeseries', 'timestamp')")

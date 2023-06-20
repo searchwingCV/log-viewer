@@ -25,11 +25,6 @@ services:
       POSTGRES_TEST_SERVER: test-db
       POSTGRES_TEST_PORT: 5432
       REDIS_HOST: redis
-      STORAGE_HOST: u353116.your-storagebox.de
-      STORAGE_USER: u353116-sub1
-      STORAGE_PASSWORD: TCLkKjuzBM4rjcqQ
-      STORAGE_ROOT: log-viewer-storage
-      STORAGE_PROTOCOL: sftp
   worker:
     container_name: worker
     build:

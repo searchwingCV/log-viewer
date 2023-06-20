@@ -1,9 +1,12 @@
+from common.logging import get_logger
 from domain import ID_Type
 from domain.mavlink_timeseries.entities import MavLinkTimeseries
 from infrastructure.db.orm import MavLinkTimeseries as MavLinkTimeseriesModel
 from infrastructure.repositories.base import BaseRepository
 from pymavlog import MavLinkMessageSeries
 from sqlalchemy.orm import Session
+
+logger = get_logger(__name__)
 
 
 class MavLinkTimeseriesRepository(BaseRepository):
@@ -13,11 +16,9 @@ class MavLinkTimeseriesRepository(BaseRepository):
     def bulk_insert(self, session: Session, flight_id: ID_Type, series: MavLinkMessageSeries):
         try:
             timestamps = series["timestamp"]
+            data = []
             for field in series.columns:
-                if field == "timestamp":
-                    continue
-                session.bulk_insert_mappings(
-                    self._model,
+                data.extend(
                     [
                         {
                             "flight_id": flight_id,
@@ -27,9 +28,16 @@ class MavLinkTimeseriesRepository(BaseRepository):
                             "value": value,
                         }
                         for idx, value in enumerate(series[field])
-                    ],
+                        if (type(value) in [int, float]) and (field not in ["timestamp", "TimeUS"])
+                    ]
                 )
-                session.commit()
+            logger.debug("inserting %s", field)
+            session.bulk_insert_mappings(
+                self._model,
+                data,
+            )
+            session.commit()
+            logger.info("inserting %s - done", field)
         except Exception as e:
             session.rollback()
             raise e
