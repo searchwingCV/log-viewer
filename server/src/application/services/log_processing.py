@@ -61,7 +61,7 @@ class LogProcessingService:
         mlog.parse()
         return mlog
 
-    def save_timeseries(self, flight_id: ID_Type, max_rate: float) -> dict:
+    def save_timeseries(self, flight_id: ID_Type, max_rate: float = None) -> dict:
         logger.info(f"processing timeseries for flight: {flight_id}")
 
         mlog = self._read_and_parse_log(flight_id=flight_id, types=None, max_rate=max_rate)
