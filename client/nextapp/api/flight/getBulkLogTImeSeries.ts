@@ -19,9 +19,9 @@ const series1 = new Series({
 })
 
 const series2 = new Series({
-    from: '2016-01-01T00:24:33Z',
-    until: '2016-01-01T01:10:00Z',
-    numOfData,
+    from: '2017-01-01T00:00:33Z',
+    until: '2017-01-01T02:10:00Z',
+    numOfData: 30,
     interval: 1,
 })
 
@@ -133,7 +133,7 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'XKF1[0]',
         //id: 've-xkf10',
         flightid: 2,
-        values: series1.cos().map((item: { timestamp: string; value: number }) => ({
+        values: series1.sin().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 100,
         })),
@@ -144,7 +144,7 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'XKF1[0]',
         //id: 'vn-xkf10',
         flightid: 2,
-        values: series2.sin().map((item: { timestamp: string; value: number }) => ({
+        values: series2.cos().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 200,
         })),
@@ -156,7 +156,7 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'BAT',
         //id: 'curr-bat',
         flightid: 2,
-        values: series2.cos().map((item: { timestamp: string; value: number }) => ({
+        values: series2.sin().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 100 + 100,
         })),
@@ -168,7 +168,7 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'BAT',
         //id: 'temp-bat',
         flightid: 2,
-        values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
+        values: series2.sin().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 400,
         })),
@@ -224,13 +224,14 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'MAG[0]',
         flightid: 2,
         //id: 'gndtemp-baro',
-        values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
+        values: series2.cos().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value / 3 + 134,
         })),
         //unit: "Celsius"
     },
 ]
+
 
 
 

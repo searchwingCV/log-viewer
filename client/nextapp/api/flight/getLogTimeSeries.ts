@@ -8,24 +8,33 @@ export const LOG_FILE_TIMESERIES = 'LOG_FILE_TIMESERIES'
 const numOfData = 30
 const series1 = new Series({
     from: '2016-01-01T00:24:33Z',
-    until: '2016-01-01T01:10:00Z',
+    until: '2016-01-02T01:10:00Z',
 
     numOfData,
     interval: 1,
 })
+
+// const series2 = new Series({
+//     from: '2016-01-01T00:24:33Z',
+//     until: '2016-01-01T01:10:00Z',
+//     numOfData,
+//     interval: 1,
+// })
+
 
 const series2 = new Series({
-    from: '2016-01-01T00:24:33Z',
-    until: '2016-01-01T01:10:00Z',
-    numOfData,
+    from: '2017-01-01T00:00:33Z',
+    until: '2017-01-02T00:10:00Z',
+    numOfData: 30,
     interval: 1,
 })
+
 
 const mockData: LogFileTimeSeries[] = [
     {
         messageField: 'VE',
         messageType: 'XKF1[0]',
-        //id: 've-xkf10',
+        //id: 've-xkf10',   
         flightid: 1,
         values: series1.cos().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
@@ -38,7 +47,7 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'XKF1[0]',
         //id: 'vn-xkf10',
         flightid: 1,
-        values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
+        values: series1.gaussian().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 20,
         })),
@@ -50,7 +59,7 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'BAT',
         //id: 'curr-bat',
         flightid: 1,
-        values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
+        values: series1.gaussian().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 10 + 100,
         })),
@@ -62,7 +71,7 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'BAT',
         //id: 'temp-bat',
         flightid: 1,
-        values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
+        values: series1.gaussian().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 40,
         })),
@@ -73,7 +82,7 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'BARO',
         //id: 'i-baro',
         flightid: 1,
-        values: series2.sin().map((item: { timestamp: string; value: number }) => ({
+        values: series1.sin().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 10,
         })),
@@ -84,7 +93,7 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'BARO',
         flightid: 1,
         //id: 'gndtemp-baro',
-        values: series2.cos().map((item: { timestamp: string; value: number }) => ({
+        values: series1.cos().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 25 + 100,
         })),
@@ -95,7 +104,7 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'MAG[0]',
         flightid: 1,
         //id: 'gndtemp-baro',
-        values: series2.cos().map((item: { timestamp: string; value: number }) => ({
+        values: series1.cos().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 100 + 20,
         })),
@@ -107,7 +116,7 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'MAG[0]',
         flightid: 1,
         //id: 'gndtemp-baro',
-        values: series2.cos().map((item: { timestamp: string; value: number }) => ({
+        values: series1.cos().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 20 + 134,
         })),
@@ -118,7 +127,7 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'MAG[0]',
         flightid: 1,
         //id: 'gndtemp-baro',
-        values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
+        values: series1.gaussian().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
             value: item.value * 3,
         })),
@@ -129,9 +138,9 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'XKF1[0]',
         //id: 've-xkf10',
         flightid: 2,
-        values: series1.cos().map((item: { timestamp: string; value: number }) => ({
+        values: series2.sin().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
-            value: item.value * 100,
+            value: item.value * 10,
         })),
         //unit: "V"
     },
@@ -140,9 +149,9 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'XKF1[0]',
         //id: 'vn-xkf10',
         flightid: 2,
-        values: series2.sin().map((item: { timestamp: string; value: number }) => ({
+        values: series2.cos().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
-            value: item.value * 200,
+            value: item.value * 20,
         })),
         //unit: "V"
 
@@ -152,9 +161,9 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'BAT',
         //id: 'curr-bat',
         flightid: 2,
-        values: series2.cos().map((item: { timestamp: string; value: number }) => ({
+        values: series2.sin().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
-            value: item.value * 100 + 100,
+            value: item.value * 100 + 10,
         })),
         //unit: "A"
 
@@ -164,9 +173,9 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'BAT',
         //id: 'temp-bat',
         flightid: 2,
-        values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
+        values: series2.sin().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
-            value: item.value * 400,
+            value: item.value * 40,
         })),
         //unit: "Celsius"
     },
@@ -199,7 +208,7 @@ const mockData: LogFileTimeSeries[] = [
         //id: 'gndtemp-baro',
         values: series2.sin().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
-            value: item.value / 150 + 20,
+            value: item.value / 150 + 2,
         })),
         //unit: "Celsius"
     },
@@ -211,7 +220,7 @@ const mockData: LogFileTimeSeries[] = [
         //id: 'gndtemp-baro',
         values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
-            value: item.value * 80 + 134,
+            value: item.value * 80 + 13,
         })),
         //unit: "Celsius"
     },
@@ -220,9 +229,9 @@ const mockData: LogFileTimeSeries[] = [
         messageType: 'MAG[0]',
         flightid: 2,
         //id: 'gndtemp-baro',
-        values: series2.gaussian().map((item: { timestamp: string; value: number }) => ({
+        values: series2.cos().map((item: { timestamp: string; value: number }) => ({
             timestamp: item.timestamp,
-            value: item.value / 3 + 134,
+            value: item.value / 3 + 13,
         })),
         //unit: "Celsius"
     },

@@ -59,6 +59,7 @@ export const PropertyList = ({ overallData, activeTimeSeries, customPlots }: Pro
             .replace(']', ''),
           propId: `${messageField}-${messageType}`.toLowerCase().replace('[', '').replace(']', ''),
           overallDataId: overallData.id,
+          flightid: overallData.flightid,
           messageField,
           messageType,
           timestamp: new Date(),
@@ -217,11 +218,12 @@ export const PropertyList = ({ overallData, activeTimeSeries, customPlots }: Pro
                                     py-2
                                     pl-2
                                     text-left
-                                    text-xs`,
+                                    text-xs
+                                    text-white`,
                                 getDexieActiveTimeSeries(item.propId)
                                   ? `pointer-events-none
                                      w-full
-                                   text-grey-light
+                                     opacity-30
                                     `
                                   : 'text-grey-light',
                               )}

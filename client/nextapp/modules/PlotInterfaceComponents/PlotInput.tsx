@@ -175,7 +175,7 @@ export const PlotInput = ({
         const customFunction = {
           timestamp: new Date(),
           customFunction: value,
-          flightid: parseInt(flightid as string),
+          flightid: overallData.flightid,
           values: finalNewTimeseriesArray,
           color: assignedColor,
           overallDataId: overallData.id,

@@ -15,6 +15,9 @@ export type FlightDetailViewProps = {
 }
 
 export const FlightDetailView = () => {
+  const { data: isExtended } = useQuery([PLOT_DRAWER_EXTENDED], () => {
+    return true
+  })
   const router = useRouter()
 
   const { id } = router.query
@@ -80,7 +83,11 @@ export const FlightDetailView = () => {
                 sideNavExtended ? 'pl-8' : 'pl-28',
               )}
             >
-              <LineChartComponent overallData={overallData[0]} />
+              <LineChartComponent
+                overallData={overallData}
+                flightId={overallData?.[0]?.flightid}
+                isComparingTwoFlights={false}
+              />
             </div>
           </main>
         </div>

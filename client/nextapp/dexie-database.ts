@@ -50,6 +50,7 @@ export type DexieLogOverallData = Omit<LogOverallData, 'groupedProperties'> & {
     colorMatrix: DexieTakenColorMatrix[]
     id: string
     isIndividualFlight: boolean
+    timestamps: string[]
 }
 
 export type DexieTakenColorMatrix = {
@@ -60,7 +61,7 @@ export type DexieTakenColorMatrix = {
 
 database.version(1).stores({
     logFileTimeSeries: '++id, propId,  messageField, messageType, values, flightid, unit, color, timestamp, calculatorExpression, overallDataId',
-    overallDataForFlight: '++id, flightid, flightModeTimeSeries, groupedProperties, timestamp, colorMatrix, isIndividualFlight',
+    overallDataForFlight: '++id, flightid, flightModeTimeSeries, groupedProperties, timestamp, colorMatrix, isIndividualFlight, from, until, timestamps',
     customFunction: '++id, flightid, customFunction, color, timestamp, hidden, overallDataId',
 });
 

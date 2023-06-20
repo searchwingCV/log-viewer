@@ -12,30 +12,32 @@ import {
   LOG_OVERALL_DATA_MULTIPLE,
   getMultipleLogOverallDataMock,
 } from 'api/flight/getMultipleLogOverallData'
+import { getDatesBetween } from '@lib/functions/getDatesBetween'
 import type { LogOverallData } from '@schema'
 import type { NextPageWithLayout } from '../../_app'
 
 const FlightCompareScreen: NextPageWithLayout = ({}) => {
   const router = useRouter()
   const { firstid, secondid } = router.query
-
-  const activeOverallData = useLiveQuery(
-    () =>
-      firstid && secondid
-        ? //TODO: solve dexie ts error
-          // @ts-expect-error: Dexie not working with TS right now
-          database.overallDataForFlight
-            .orderBy('timestamp')
-            .filter(
-              (data: DexieLogOverallData) =>
-                data.flightid === parseInt(firstid as string) ||
-                data.flightid === parseInt(secondid as string),
-            )
-            .reverse()
-            .toArray()
-        : null,
-    [firstid, secondid],
-  )
+  const ids = [
+    `${firstid}-${
+      parseInt(firstid as string) < parseInt(secondid as string) ? firstid : secondid
+    }-${parseInt(firstid as string) > parseInt(secondid as string) ? firstid : secondid}`,
+    `${secondid}-${
+      parseInt(firstid as string) < parseInt(secondid as string) ? firstid : secondid
+    }-${parseInt(firstid as string) > parseInt(secondid as string) ? firstid : secondid}`,
+  ]
+  const activeOverallData = useLiveQuery(() => {
+    return firstid && secondid
+      ? //TODO: solve dexie ts error
+        // @ts-expect-error: Dexie not working with TS right now
+        database.overallDataForFlight
+          .orderBy('timestamp')
+          .filter((data: DexieLogOverallData) => data.id === ids[0] || data.id === ids[1])
+          .reverse()
+          .toArray()
+      : null
+  }, [firstid, secondid])
 
   const { data } = useQuery(
     [LOG_OVERALL_DATA_MULTIPLE, parseInt(firstid as string), parseInt(secondid as string)],
@@ -43,57 +45,83 @@ const FlightCompareScreen: NextPageWithLayout = ({}) => {
       getMultipleLogOverallDataMock([parseInt(firstid as string), parseInt(secondid as string)]),
     {
       onSuccess: (data: LogOverallData[]) => {
-        if (data?.length === 2 && firstid && secondid) {
-          data?.map((flightData) => {
-            const { groupedProperties, flightid, ...rest } = flightData
-            const dataForIDB = {
-              ...rest,
-              colorMatrix: colorArr.map((color) => ({
-                color: color,
-                taken: false,
-              })),
-              id: `${flightid}-${firstid}-${secondid}`,
-              flightid: flightid,
-              isIndividualFlight: false,
-              timestamp: new Date(),
-              groupedProperties: groupedProperties.map((groupedProp) => {
-                const { timeSeriesProperties } = groupedProp
-                const newTimeSeriesProperties = timeSeriesProperties.map((timeseriesProp) => ({
-                  ...timeseriesProp,
-                  calculatorExpression: `${groupedProp.messageType
-                    .replace('[', '$')
-                    .replace(']', '')}_${timeseriesProp.messageField}`,
-                }))
-                return {
-                  ...groupedProp,
-                  timeSeriesProperties: newTimeSeriesProperties,
-                }
-              }),
-            }
+        const activeOverallDataIds = activeOverallData?.map(
+          (activeData: DexieLogOverallData) => activeData.id,
+        )
 
-            OverallDataForFlightTable.add(dataForIDB)
-              .then(() => {
-                console.info('overall data for flight added')
-              })
-              .catch((e: DexieError) => {
-                toast(<IndexDBErrorMessage error={e} event="fetch overall log data" />, {
-                  type: 'error',
-                  delay: 1,
-                  position: toast.POSITION.BOTTOM_CENTER,
+        if (data?.length === 2 && firstid && secondid) {
+          const retrievedIds = data.map((data) => data.flightid)
+
+          const retrievedFirstId = retrievedIds[0]
+          const retrievedSecondId = retrievedIds[1]
+
+          const retrievedFinalIds = [
+            {
+              flightid: retrievedFirstId,
+              finalId: `${retrievedFirstId}-${
+                retrievedFirstId < retrievedSecondId ? retrievedFirstId : retrievedSecondId
+              }-${retrievedFirstId > retrievedSecondId ? retrievedFirstId : retrievedSecondId}`,
+            },
+
+            {
+              flightid: retrievedSecondId,
+              finalId: `${retrievedSecondId}-${
+                retrievedFirstId < retrievedSecondId ? retrievedFirstId : retrievedSecondId
+              }-${retrievedFirstId > retrievedSecondId ? retrievedFirstId : retrievedSecondId}`,
+            },
+          ]
+          data?.map((flightData) => {
+            const retrievedId = retrievedFinalIds.find((id) => id.flightid === flightData.flightid)
+
+            if (!activeOverallDataIds.includes(retrievedId?.finalId)) {
+              const { groupedProperties, flightid, from, until, ...rest } = flightData
+
+              const dataForIDB = {
+                ...rest,
+                colorMatrix: colorArr
+                  .map((color) => ({
+                    color: color,
+                    taken: false,
+                  }))
+                  .sort(() => Math.random() - 0.5),
+                id: `${flightid}-${firstid}-${secondid}`,
+                flightid: flightid,
+                from,
+                until,
+                isIndividualFlight: false,
+                timestamps: getDatesBetween(from, until),
+                timestamp: new Date(),
+                groupedProperties: groupedProperties.map((groupedProp) => {
+                  const { timeSeriesProperties } = groupedProp
+                  const newTimeSeriesProperties = timeSeriesProperties.map((timeseriesProp) => ({
+                    ...timeseriesProp,
+                    calculatorExpression: `${groupedProp.messageType
+                      .replace('[', '$')
+                      .replace(']', '')}_${timeseriesProp.messageField}`,
+                  }))
+                  return {
+                    ...groupedProp,
+                    timeSeriesProperties: newTimeSeriesProperties,
+                  }
+                }),
+              }
+
+              OverallDataForFlightTable.add(dataForIDB)
+                .then(() => {
+                  console.info('overall data for flight added')
                 })
-              })
+                .catch((e: DexieError) => {
+                  toast(<IndexDBErrorMessage error={e} event="fetch overall log data" />, {
+                    type: 'error',
+                    delay: 1,
+                    position: toast.POSITION.BOTTOM_CENTER,
+                  })
+                })
+            }
           })
         }
       },
-      enabled:
-        (activeOverallData !== undefined &&
-          activeOverallData !== null &&
-          activeOverallData?.find(
-            (item: DexieLogOverallData) => item.flightid === parseInt(firstid as string),
-          ) === undefined) ||
-        activeOverallData?.find(
-          (item: DexieLogOverallData) => item.flightid === parseInt(secondid as string),
-        ) === undefined,
+      enabled: Array.isArray(activeOverallData), //Dexie's useLiveQuery is done if an array is returned
     },
   )
 
@@ -104,7 +132,7 @@ const FlightCompareScreen: NextPageWithLayout = ({}) => {
   return (
     <>
       <ToastContainer />
-      <FlightComparisonView />
+      <FlightComparisonView ids={ids} />
     </>
   )
 }

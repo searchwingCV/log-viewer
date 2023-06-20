@@ -7,8 +7,6 @@
     "build": "next build",
     "start": "next start",
     "eslint": "eslint . --ext ts --ext tsx --ext js",
-    "tsc": "tsc",
-    "lint": "next lint",
     "generate-client": "openapi --input  http://0.0.0.0/openapi.json --output ./types --client axios",
     "prepare": "cd ../.. && husky install client/nextapp/.husky"
   },
@@ -55,7 +53,7 @@
     "react-responsive": "^9.0.0-beta.6",
     "react-table": "^7.8.0",
     "react-toastify": "^9.0.4",
-    "recharts": "^2.5.0",
+    "recharts": "^2.7.0",
     "rxjs": "^7.5.5",
     "tailwindcss-gradients": "^3.0.0",
     "time-series-data-generator": "^0.1.5",
