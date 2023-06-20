@@ -164,7 +164,7 @@ class MavLinkTimeseries(Base):
     message_field = Column(String, nullable=False)
     value = Column(Float)
 
-    __mapper_args__ = {"primary_key": [flight_id, timestamp, message_field]}
+    __mapper_args__ = {"primary_key": [flight_id, message_field]}
 
 
 @event.listens_for(Flight, "before_insert")

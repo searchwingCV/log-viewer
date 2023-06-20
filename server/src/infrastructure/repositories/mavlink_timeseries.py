@@ -1,6 +1,6 @@
 from common.logging import get_logger
 from domain import ID_Type
-from domain.mavlink_timeseries.entities import MavLinkTimeseries
+from domain.mavlink_timeseries.entities import MavLinkFlightMessageProperties, MavLinkTimeseries
 from infrastructure.db.orm import MavLinkTimeseries as MavLinkTimeseriesModel
 from infrastructure.repositories.base import BaseRepository
 from pymavlog import MavLinkMessageSeries
@@ -41,6 +41,21 @@ class MavLinkTimeseriesRepository(BaseRepository):
         except Exception as e:
             session.rollback()
             raise e
+
+    def get_available_messages_by_group(self, session: Session, flight_id: ID_Type) -> MavLinkFlightMessageProperties:
+        """
+        Returns available messages by flight id
+        """
+        query = (
+            session.query(self._model)
+            .filter_by(flight_id=flight_id)
+            .group_by(self._model.flight_id, self._model.message_type, self._model.message_field)
+            .with_entities(self._model.flight_id, self._model.message_type, self._model.message_field)
+        )
+        entries = query.all()
+        flight_messages = MavLinkFlightMessageProperties(flight_id=flight_id, message_properties=[])
+        flight_messages.add_entries(entries)
+        return flight_messages
 
     def get_by_flight_type_field(
         self,
