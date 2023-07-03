@@ -1,7 +1,7 @@
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from presentation.rest.controllers import drone, flight, health, mission, root
+from presentation.rest.controllers import drone, flight, health, mavlink, mission, root
 
 
 @pytest.fixture(scope="module")
@@ -12,6 +12,7 @@ def test_app():
     app.include_router(drone.router)
     app.include_router(mission.router)
     app.include_router(flight.router)
+    app.include_router(mavlink.router)
     yield app
 
 

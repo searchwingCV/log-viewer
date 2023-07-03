@@ -6,6 +6,7 @@ from common.logging import get_logger
 from domain import ID_Type
 from domain.flight.entities import FlightComputedUpdate
 from domain.flight_file.value_objects import AllowedFiles
+from domain.mavlink_timeseries.entities import MavLinkFlightMessageProperties
 from infrastructure.db.session import SessionContextManager
 from infrastructure.repositories.mavlink_timeseries import MavLinkTimeseriesRepository
 from pymavlog import MavLog
@@ -112,3 +113,8 @@ class LogProcessingService:
 
         logger.info("done")
         return {"success": not bool(errors), "errors": errors}
+
+    def get_message_properties(self, flight_id: ID_Type) -> MavLinkFlightMessageProperties:
+        with self._session as session:
+            props = self._mavlink_timeseries_repository.get_available_messages_by_group(session, flight_id)
+        return props
