@@ -129,3 +129,16 @@ def test_save_timeseries_error(
     assert mock_mavlink_series_repository.bulk_insert.call_count == 1
 
     assert result == {"success": False, "errors": [{"message_type": "BAR", "error": "foo"}]}
+
+
+def test_get_message_properties(
+    get_log_processing_service, mock_mavlog, mock_file_service, mock_mavlink_series_repository
+):
+    mock_mavlink_series_repository.get_available_messages_by_group.return_value = {"foo": 1, "bar": 2}
+
+    lps = get_log_processing_service(
+        mavlog=mock_mavlog, file_service=mock_file_service, mavlink_timeseries_repository=mock_mavlink_series_repository
+    )
+    result = lps.get_message_properties(flight_id=1)
+
+    assert result == {"foo": 1, "bar": 2}

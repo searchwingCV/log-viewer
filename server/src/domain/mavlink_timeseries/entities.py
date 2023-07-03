@@ -52,7 +52,13 @@ class MavLinkFlightMessageProperties(BaseModel):
     message_properties: t.List[MavLinkMessageProperties]
 
     def add_entries(self, entries: t.List[t.Tuple[str, str]]):
-        unique_message_types = set([e[0] for e in entries])
+        unique_message_types = set([e[1] for e in entries])
         for message_type in unique_message_types:
-            fields = [MavlinkMessageField(name=f[1]) for f in filter(lambda x: x[0] == message_type, entries)]
+            fields = [MavlinkMessageField(name=f[2]) for f in filter(lambda x: x[1] == message_type, entries)]
             self.message_properties.append(MavLinkMessageProperties(message_type=message_type, message_fields=fields))
+
+
+class FlightModeRange(BaseModel):
+    flight_mode: str
+    start_timestamp: datetime
+    end_timestamp: datetime
