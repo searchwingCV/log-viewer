@@ -21,7 +21,7 @@ class MavLinkTimeseries(BaseModel):
 
     @classmethod
     def build_from_entries(
-        cls, flight_id: ID_Type, message_type: str, message_field: str, entries: t.List[datetime | float]
+        cls, flight_id: ID_Type, message_type: str, message_field: str, entries: t.List[t.Tuple[datetime, float]]
     ):
         return cls(
             flight_id=flight_id,
@@ -29,8 +29,8 @@ class MavLinkTimeseries(BaseModel):
             message_field=message_field,
             values=[
                 TimeseriesValues(
-                    timestamp=entry.timestamp,
-                    value=entry.value,
+                    timestamp=entry[0],
+                    value=entry[1],
                 )
                 for entry in entries
             ],

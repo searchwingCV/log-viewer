@@ -1,3 +1,5 @@
+from typing import Type
+
 from common.logging import get_logger
 from domain import ID_Type
 from domain.mavlink_timeseries.entities import MavLinkFlightMessageProperties, MavLinkTimeseries
@@ -10,8 +12,8 @@ logger = get_logger(__name__)
 
 
 class MavLinkTimeseriesRepository(BaseRepository):
-    _model = MavLinkTimeseriesModel
-    _entity = MavLinkTimeseries
+    _model: Type[MavLinkTimeseriesModel] = MavLinkTimeseriesModel
+    _entity: Type[MavLinkTimeseries] = MavLinkTimeseries
 
     def bulk_insert(self, session: Session, flight_id: ID_Type, series: MavLinkMessageSeries):
         try:
@@ -49,8 +51,16 @@ class MavLinkTimeseriesRepository(BaseRepository):
         query = (
             session.query(self._model)
             .filter_by(flight_id=flight_id)
-            .group_by(self._model.flight_id, self._model.message_type, self._model.message_field)
-            .with_entities(self._model.flight_id, self._model.message_type, self._model.message_field)
+            .group_by(
+                self._model.flight_id,
+                self._model.message_type,
+                self._model.message_field,
+            )
+            .with_entities(
+                self._model.flight_id,
+                self._model.message_type,
+                self._model.message_field,
+            )
         )
         entries = query.all()
         flight_messages = MavLinkFlightMessageProperties(flight_id=flight_id, message_properties=[])
@@ -64,17 +74,21 @@ class MavLinkTimeseriesRepository(BaseRepository):
         message_type: str,
         message_field: str,
     ) -> MavLinkTimeseries:
-        query = (
-            session.query(self._model)
-            .filter_by(
-                flight_id=flight_id,
-                message_type=message_type,
-                message_field=message_field,
-            )
-            .order_by(self._model.timestamp.asc())
-        )
+        query = f"""
+        SELECT mavlink_timeseries.timestamp, mavlink_timeseries.value
+        FROM mavlink_timeseries
+        WHERE mavlink_timeseries.flight_id = {flight_id}
+        AND mavlink_timeseries.message_type = '{message_type}'
+        AND mavlink_timeseries.message_field = '{message_field}'
+        ORDER BY mavlink_timeseries.timestamp ASC;
+        """
+        result = session.execute(query).all()
+
         return MavLinkTimeseries.build_from_entries(
-            flight_id=flight_id, message_type=message_type, message_field=message_field, entries=query.all()
+            flight_id=flight_id,
+            message_type=message_type,
+            message_field=message_field,
+            entries=result,
         )
 
     def delete_by_flight_id(self, session: Session, flight_id: ID_Type):
