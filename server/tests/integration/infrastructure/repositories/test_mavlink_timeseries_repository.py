@@ -3,6 +3,7 @@ from datetime import datetime
 
 from domain.mavlink_timeseries.entities import (
     MavLinkFlightMessageProperties,
+    MavlinkMessageField,
     MavLinkMessageProperties,
     TimeseriesValues,
 )
@@ -121,9 +122,30 @@ def test_get_available_messages_by_group(test_db_session, mavlink_series, fill_m
     expected_message_properties = MavLinkFlightMessageProperties(
         flight_id=1,
         message_properties=[
-            MavLinkMessageProperties(message_type="FOO", message_fields=["bar", "baz", "foo"]),
-            MavLinkMessageProperties(message_type="BAZ", message_fields=["bar", "baz", "foo"]),
-            MavLinkMessageProperties(message_type="BAR", message_fields=["bar", "baz", "foo"]),
+            MavLinkMessageProperties(
+                message_type="FOO",
+                message_fields=[
+                    MavlinkMessageField(name="bar"),
+                    MavlinkMessageField(name="baz"),
+                    MavlinkMessageField(name="foo"),
+                ],
+            ),
+            MavLinkMessageProperties(
+                message_type="BAZ",
+                message_fields=[
+                    MavlinkMessageField(name="bar"),
+                    MavlinkMessageField(name="baz"),
+                    MavlinkMessageField(name="foo"),
+                ],
+            ),
+            MavLinkMessageProperties(
+                message_type="BAR",
+                message_fields=[
+                    MavlinkMessageField(name="bar"),
+                    MavlinkMessageField(name="baz"),
+                    MavlinkMessageField(name="foo"),
+                ],
+            ),
         ],
     )
 

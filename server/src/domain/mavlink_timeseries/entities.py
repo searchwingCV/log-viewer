@@ -37,9 +37,14 @@ class MavLinkTimeseries(BaseModel):
         )
 
 
+class MavlinkMessageField(BaseModel):
+    name: str
+    unit: t.Optional[str]
+
+
 class MavLinkMessageProperties(BaseModel):
     message_type: str
-    message_fields: t.List[str]
+    message_fields: t.List[MavlinkMessageField]
 
 
 class MavLinkFlightMessageProperties(BaseModel):
@@ -49,5 +54,5 @@ class MavLinkFlightMessageProperties(BaseModel):
     def add_entries(self, entries: t.List[t.Tuple[str, str]]):
         unique_message_types = set([e[0] for e in entries])
         for message_type in unique_message_types:
-            fields = [f[1] for f in filter(lambda x: x[0] == message_type, entries)]
+            fields = [MavlinkMessageField(name=f[1]) for f in filter(lambda x: x[0] == message_type, entries)]
             self.message_properties.append(MavLinkMessageProperties(message_type=message_type, message_fields=fields))
