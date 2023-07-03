@@ -37,7 +37,7 @@ class LogProcessingService:
     def parse_log_file(self, flight_id: ID_Type, types: t.List[str] | None, max_rate_hz: float) -> dict:
         logger.info(f"parsing log file for flight: {flight_id}")
 
-        logger.info(f"reading log file for flight: {flight_id}, types: {types}")
+        logger.info(f"reading log file for {flight_id=}, {types=}, {max_rate_hz=}")
         mlog = self._read_and_parse_log(flight_id=flight_id, types=types, max_rate=max_rate_hz)
 
         results = []
@@ -50,6 +50,7 @@ class LogProcessingService:
                 logger.exception(f"running {task} - failed")
                 results.append({"task": task, "error": str(e)})
             logger.debug(f"running {task} - done")
+        return results
 
     def process_flight_duration(self, flight_id: ID_Type) -> dict:
         logger.info(f"updating flight duration for flight: {flight_id}")

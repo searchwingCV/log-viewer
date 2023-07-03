@@ -33,13 +33,13 @@ class MavLinkTimeseriesRepository(BaseRepository):
                         if (type(value) in [int, float]) and (field not in ["timestamp", "TimeUS"])
                     ]
                 )
-            logger.debug("inserting %s", field)
+            logger.info(f"inserting {series.name}, columns={series.columns}")
             session.bulk_insert_mappings(
                 self._model,
                 data,
             )
             session.commit()
-            logger.info("inserting %s - done", field)
+            logger.info("inserting %s - done", series.name)
         except Exception as e:
             session.rollback()
             raise e
