@@ -34,6 +34,11 @@ class BaseConfig(object):
         "result_backend": f"redis://:{REDIS_PWD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
     }
 
+    MAVLOG_TIMESERIES_MAX_RATE_HZ = float(os.getenv("MAVLOG_TIMESERIES_MAX_RATE_HZ", 20))
+    MAVLOG_TIMESERIES_TYPES = os.getenv("MAVLOG_TIMESERIES_TYPES", "").split(",")
+    if not MAVLOG_TIMESERIES_TYPES:
+        MAVLOG_TIMESERIES_TYPES = None
+
 
 class Config(BaseConfig):
     LOG_LEVEL = 20

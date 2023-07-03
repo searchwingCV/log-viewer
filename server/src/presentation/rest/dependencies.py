@@ -1,6 +1,12 @@
 from application.services import DroneService, FileService, FlightService, MissionService
 from common.config import get_current_config
-from infrastructure.repositories import DroneRepository, FlightFileRepository, FlightRepository, MissionRepository
+from infrastructure.repositories import (
+    DroneRepository,
+    FlightFileRepository,
+    FlightRepository,
+    MavLinkTimeseriesRepository,
+    MissionRepository,
+)
 from infrastructure.storage import Storage
 
 config = get_current_config()
@@ -24,7 +30,10 @@ def get_drone_service():
 
 def get_flight_service():
     yield FlightService(
-        drone_repository=DroneRepository(), mission_repository=MissionRepository(), repository=FlightRepository()
+        drone_repository=DroneRepository(),
+        mission_repository=MissionRepository(),
+        repository=FlightRepository(),
+        mavlink_timeseries_repository=MavLinkTimeseriesRepository(),
     )
 
 

@@ -10,7 +10,6 @@ from sqlalchemy.orm import sessionmaker
 
 @pytest.fixture(scope="function")
 def test_db_session():
-
     engine = create_engine(TestConfig.SQLALCHEMY_DATABASE_URI)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     Base.metadata.create_all(bind=engine)
