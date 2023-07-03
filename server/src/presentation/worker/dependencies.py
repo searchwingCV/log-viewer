@@ -24,7 +24,10 @@ def get_log_processing_service():
             ),
         ),
         flight_service=FlightService(
-            drone_repository=DroneRepository(), mission_repository=MissionRepository(), repository=FlightRepository()
+            drone_repository=DroneRepository(),
+            mission_repository=MissionRepository(),
+            repository=FlightRepository(),
+            mavlink_timeseries_repository=MavLinkTimeseriesRepository(),
         ),
         mavlink_timeseries_repository=MavLinkTimeseriesRepository(),
     )

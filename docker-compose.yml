@@ -17,14 +17,14 @@ services:
     depends_on:
       - db
     environment:
-      POSTGRES_USER: searchwing
-      POSTGRES_PASSWORD: searchwing
-      POSTGRES_DB: searchwing
-      POSTGRES_SERVER: db
-      POSTGRES_PORT: 5432
-      POSTGRES_TEST_SERVER: test-db
-      POSTGRES_TEST_PORT: 5432
-      REDIS_HOST: redis
+      - POSTGRES_USER=searchwing
+      - POSTGRES_PASSWORD=searchwing
+      - POSTGRES_DB=searchwing
+      - POSTGRES_SERVER=db
+      - POSTGRES_PORT=5432
+      - REDIS_HOST=redis
+      - MAVLOG_TIMESERIES_TYPES
+      - MAVLOG_TIMESERIES_MAX_RATE_HZ
   worker:
     container_name: worker
     build:
@@ -40,12 +40,14 @@ services:
       - db
       - redis
     environment:
-      POSTGRES_USER: searchwing
-      POSTGRES_PASSWORD: searchwing
-      POSTGRES_DB: searchwing
-      POSTGRES_SERVER: db
-      POSTGRES_PORT: 5432
-      REDIS_HOST: redis
+      - POSTGRES_USER=searchwing
+      - POSTGRES_PASSWORD=searchwing
+      - POSTGRES_DB=searchwing
+      - POSTGRES_SERVER=db
+      - POSTGRES_PORT=5432
+      - REDIS_HOST=redis
+      - MAVLOG_TIMESERIES_TYPES
+      - MAVLOG_TIMESERIES_MAX_RATE_HZ
 
   frontend:
     container_name: flight-log-viewer-fe

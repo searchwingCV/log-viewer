@@ -29,12 +29,36 @@ class LogProcessingService:
         self._mavlink_timeseries_repository = mavlink_timeseries_repository
         self._session = session
         self._tmp_dir = tmp_dir
+        self._tasks = {
+            "save_to_timeseries": self._mavlog_to_timeseries,
+            "process_flight_duration": self._flight_duration_from_mavlog,
+        }
+
+    def parse_log_file(self, flight_id: ID_Type, types: t.List[str] | None, max_rate_hz: float) -> dict:
+        logger.info(f"parsing log file for flight: {flight_id}")
+
+        logger.info(f"reading log file for flight: {flight_id}, types: {types}")
+        mlog = self._read_and_parse_log(flight_id=flight_id, types=types, max_rate=max_rate_hz)
+
+        results = []
+        for task, fcn in self._tasks.items():
+            logger.info(f"running {task}")
+            try:
+                result = fcn(flight_id, mlog)
+                results.append({"task": task, "result": result, "error": None})
+            except Exception as e:
+                logger.exception(f"running {task} - failed")
+                results.append({"task": task, "error": str(e)})
+            logger.debug(f"running {task} - done")
 
     def process_flight_duration(self, flight_id: ID_Type) -> dict:
         logger.info(f"updating flight duration for flight: {flight_id}")
 
         mlog = self._read_and_parse_log(flight_id=flight_id, types=["BAT"])
 
+        return self._flight_duration_from_mavlog(flight_id, mlog)
+
+    def _flight_duration_from_mavlog(self, flight_id: ID_Type, mlog: MavLog) -> dict[str, t.Any]:
         flight_updates = FlightComputedUpdate(
             id=flight_id,
             log_end_time=mlog.end_timestamp,
@@ -65,6 +89,9 @@ class LogProcessingService:
         logger.info(f"processing timeseries for flight: {flight_id}")
 
         mlog = self._read_and_parse_log(flight_id=flight_id, types=None, max_rate=max_rate)
+        return self._mavlog_to_timeseries(flight_id, mlog)
+
+    def _mavlog_to_timeseries(self, flight_id: ID_Type, mlog: MavLog) -> dict[str, t.Any]:
         logger.info(f"deleting previous values for flight: {flight_id}")
 
         with self._session as session:
