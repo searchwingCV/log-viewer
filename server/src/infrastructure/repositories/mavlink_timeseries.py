@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Type
 
 from common.logging import get_logger
@@ -73,6 +74,8 @@ class MavLinkTimeseriesRepository(BaseRepository):
         flight_id: ID_Type,
         message_type: str,
         message_field: str,
+        start_timestamp: datetime | None = None,
+        end_timestamp: datetime | None = None,
     ) -> MavLinkTimeseries:
         query = f"""
         SELECT mavlink_timeseries.timestamp, mavlink_timeseries.value
@@ -80,8 +83,12 @@ class MavLinkTimeseriesRepository(BaseRepository):
         WHERE mavlink_timeseries.flight_id = {flight_id}
         AND mavlink_timeseries.message_type = '{message_type}'
         AND mavlink_timeseries.message_field = '{message_field}'
-        ORDER BY mavlink_timeseries.timestamp ASC;
         """
+        if start_timestamp:
+            query += f" AND mavlink_timeseries.timestamp >= '{start_timestamp}'"
+        if end_timestamp:
+            query += f" AND mavlink_timeseries.timestamp <= '{end_timestamp}'"
+        query += " ORDER BY mavlink_timeseries.timestamp ASC"
         result = session.execute(query).all()
 
         return MavLinkTimeseries.build_from_entries(
