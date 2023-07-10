@@ -1,6 +1,9 @@
+from typing import Annotated, List, Union
+
 from application.services import LogProcessingService
 from common.logging import get_logger
-from fastapi import APIRouter, Depends, status
+from domain.types import ID_Type
+from fastapi import APIRouter, Depends, Query, status
 from presentation.rest.dependencies import get_log_processing_service
 from presentation.rest.serializers.mavlink import MavLinkFlightMessagePropertiesSerializer
 
@@ -16,12 +19,15 @@ router = APIRouter(
 @router.get(
     "/message-properties",
     status_code=status.HTTP_200_OK,
-    response_model=MavLinkFlightMessagePropertiesSerializer,
+    response_model=List[MavLinkFlightMessagePropertiesSerializer],
     response_model_exclude_none=True,
 )
 def get_message_properties(
-    flight_id: int,
+    flight_id: Annotated[Union[List[ID_Type], None], Query()] = [],
     log_processing_service: LogProcessingService = Depends(get_log_processing_service),
 ):
-    props = log_processing_service.get_message_properties(flight_id)
-    return MavLinkFlightMessagePropertiesSerializer.from_orm(props)
+    response = []
+    for id in flight_id:
+        props = log_processing_service.get_message_properties(id)
+        response.append(MavLinkFlightMessagePropertiesSerializer.from_orm(props))
+    return response
