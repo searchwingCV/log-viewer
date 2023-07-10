@@ -1,5 +1,4 @@
 from datetime import datetime
-from io import BytesIO
 
 from common.exceptions.db import NotFoundException
 from domain.flight_file.entities import FlightFile
@@ -14,8 +13,14 @@ def test_put_file_no_error(test_client, mock_file_service, get_sample_flight_fil
     mock_file_service.upload_file.return_value = flight_file
     test_client.app.dependency_overrides[get_file_service] = lambda: mock_file_service
 
-    test_file = BytesIO(b"foo")
-    response = test_client.put("/flight/1/file?file_type=log&process=false", files={"file": test_file.getbuffer()})
+    test_file = b"foo"
+    file_type = "log"
+    response = test_client.put(
+        "/flight/1/file?file_type=log&process=false",
+        files={"file": ("test.bin", test_file, "application/octet-stream")},
+        params={"file_type": file_type},
+    )
+
     assert response.status_code == 200
     assert response.json() == FlightFileSerializer.from_orm(flight_file).to_json()
 
@@ -26,9 +31,13 @@ def test_put_file_not_found(test_client, mock_file_service, get_sample_flight_fi
     mock_file_service.upload_file.side_effect = [NotFoundException(1, "FlightFile")]
     test_client.app.dependency_overrides[get_file_service] = lambda: mock_file_service
 
-    test_file = BytesIO(b"foo")
-    response = test_client.put("/flight/1/file?file_type=log", files={"file": test_file.getbuffer()})
-
+    test_file = b"foo"
+    file_type = "log"
+    response = test_client.put(
+        "/flight/1/file?file_type=log&process=false",
+        files={"file": ("test.bin", test_file, "application/octet-stream")},
+        params={"file_type": file_type},
+    )
     assert response.status_code == 400
 
     test_client.app.dependency_overrides.clear()
