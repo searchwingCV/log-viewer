@@ -12,11 +12,13 @@ from sqlalchemy.orm import sessionmaker
 def test_db_session():
     engine = create_engine(TestConfig.SQLALCHEMY_DATABASE_URI)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    Base.metadata.create_all(bind=engine)
+
     db = SessionLocal()
 
     db.execute("CREATE EXTENSION IF NOT EXISTS postgis;")
     db.execute("CREATE EXTENSION IF NOT EXISTS timescaledb_toolkit;")
+
+    Base.metadata.create_all(bind=engine)
 
     try:
         yield db
