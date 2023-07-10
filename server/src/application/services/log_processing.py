@@ -7,7 +7,7 @@ from common.logging import get_logger
 from domain import ID_Type
 from domain.flight.entities import FlightComputedUpdate
 from domain.flight_file.value_objects import AllowedFiles
-from domain.mavlink_timeseries.entities import MavLinkFlightMessageProperties
+from domain.mavlink_timeseries.entities import MavLinkFlightMessageProperties, MavLinkTimeseries
 from infrastructure.db.session import SessionContextManager
 from infrastructure.repositories.mavlink_timeseries import MavLinkTimeseriesRepository
 from pymavlog import MavLog
@@ -124,11 +124,12 @@ class LogProcessingService:
         self,
         flight_id: ID_Type,
         message_type: str,
+        message_field: str,
         start_timestamp: datetime | None = None,
         end_timestamp: datetime | None = None,
-    ) -> t.List[t.Any]:
+    ) -> MavLinkTimeseries:
         with self._session as session:
-            timeseries = self._mavlink_timeseries_repository.get_timeseries_by_message_type(
-                session, flight_id, message_type, start_timestamp, end_timestamp
+            timeseries = self._mavlink_timeseries_repository.get_by_flight_type_field(
+                session, flight_id, message_type, message_field, start_timestamp, end_timestamp
             )
         return timeseries

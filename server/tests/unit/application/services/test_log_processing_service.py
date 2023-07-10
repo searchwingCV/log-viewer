@@ -145,11 +145,11 @@ def test_get_message_properties(
 
 
 def test_get_timeseries(get_log_processing_service, mock_mavlog, mock_file_service, mock_mavlink_series_repository):
-    mock_mavlink_series_repository.get_timeseries_by_message_type.return_value = {"foo": 1, "bar": 2}
+    mock_mavlink_series_repository.get_by_flight_type_field.return_value = {"foo": 1, "bar": 2}
 
-    lps = get_log_processing_service(
+    lps: LogProcessingService = get_log_processing_service(
         mavlog=mock_mavlog, file_service=mock_file_service, mavlink_timeseries_repository=mock_mavlink_series_repository
     )
-    result = lps.get_timeseries(flight_id=1, message_type="foo")
+    result = lps.get_timeseries(flight_id=1, message_type="foo", message_field="bar")
 
     assert result == {"foo": 1, "bar": 2}

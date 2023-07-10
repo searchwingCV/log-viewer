@@ -6,6 +6,7 @@ from domain.mavlink_timeseries.entities import (
     MavLinkFlightMessageProperties,
     MavlinkMessageField,
     MavLinkMessageProperties,
+    MavLinkTimeseries,
 )
 from presentation.rest.serializers import APISerializer
 from pydantic import Field
@@ -41,3 +42,7 @@ class MavLinkFlightMessagePropertiesSerializer(MavLinkFlightMessageProperties, A
             ),
         ],
     )
+
+
+class MavLinkTimeseriesSerializer(MavLinkTimeseries, APISerializer):
+    ...
