@@ -1,5 +1,6 @@
 import os
 import typing as t
+from datetime import datetime
 
 from application.services import FileService, FlightService
 from common.logging import get_logger
@@ -118,3 +119,16 @@ class LogProcessingService:
         with self._session as session:
             props = self._mavlink_timeseries_repository.get_available_messages_by_group(session, flight_id)
         return props
+
+    def get_timeseries(
+        self,
+        flight_id: ID_Type,
+        message_type: str,
+        start_timestamp: datetime | None = None,
+        end_timestamp: datetime | None = None,
+    ) -> t.List[t.Any]:
+        with self._session as session:
+            timeseries = self._mavlink_timeseries_repository.get_timeseries_by_message_type(
+                session, flight_id, message_type, start_timestamp, end_timestamp
+            )
+        return timeseries
