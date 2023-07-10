@@ -62,6 +62,12 @@ def test_get_by_flight_type_field(test_db_session, mavlink_series, fill_mock_dat
     assert series.message_type == "FOO"
     assert series.message_field == "Baz"
 
+    timestamp_1 = timestamps[10]
+    timestamp_2 = timestamps[15]
+    series = repository.get_by_flight_type_field(test_db_session, 1, "FOO", "Bar", timestamp_1, timestamp_2)
+
+    assert len(series.values) == 6
+
 
 def test_delete_by_flight_id(test_db_session, fill_mock_data):
     fill_mock_data()
