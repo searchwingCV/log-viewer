@@ -3,8 +3,8 @@
     shows the currently fetched timeseries and created custom plots
     with input fields
 */
-import { useRouter } from 'next/router'
 import { toast } from 'react-toastify'
+import type { DexieError } from 'dexie'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Button from 'modules/Button'
 import database, {
@@ -14,6 +14,7 @@ import database, {
   OverallDataForFlightTable,
   type DexieLogOverallData,
 } from '@idbSchema'
+import { IndexDBErrorMessage } from '@lib/ErrorMessage'
 import { Disclosure, DisclosurePanel } from './Disclosure'
 import { PlotInput } from './PlotInput'
 
@@ -28,65 +29,63 @@ export const CurrentPlotSetup = ({
   customPlots,
   overallData,
 }: CurrentPlotSetupProps) => {
-  const router = useRouter()
-  const { id: flightid } = router.query
+  const clearAllPlots = async () => {
+    try {
+      //delete all logFileTimeSeries and customPlots from IndexedDB
+      await database
+        .table('logFileTimeSeries')
+        .filter((series: DexieCustomPlot) => series.overallDataId === overallData.id)
+        .delete()
+        .then(() => {
+          console.info('logFileTimeSeries data for flight deleted')
+        })
 
-  const clearAllPlots = () => {
-    //delete all logFileTimeSeries and customPlots from IndexedDB
-    database
-      .table('logFileTimeSeries')
-      .clear()
-      .then(() => {
-        console.info('logFileTimeSeries data for flight deleted')
-      })
-      .catch((e) =>
-        toast(`deleting logFileTimeSeries, ${e}`, {
-          type: 'error',
-        }),
-      )
+      await database
+        .table('customFunction')
+        .filter((customPlot: DexieCustomPlot) => customPlot.overallDataId === overallData.id)
+        .delete()
 
-    database
-      .table('customFunction')
-      .clear()
-      .then(() => {
-        console.info('customFunction data for flight deleted')
-      })
-      .catch((e) =>
-        toast(`deleting customFunctions, ${e}`, {
-          type: 'error',
-        }),
-      )
-
-    OverallDataForFlightTable.update(overallData.id, {
-      colorMatrix: overallData.colorMatrix.map((color) => ({
-        color: color.color,
-        taken: false,
-      })),
-    })
-      .then(() => {
+      await OverallDataForFlightTable.update(overallData.id, {
+        colorMatrix: overallData.colorMatrix.map((color) => ({
+          color: color.color,
+          taken: false,
+        })),
+      }).then(() => {
         console.info('Colormatrix data for flight reset')
       })
-      .catch((e) =>
-        toast(`error resetting color matrix , ${e}`, {
+    } catch (e: any) {
+      if ('message' in e && 'name' in e) {
+        toast(<IndexDBErrorMessage error={e} event="clear plots" />, {
           type: 'error',
-        }),
-      )
+          delay: 1,
+          position: toast.POSITION.BOTTOM_CENTER,
+        })
+      }
+    }
   }
 
-  const addEmptyField = async () => {
+  const addEmptyField = () => {
     //for adding an empty CustomPlot
     const emptyCustomFunction = {
       timestamp: new Date(),
       customFunction: '',
-      flightid: parseInt(flightid as string),
+      flightid: overallData.flightid,
+      overallDataId: overallData.id,
     }
-    await CustomFunctionTable.add(emptyCustomFunction)
+    CustomFunctionTable.add(emptyCustomFunction).catch((e: DexieError) => {
+      toast(<IndexDBErrorMessage error={e} event="add empty plot input field" />, {
+        type: 'error',
+        delay: 1,
+        position: toast.POSITION.BOTTOM_CENTER,
+      })
+    })
   }
 
   return (
     <div
       className={`
-                     px-4
+                     pl-2
+                     pr-1
                      pt-4
                      text-white`}
     >
@@ -118,18 +117,18 @@ export const CurrentPlotSetup = ({
             ) : null}
 
             {activeTimeSeries?.map((currentChosenTimeSeries) => (
-              <PlotInput
-                key={currentChosenTimeSeries.id}
-                hidden={currentChosenTimeSeries.hidden}
-                activeTimeSeries={activeTimeSeries}
-                initialValue={`${currentChosenTimeSeries.group
-                  .replace('[', '$')
-                  .replace(']', '')}_${currentChosenTimeSeries.name}`.toUpperCase()}
-                timeseriesId={currentChosenTimeSeries.id}
-                customPlots={customPlots}
-                currentColor={currentChosenTimeSeries.color}
-                overallData={overallData}
-              />
+              <>
+                <PlotInput
+                  key={currentChosenTimeSeries.id}
+                  hidden={currentChosenTimeSeries.hidden}
+                  activeTimeSeries={activeTimeSeries}
+                  initialValue={currentChosenTimeSeries.calculatorExpression}
+                  timeseriesId={currentChosenTimeSeries.id}
+                  customPlots={customPlots}
+                  currentColor={currentChosenTimeSeries.color}
+                  overallData={overallData}
+                />
+              </>
             ))}
 
             {customPlots?.length ? (

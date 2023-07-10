@@ -1,7 +1,9 @@
 import { useForm } from 'react-hook-form'
+import type { AxiosError } from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 import { useMutation } from '@tanstack/react-query'
 import type { CreateMissionSerializer } from '@schema'
+import { ApiErrorMessage } from '@lib/ErrorMessage'
 import Button from '~/modules/Button'
 import { InputReactHookForm } from '~/modules/Input/InputReactHookForm'
 import { postMission } from '~/api/mission/postMission'
@@ -29,12 +31,12 @@ export const AddMissionView = () => {
       await new Promise((resolve) => setTimeout(resolve, 1000))
       await goToLastTableName()
     },
-    onError: async (error) => {
-      toast(`error submitting data ${error}`, {
+
+    onError: (error: AxiosError<any>) => {
+      toast(<ApiErrorMessage error={error} />, {
         type: 'error',
+        delay: 1,
       })
-      //TODO find out why error message disappears immediately without a timeout
-      await new Promise((resolve) => setTimeout(resolve, 100))
     },
   })
 

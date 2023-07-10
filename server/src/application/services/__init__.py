@@ -4,4 +4,11 @@ from application.services.flight import FlightService
 from application.services.log_processing import LogProcessingService
 from application.services.mission import MissionService
 
-__all__ = ["FileService", "DroneService", "FlightService", "MissionService", "LogProcessingService"]
+__all__ = [
+    "FileService",
+    "DroneService",
+    "FlightService",
+    "MissionService",
+    "LogProcessingService",
+    "LogProcessingService",
+]

@@ -8,9 +8,11 @@
 import { useState, useEffect, useMemo } from 'react'
 import { toast } from 'react-toastify'
 import { evaluate } from 'mathjs'
+import type { AxiosError } from 'axios'
 import { useMutation } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { useRouter } from 'next/router'
+import { ApiErrorMessage, IndexDBErrorMessage } from '@lib/ErrorMessage'
 import { getBulkLogPropertyTimeSeriesMock } from '~/api/flight/getBulkLogTImeSeries'
 
 import database, {
@@ -56,7 +58,12 @@ export const PlotInput = ({
   //array of all timeseries, just flatted out and not nested
   const flatCalculatorVarArray = useMemo(() => {
     return overallData.groupedProperties
-      ?.map((grouped: DexieGroupedProps) => grouped.timeSeriesProperties)
+      ?.map((grouped: DexieGroupedProps) =>
+        grouped.timeSeriesProperties.map((item) => ({
+          ...item,
+          messageType: grouped.messageType,
+        })),
+      )
       .flat()
   }, [overallData])
 
@@ -69,37 +76,72 @@ export const PlotInput = ({
           value,
         )
 
-        const newData = data.map((item) => {
-          const { id, ...rest } = item
-          const dataForIDB = {
-            ...rest,
-            id: `${flightid}-${id}`,
-            propId: id,
-            flightid: parseInt(flightid as string),
-            timestamp: new Date(),
-            hidden: containsOnlyIndividualField(value, flatCalculatorVarArray) ? false : true,
-            /*TODO: add smarter color assignment for series fetched with smart input
-              Due to several async color updates, it is hard to work with color assignments
-              for newly fetched timeseries and newly created custom plots at the same time
-            */
-            color: 'black',
-          }
-          return dataForIDB
-        })
+        if (data?.length) {
+          const newData = data?.map((item) => {
+            if (item !== undefined) {
+              const { messageType, messageField, ...rest } = item
+              const dataForIDB = {
+                ...rest,
+                id: `${flightid}-${messageField}-${messageType}`
+                  .toLowerCase()
+                  .replace('[', '')
+                  .replace(']', ''),
+                propId: `${messageField}-${messageType}`
+                  .toLowerCase()
+                  .replace('[', '')
+                  .replace(']', ''),
+                flightid: parseInt(flightid as string),
+                timestamp: new Date(),
+                messageField,
+                messageType,
+                overallDataId: overallData.id,
+                hidden: containsOnlyIndividualField(value, flatCalculatorVarArray) ? false : true,
+                calculatorExpression: `${messageType
+                  .replace('[', '$')
+                  .replace(']', '')}_${messageField}`.toUpperCase(),
+                /*TODO: add smarter color assignment for series fetched with smart input
+                Due to several async color updates, it is hard to work with color assignments
+                for newly fetched timeseries and newly created custom plots at the same time
+                 */
+                color: 'black',
+              }
+              return dataForIDB
+            }
+          })
 
-        await LogFileTimeSeriesTable.bulkAdd(newData).then(async () => {
-          setValue(initialValue)
+          await LogFileTimeSeriesTable.bulkAdd(newData).then(async () => {
+            setValue(initialValue)
 
-          if (!containsOnlyIndividualField(value, flatCalculatorVarArray)) {
-            await createOrCreateCustomPlot(identifiedPropertyVars, activeTimeSeries.concat(newData))
-          }
-          await deleteCustomIfIndividualField()
-        })
-      } catch (e) {}
+            if (!containsOnlyIndividualField(value, flatCalculatorVarArray)) {
+              await createOrUpdateCustomPlot(
+                identifiedPropertyVars,
+                //TODO: remove this later
+                activeTimeSeries.concat(newData as DexieLogFileTimeSeries[]),
+              )
+            }
+            await deleteCustomIfIndividualField()
+          })
+        }
+      } catch (e: any) {
+        if ('message' in e && 'name' in e) {
+          toast(
+            <IndexDBErrorMessage
+              error={e}
+              event="adding timeseries to indexeddb on typing in expression"
+            />,
+            {
+              type: 'error',
+              delay: 1,
+              position: toast.POSITION.BOTTOM_CENTER,
+            },
+          )
+        }
+      }
     },
-    onError: (e) => {
-      toast(`error fetching, ${e}`, {
+    onError: (error: AxiosError<any>) => {
+      toast(<ApiErrorMessage error={error} />, {
         type: 'error',
+        delay: 1,
       })
     },
   })
@@ -108,9 +150,12 @@ export const PlotInput = ({
     setValue(initialValue)
   }, [initialValue])
 
-  const createOrCreateCustomPlot = async (
+  const createOrUpdateCustomPlot = async (
     identifiedPropertyVars: {
-      [x: string]: string
+      [x: string]: {
+        messageField: string
+        messageType: string
+      }
     }[],
     availableTimeseries: DexieLogFileTimeSeries[],
   ) => {
@@ -120,49 +165,70 @@ export const PlotInput = ({
 
     const finalNewTimeseriesArray = createFinalTimeseriesArray(scope, value)
 
-    const assignedColor = await getFreeColor({ overallData })
+    try {
+      if (!isCustom) {
+        const assignedColor = await getFreeColor({ overallData })
 
-    if (!isCustom) {
-      //if the original input field was for plotting individualFields and has be en
-      //enriched with custom expressions
-      //we create a new custom function but keep the original individual field
-      const customFunction = {
-        timestamp: new Date(),
-        customFunction: value,
-        flightid: parseInt(flightid as string),
-        values: finalNewTimeseriesArray,
-        color: assignedColor,
+        //if the original input field was for plotting individualFields and has be en
+        //enriched with custom expressions
+        //we create a new custom function but keep the original individual field
+        const customFunction = {
+          timestamp: new Date(),
+          customFunction: value,
+          flightid: parseInt(flightid as string),
+          values: finalNewTimeseriesArray,
+          color: assignedColor,
+          overallDataId: overallData.id,
+        }
+        await CustomFunctionTable.add(customFunction)
+        setValue(initialValue)
+      } else {
+        //otherwise we update the customplot
+        await CustomFunctionTable.update(customPlotId, {
+          customFunction: value,
+          overallDataId: overallData.id,
+          values: finalNewTimeseriesArray,
+          ...(!initialValue && { color: await getFreeColor({ overallData }) }),
+        })
       }
-      await CustomFunctionTable.add(customFunction)
-      setValue(initialValue)
-    } else {
-      //otherwise we update the customplot
-      await CustomFunctionTable.update(customPlotId, {
-        customFunction: value,
-        values: finalNewTimeseriesArray,
-        ...(!initialValue && { color: assignedColor }),
-      })
+    } catch (e: any) {
+      if ('message' in e && 'name' in e) {
+        toast(<IndexDBErrorMessage error={e} event="create or update custom plot" />, {
+          type: 'error',
+          delay: 1,
+          position: toast.POSITION.BOTTOM_CENTER,
+        })
+      }
     }
   }
 
-  const clearCustomPlot = async (customPlotId: string) => {
+  const clearCustomPlot = (customPlotId: string) => {
     //deletes custom plot, here we need to delete empty customPlots
 
     // TODO: solve dexie ts error
     // @ts-expect-error: Dexie not working with TS right now
-    await database.customFunction.delete(customPlotId)
+    database.customFunction.delete(customPlotId).catch((e) =>
+      toast(<IndexDBErrorMessage error={e} event="clear custom plots" />, {
+        type: 'error',
+        delay: 1,
+        position: toast.POSITION.BOTTOM_CENTER,
+      }),
+    )
   }
 
-  const deleteCustomIfIndividualField = async () => {
+  const deleteCustomIfIndividualField = () => {
     //if input only represents one individual field and used to be a customPlot, delete the custom
     if (isCustom && containsOnlyIndividualField(value, flatCalculatorVarArray) && customPlotId) {
-      await clearCustomPlot(customPlotId)
+      clearCustomPlot(customPlotId)
     }
   }
 
   const validateIfHasPropertyExpressions = async (
     identifiedPropertyVars: {
-      [x: string]: string
+      [x: string]: {
+        messageField: string
+        messageType: string
+      }
     }[],
   ) => {
     //Covers validation for inputs with property expressions
@@ -170,23 +236,25 @@ export const PlotInput = ({
       identifiedPropertyVars,
       activeTimeSeries,
     )
+
     if (!containsOnlyIndividualField(value, flatCalculatorVarArray)) {
       if (timeseriesNotFetchedYet.length) {
         //if there are timeseries in the input that are not fetched yet, fetch them first
+
         fetchTimeSeries.mutate({
-          keys: timeseriesNotFetchedYet,
+          messageTypeFieldPair: timeseriesNotFetchedYet,
           flightid: parseInt(flightid as string),
         })
       } else {
         //if all properties are already in indexedDB, just createor update  custom plots
-        await createOrCreateCustomPlot(identifiedPropertyVars, activeTimeSeries)
+        await createOrUpdateCustomPlot(identifiedPropertyVars, activeTimeSeries)
       }
     } else {
       //If it is just one individual field, then don't create a new custom plot
       if (timeseriesNotFetchedYet.length) {
         //But fetch the individual field if it is not in indexedDB yet
         fetchTimeSeries.mutate({
-          keys: timeseriesNotFetchedYet?.map((timeseries) => timeseries.toLowerCase()),
+          messageTypeFieldPair: timeseriesNotFetchedYet,
           flightid: parseInt(flightid as string),
         })
       } else {
@@ -208,6 +276,7 @@ export const PlotInput = ({
             flatCalculatorVarArray,
             value,
           )
+
           if (identifiedPropertyVars.length) {
             await validateIfHasPropertyExpressions(identifiedPropertyVars)
           } else {
@@ -299,45 +368,56 @@ const determineTypedInTimeseriesNames = (
   value: string,
 ) => {
   //identifies all calculator expressions (vars) in input
+
   const typedInPropertyVars: DexieOverallDataTimeSeries[] = []
   flatCalculatorVarArray?.forEach((item: DexieOverallDataTimeSeries) => {
-    if (value.toLowerCase().includes(item.calculatorExpression.toLowerCase())) {
+    if (value.toLowerCase().includes(item?.calculatorExpression?.toLowerCase())) {
       typedInPropertyVars.push(item)
     }
   })
 
-  const identifiedPropertyVars = typedInPropertyVars.map((typedInVar) => ({
-    [typedInVar.calculatorExpression]: typedInVar.dexieKey,
-  }))
+  const identifiedPropertyVars = typedInPropertyVars.map((typedInVar) => {
+    return {
+      [typedInVar.calculatorExpression]: {
+        messageType: typedInVar.messageType,
+        messageField: typedInVar.messageField,
+      },
+    }
+  })
 
   return identifiedPropertyVars
 }
 
 const determineTimeseriesNotFetchedYet = (
   identifiedPropertyVars: {
-    [x: string]: string
+    [x: string]: {
+      messageField: string
+      messageType: string
+    }
   }[],
   activeTimeSeries: DexieLogFileTimeSeries[],
 ) => {
-  //identiefies all timeseries in input that are not in Indexeddb yet
-  return identifiedPropertyVars
-    .filter(
-      (item) =>
-        !activeTimeSeries
-          .map((activeSeries: DexieLogFileTimeSeries) => activeSeries.id)
-          .includes(Object.values(item)[0]),
-    )
-    .map((timeseries) => {
-      const dataArray = Object.values(timeseries)[0]?.split('-')
-      const timeseriesKey = `${dataArray[1]}-${dataArray[2]}`
+  //identifies all timeseries in input that are not in Indexeddb yet
 
-      return timeseriesKey
+  return identifiedPropertyVars
+    .filter((item) => {
+      return !activeTimeSeries
+        .map((activeSeries: DexieLogFileTimeSeries) =>
+          activeSeries.calculatorExpression.toUpperCase(),
+        )
+        .includes(Object.keys(item)[0].toUpperCase())
+    })
+    .map((timeseries) => {
+      return Object.values(timeseries)[0]
     })
 }
 
 const createScopeForMathJs = (
   identifiedPropertyVars: {
-    [x: string]: string
+    [x: string]: {
+      messageField: string
+      messageType: string
+    }
   }[],
   activeTimeSeries: DexieLogFileTimeSeries[],
 ) => {
@@ -347,9 +427,15 @@ const createScopeForMathJs = (
   //check out https://mathjs.org/docs/expressions/parsing.html
   return identifiedPropertyVars.map((timeseries) => {
     //TODO: following lines have to be changed probably if real data comes in
-    const dataArray = Object.values(timeseries)[0]?.split('-')
+
     const calculatorExpression = Object.keys(timeseries)[0]
-    const timeseriesKey = `${dataArray[1]}-${dataArray[2]}`
+
+    const messageTypeFieldPair = Object.values(timeseries)[0]
+    const { messageField, messageType } = messageTypeFieldPair
+    const timeseriesKey = `${messageField}-${messageType}`
+      .toLowerCase()
+      .replace('[', '')
+      .replace(']', '')
 
     const values = activeTimeSeries.find(
       (savedSeries) => savedSeries.propId === timeseriesKey,
@@ -408,6 +494,7 @@ const containsOnlyIndividualField = (
   const itendifiedVars = flatCalculatorVarArray?.filter((item: DexieOverallDataTimeSeries) =>
     value.toLowerCase().includes(item.calculatorExpression.toLowerCase()),
   )
+
   return (
     itendifiedVars?.length === 1 &&
     value?.toLowerCase() === (itendifiedVars?.[0]?.calculatorExpression?.toLowerCase() || '')

@@ -2,6 +2,7 @@
 import 'regenerator-runtime/runtime'
 import useElementSize from '@charlietango/use-element-size'
 import React, { useMemo } from 'react'
+import type { AxiosError } from 'axios'
 import { useRouter } from 'next/router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
@@ -23,6 +24,7 @@ import {
 import { FormProvider, useForm } from 'react-hook-form'
 import Button from 'modules/Button'
 import type { MissionSerializer, MissionUpdate } from '@schema'
+import { ApiErrorMessage } from '@lib/ErrorMessage'
 import { patchMissions } from '~/api/mission/patchMissions'
 import { ALL_MISSIONS_KEY } from '~/api/mission/getMissions'
 import {
@@ -63,13 +65,12 @@ export const MissionTableOverview = ({
 
       await queryClient.invalidateQueries([ALL_MISSIONS_KEY, pageCount, pageSize])
     },
-    onError: async (error) => {
-      toast(`Error submitting data.${error}`, {
+    onError: (error: AxiosError<any>) => {
+      toast(<ApiErrorMessage error={error} />, {
         type: 'error',
         position: toast.POSITION.BOTTOM_CENTER,
+        delay: 1,
       })
-      //TODO find out why error message disappears immediately without a timeout
-      await new Promise((resolve) => setTimeout(resolve, 100))
 
       //TODO: implement scrolling to input if error from be
       //scrollInputIntoView(`input-${data[0]}`)

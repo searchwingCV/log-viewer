@@ -7,7 +7,8 @@ import Tippy from '@tippyjs/react'
 import clsx from 'clsx'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Menu } from '@headlessui/react'
-
+import { toast } from 'react-toastify'
+import { IndexDBErrorMessage } from '@lib/ErrorMessage'
 import database, {
   type DexieLogOverallData,
   type DexieLogFileTimeSeries,
@@ -44,33 +45,43 @@ export const PlotCustomizeButtons = ({
   isInPropertyList,
 }: PlotCustomizeButtonsProps) => {
   const switchColor = async (chosenNewColor: string) => {
-    //if switching colors, the colorMatrix in the overallData has to be updated
-    const newColorMatrix = overallData?.colorMatrix?.map((colorItem: DexieTakenColorMatrix) => ({
-      color: colorItem.color,
-      taken:
-        chosenNewColor === colorItem.color
-          ? true
-          : colorItem.color === currentColor
-          ? false
-          : colorItem.taken,
-    }))
+    try {
+      //if switching colors, the colorMatrix in the overallData has to be updated
+      const newColorMatrix = overallData?.colorMatrix?.map((colorItem: DexieTakenColorMatrix) => ({
+        color: colorItem.color,
+        taken:
+          chosenNewColor === colorItem.color
+            ? true
+            : colorItem.color === currentColor
+            ? false
+            : colorItem.taken,
+      }))
 
-    await OverallDataForFlightTable.update(overallData?.id, {
-      colorMatrix: newColorMatrix,
-    })
+      await OverallDataForFlightTable.update(overallData?.id, {
+        colorMatrix: newColorMatrix,
+      })
 
-    if (timeseriesId) {
-      //TODO: solve dexie ts error
-      // @ts-expect-error: Dexie not working with TS right now
-      await database.logFileTimeSeries.update(timeseriesId, {
-        color: chosenNewColor,
-      })
-    } else if (customPlotId) {
-      //TODO: solve dexie ts error
-      // @ts-expect-error: Dexie not working with TS right now
-      await database.customFunction.update(customPlotId, {
-        color: chosenNewColor,
-      })
+      if (timeseriesId) {
+        //TODO: solve dexie ts error
+        // @ts-expect-error: Dexie not working with TS right now
+        await database.logFileTimeSeries.update(timeseriesId, {
+          color: chosenNewColor,
+        })
+      } else if (customPlotId) {
+        //TODO: solve dexie ts error
+        // @ts-expect-error: Dexie not working with TS right now
+        await database.customFunction.update(customPlotId, {
+          color: chosenNewColor,
+        })
+      }
+    } catch (e: any) {
+      if ('message' in e && 'name' in e) {
+        toast(<IndexDBErrorMessage error={e} event="switch color for plot" />, {
+          type: 'error',
+          delay: 1,
+          position: toast.POSITION.BOTTOM_CENTER,
+        })
+      }
     }
   }
 
@@ -80,44 +91,44 @@ export const PlotCustomizeButtons = ({
       color: colorItem.color,
       taken: colorItem.color === currentColor ? false : colorItem.taken,
     }))
+
     if (overallData?.id) {
       await OverallDataForFlightTable.update(overallData.id, {
         colorMatrix: newColorMatrix,
-      })
+      }).catch((e) =>
+        toast(<IndexDBErrorMessage error={e} event="release color" />, {
+          type: 'error',
+          delay: 1,
+          position: toast.POSITION.BOTTOM_CENTER,
+        }),
+      )
     }
   }
 
-  const hidePlot = () => {
-    //just hides the plot or the timeseries and does not delete it
-    if (timeseriesId) {
-      //TODO: solve dexie ts error
-      // @ts-expect-error: Dexie not working with TS right now
-      database.logFileTimeSeries.update(timeseriesId, {
-        hidden: true,
-      })
-    } else if (customPlotId) {
-      //TODO: solve dexie ts error
-      // @ts-expect-error: Dexie not working with TS right now
-      database.customFunction.update(customPlotId, {
-        hidden: true,
-      })
-    }
-  }
-
-  const showPlot = () => {
-    //sets the hidden property of the addressed logFileTimeSeries or customFunction to false
-    if (timeseriesId) {
-      //TODO: solve dexie ts error
-      // @ts-expect-error: Dexie not working with TS right now
-      database.logFileTimeSeries.update(timeseriesId, {
-        hidden: false,
-      })
-    } else if (customPlotId) {
-      //TODO: solve dexie ts error
-      // @ts-expect-error: Dexie not working with TS right now
-      database.customFunction.update(customPlotId, {
-        hidden: false,
-      })
+  const togglePlotVisibility = async ({ isHidden }: { isHidden: boolean }) => {
+    try {
+      //just hides or shows the plot or the timeseries and does not delete it
+      if (timeseriesId) {
+        //TODO: solve dexie ts error
+        // @ts-expect-error: Dexie not working with TS right now
+        await database.logFileTimeSeries.update(timeseriesId, {
+          hidden: isHidden,
+        })
+      } else if (customPlotId) {
+        //TODO: solve dexie ts error
+        // @ts-expect-error: Dexie not working with TS right now
+        await database.customFunction.update(customPlotId, {
+          hidden: isHidden,
+        })
+      }
+    } catch (e: any) {
+      if ('message' in e && 'name' in e) {
+        toast(<IndexDBErrorMessage error={e} event="toggle plot visibility" />, {
+          type: 'error',
+          delay: 1,
+          position: toast.POSITION.BOTTOM_CENTER,
+        })
+      }
     }
   }
 
@@ -151,7 +162,13 @@ export const PlotCustomizeButtons = ({
 
     //TODO: solve dexie ts error
     // @ts-expect-error: Dexie not working with TS right now
-    await database.logFileTimeSeries.delete(timeseriesId)
+    await database.logFileTimeSeries.delete(timeseriesId).catch((e) =>
+      toast(<IndexDBErrorMessage error={e} event="clear timeseries" />, {
+        type: 'error',
+        delay: 1,
+        position: toast.POSITION.BOTTOM_CENTER,
+      }),
+    )
     await releaseColor()
   }
 
@@ -160,12 +177,21 @@ export const PlotCustomizeButtons = ({
 
     //TODO: solve dexie ts error
     // @ts-expect-error: Dexie not working with TS right now
-    await database.customFunction.delete(customPlotId)
+    await database.customFunction.delete(customPlotId).catch((e) =>
+      toast(<IndexDBErrorMessage error={e} event="clear custom plot" />, {
+        type: 'error',
+        delay: 1,
+        position: toast.POSITION.BOTTOM_CENTER,
+      }),
+    )
     await releaseColor()
   }
 
   return (
-    <div className={`flex`}>
+    <div
+      className={`relative
+                  flex`}
+    >
       {initialValue ? (
         <Menu>
           {({ open }) => (
@@ -173,6 +199,7 @@ export const PlotCustomizeButtons = ({
               <Menu.Button
                 className={clsx(
                   `
+                   relative
                    mr-1
                    flex
                    h-4
@@ -203,17 +230,16 @@ export const PlotCustomizeButtons = ({
               </Menu.Button>
               <Menu.Items
                 className={clsx(
-                  `fixed
+                  ` absolute
+                    top-8
+                    right-3
                     z-[200]
-                    w-7
+                    grid
+                    w-36
+                    grid-cols-6
                     rounded-md
-                  bg-black
+                    bg-black
                     shadow-xl`,
-                  isInPropertyList
-                    ? `bottom-0
-                       right-3`
-                    : `top-6
-                       right-3`,
                 )}
               >
                 {overallData?.colorMatrix
@@ -253,8 +279,8 @@ export const PlotCustomizeButtons = ({
             <button
               className={`mr-1
                         text-white`}
-              onClick={() => {
-                hidePlot()
+              onClick={async () => {
+                await togglePlotVisibility({ isHidden: true })
               }}
             >
               <FontAwesomeIcon width={14} icon={'eye-slash'}></FontAwesomeIcon>
@@ -266,8 +292,8 @@ export const PlotCustomizeButtons = ({
               className={`mr-1
                           text-white
                           hover:opacity-50`}
-              onClick={() => {
-                showPlot()
+              onClick={async () => {
+                await togglePlotVisibility({ isHidden: false })
               }}
             >
               <FontAwesomeIcon width={14} icon={'eye'}></FontAwesomeIcon>

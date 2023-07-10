@@ -5,11 +5,11 @@
 
 
 export type LogFileTimeSeries = {
-    group: string;
-    id: string;
+    messageType: string;
+    id?: string;
     flightid: number
-    name: string;
-    unit: string;
+    messageField: string;
+    unit?: string;
     values: {
         timestamp: string;
         value: number;

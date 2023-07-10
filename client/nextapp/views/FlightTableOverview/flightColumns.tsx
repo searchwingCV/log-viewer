@@ -288,10 +288,10 @@ export const flightColumns = (
     Header: 'Start Time',
     accessor: 'logStartTime',
     Cell: (props: any) => {
-      if (isValid(parseISO(props.row.values.startTime))) {
+      if (isValid(parseISO(props.row.values.logStartTime))) {
         return (
           <TippyValueWrapper tableHeadName={props.column.Header}>
-            <div>{format(parseISO(props.row.values.startTime), 'hh:ss:mm dd.MM.yyyy')}</div>
+            <div>{format(parseISO(props.row.values.logStartTime), 'hh:ss:mm dd.MM.yyyy')}</div>
           </TippyValueWrapper>
         )
       } else {
@@ -304,10 +304,10 @@ export const flightColumns = (
     Header: 'End Time',
     accessor: 'logEndTime',
     Cell: (props: any) => {
-      if (isValid(parseISO(props.row.values.startTime))) {
+      if (isValid(parseISO(props.row.values.logEndTime))) {
         return (
           <TippyValueWrapper tableHeadName={props.column.Header}>
-            <div>{format(parseISO(props.row.values.startTime), 'hh:ss:mm dd.MM.yyyy')}</div>
+            <div>{format(parseISO(props.row.values.logEndTime), 'hh:ss:mm dd.MM.yyyy')}</div>
           </TippyValueWrapper>
         )
       } else {

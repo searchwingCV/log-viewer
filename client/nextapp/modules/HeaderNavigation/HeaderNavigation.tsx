@@ -39,13 +39,12 @@ export const HeaderNavigation = ({ isHeaderMinimalist }: HeaderNavigationProps) 
       )}
     >
       <div
-        className={`container
-                    mx-auto
+        className={`
                     flex
-                    flex-wrap
+                    w-full
                     items-center
                     justify-between
-                    pl-4`}
+                    px-8`}
       >
         {!isHeaderMinimalist ? (
           <Link

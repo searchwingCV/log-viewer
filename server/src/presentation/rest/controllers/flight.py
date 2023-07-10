@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Annotated, Union
 
 from application.services.file import FileService
 from application.services.flight import FlightService
@@ -14,7 +14,7 @@ from presentation.rest.serializers.errors import EntityNotFoundError, InvalidPay
 from presentation.rest.serializers.file import FlightFileSerializer
 from presentation.rest.serializers.flight import CreateFlightSerializer, FlightSerializer, FlightUpdate
 from presentation.rest.serializers.responses import BatchUpdateResponse, FlightFilesListResponse
-from presentation.worker.tasks import process_flight_duration
+from presentation.worker.tasks import parse_log_file
 
 ROUTE_PREFIX = "/flight"
 router = APIRouter(
@@ -86,15 +86,15 @@ async def delete_flight(id: int, flight_service: FlightService = Depends(get_fli
 @router.put("/{id}/file", status_code=status.HTTP_200_OK, response_model=FlightFileSerializer)
 def upload_file(
     id: int,
-    file_type: AllowedFiles,
-    file: UploadFile,
+    file_type: Annotated[AllowedFiles | None, Query()] = None,
+    file: Annotated[UploadFile | None, Query()] = None,
     process: bool = True,
     file_service: FileService = Depends(get_file_service),
 ):
     try:
         uploaded_file = file_service.upload_file(id, file, file_type)
         if file_type == AllowedFiles.log and process:
-            process_flight_duration.delay(id)
+            parse_log_file.delay(id)
         return uploaded_file
     except NotFoundException:
         raise HTTPException(

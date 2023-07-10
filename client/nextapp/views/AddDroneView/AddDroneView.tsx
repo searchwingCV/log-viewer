@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form'
+import type { AxiosError } from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 import { useMutation } from '@tanstack/react-query'
 import { type CreateDroneSerializer, DroneStatus } from '@schema'
@@ -6,6 +7,7 @@ import Button from '~/modules/Button'
 import { InputReactHookForm } from '~/modules/Input/InputReactHookForm'
 import { SelectReactHookForm } from '~/modules/Select/SelectReactHookForm'
 import { postDrone } from '~/api/drone/postDrone'
+import { ApiErrorMessage } from '@lib/ErrorMessage'
 import { useGoToLastTablePage } from '@lib/hooks/useGoToLastTablePage'
 
 export const AddDroneView = () => {
@@ -30,14 +32,11 @@ export const AddDroneView = () => {
       await reset()
       await goToLastTableName()
     },
-    onError: async (error) => {
-      //TODO: better error messages
-      toast(`error submitting data ${error}`, {
+    onError: async (error: AxiosError<any>) => {
+      await toast(<ApiErrorMessage error={error} />, {
         type: 'error',
+        delay: 1,
       })
-
-      //TODO find out why error message disappears immediately without a timeout
-      await new Promise((resolve) => setTimeout(resolve, 100))
     },
   })
 
@@ -54,7 +53,6 @@ export const AddDroneView = () => {
                     [&>div]:mt-8`}
         onSubmit={onSubmit}
       >
-        <ToastContainer autoClose={5000} />
         <InputReactHookForm<CreateDroneSerializer>
           name="name"
           register={register}

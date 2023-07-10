@@ -1,5 +1,6 @@
 //TODO: Refactor code of FlightTableOverview, MissionTableOverview & DroneTableOverview to avoid duplicate code
 import 'regenerator-runtime/runtime'
+import type { AxiosError } from 'axios'
 import React, { useCallback, useMemo } from 'react'
 import { useRouter } from 'next/router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -22,6 +23,7 @@ import {
 } from 'react-table'
 import { FormProvider, useForm } from 'react-hook-form'
 import Button from 'modules/Button'
+import { ApiErrorMessage } from '@lib/ErrorMessage'
 import { ALl_FLIGHTS_KEY } from '~/api/flight/getFlights'
 import type { FlightSerializer, FlightUpdate } from '@schema'
 import { patchFlights } from '~/api/flight/patchFlights'
@@ -101,10 +103,11 @@ export const FlightTableOverview = ({
 
       await queryClient.invalidateQueries([ALl_FLIGHTS_KEY])
     },
-    onError: (error) => {
-      toast(`Error submitting data.${error}`, {
+    onError: (error: AxiosError<any>) => {
+      toast(<ApiErrorMessage error={error} />, {
         type: 'error',
         position: toast.POSITION.BOTTOM_CENTER,
+        delay: 1,
       })
     },
   })

@@ -2,33 +2,30 @@ import { useRouter } from 'next/router'
 import clsx from 'clsx'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useQuery } from '@tanstack/react-query'
-import type { LogOverallData } from '@schema'
 import database, { type DexieLogOverallData } from '@idbSchema'
-import {
-  PlotPropsDrawer,
-  LineChartComponent,
-  PLOT_DRAWER_EXTENDED,
-} from '~/modules/PlotInterfaceComponents'
+import { PlotPropsDrawer, PLOT_DRAWER_EXTENDED } from '~/modules/PlotInterfaceComponents'
 
-export type FlightDetailViewProps = {
-  logOverallData: LogOverallData
-}
-
-export const FlightDetailView = () => {
+export const FlightComparisonView = ({}) => {
   const router = useRouter()
 
-  const { id } = router.query
+  const { firstid, secondid } = router.query
 
-  const overallData = useLiveQuery(() =>
-    //TODO: solve dexie ts error
-    // @ts-expect-error: Dexie not working with TS right now
-    database.overallDataForFlight
-      ?.orderBy('timestamp')
-      ?.filter(
-        (flightData: DexieLogOverallData) =>
-          flightData.flightid === parseInt(id as string) && flightData.isIndividualFlight,
-      )
-      ?.toArray(),
+  const overallData = useLiveQuery(
+    () =>
+      firstid && secondid
+        ? //TODO: solve dexie ts error
+          // @ts-expect-error: Dexie not working with TS right now
+          database.overallDataForFlight
+            .orderBy('flightid')
+            .filter(
+              (data: DexieLogOverallData) =>
+                (data.flightid === parseInt(firstid as string) ||
+                  data.flightid === parseInt(secondid as string)) &&
+                !data.isIndividualFlight,
+            )
+            .toArray()
+        : null,
+    [firstid, secondid],
   )
 
   const { data: sideNavExtended } = useQuery([PLOT_DRAWER_EXTENDED])
@@ -53,14 +50,13 @@ export const FlightDetailView = () => {
             `ml-side-drawer-width
              h-screen
              overflow-x-hidden`,
-
-            sideNavExtended
-              ? `min-w-[calc(100vw_-_270px)]
-                 translate-x-0
-                 translate-y-0`
-              : `min-w-[calc(100vw_-_0px)]
-                 translate-x-[-260px]`,
           )}
+          style={{
+            minWidth: sideNavExtended ? `calc(100vw - ${overallData.length * 270})` : `100vw`,
+            transform: sideNavExtended
+              ? `translateX(0px)`
+              : `translateX(-${overallData.length * 270}px)`,
+          }}
         >
           <main
             className={`flex
@@ -80,7 +76,7 @@ export const FlightDetailView = () => {
                 sideNavExtended ? 'pl-8' : 'pl-28',
               )}
             >
-              <LineChartComponent overallData={overallData[0]} />
+              {/* <LineChartComponent flightModeData={logOverallData.flightModeTimeSeries} /> */}
             </div>
           </main>
         </div>
