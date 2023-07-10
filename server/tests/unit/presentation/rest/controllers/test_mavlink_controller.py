@@ -18,7 +18,7 @@ def test_get_mavlink_props(test_client, mock_log_processing_service):
     )
     test_client.app.dependency_overrides[get_log_processing_service] = lambda: mock_log_processing_service
     expected = """
-    {
+    [{
         "flightId": 1,
         "messageProperties": [
             {
@@ -35,7 +35,7 @@ def test_get_mavlink_props(test_client, mock_log_processing_service):
             }
         ],
             "flightModeTimeseries": []
-    }
+    }]
     """
     response = test_client.get("/mavlink/message-properties?flight_id=1")
 
