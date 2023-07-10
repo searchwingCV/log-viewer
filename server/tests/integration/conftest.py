@@ -15,6 +15,9 @@ def test_db_session():
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
 
+    db.execute("CREATE EXTENSION IF NOT EXISTS postgis;")
+    db.execute("CREATE EXTENSION IF NOT EXISTS timescaledb_toolkit;")
+
     try:
         yield db
     finally:

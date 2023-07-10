@@ -46,7 +46,10 @@ def get_timeseries(
     message_field: str,
     start_time: datetime | None = None,
     end_time: datetime | None = None,
+    n_points: Annotated[int | None, Query(gt=2)] = None,
     log_processing_service: LogProcessingService = Depends(get_log_processing_service),
 ):
-    timeseries = log_processing_service.get_timeseries(flight_id, message_type, message_field, start_time, end_time)
+    timeseries = log_processing_service.get_timeseries(
+        flight_id, message_type, message_field, start_time, end_time, n_points
+    )
     return MavLinkTimeseriesSerializer.from_orm(timeseries)
