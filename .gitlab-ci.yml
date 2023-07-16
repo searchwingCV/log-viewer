@@ -13,7 +13,7 @@ test-server:
     POSTGRES_TEST_PORT: 5432
     POSTGRES_TEST_SERVER: test-db
   services:
-    - name: timescale/timescaledb-ha:pg14.8-ts2.11.1-oss
+    - name: timescale/timescaledb-ha:pg14-latest
       alias: test-db
   cache:
     paths:
@@ -32,7 +32,8 @@ test-server:
     - make install-back-test-deps
   script:
     - make lint-server
-    - make test-server
+    - make test-integration-server
+    - make test-unit-server
     - curl -Os https://uploader.codecov.io/latest/linux/codecov
     - chmod +x codecov
     - ./codecov -t $CODECOV_TOKEN -R $CI_PROJECT_DIR
