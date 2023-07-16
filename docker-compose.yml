@@ -66,7 +66,7 @@ services:
   db:
     container_name: db
     platform: linux/x86_64
-    image: timescale/timescaledb-ha:pg14.8-ts2.11.1-oss
+    image: rmargar/timescaledb-ha-toolkit:latest
     restart: always
     environment:
       POSTGRES_USER: searchwing
@@ -85,12 +85,12 @@ services:
   test-db:
     container_name: test-db
     platform: linux/x86_64
-    image: timescale/timescaledb-ha:pg14-latest
+    image: rmargar/timescaledb-ha-toolkit:latest
     restart: always
     environment:
-      POSTGRES_USER: searchwing
-      POSTGRES_PASSWORD: searchwing
-      POSTGRES_DB: searchwing
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
     ports:
       - '5431:5432'
     healthcheck:
@@ -98,8 +98,6 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
-    volumes:
-      - ./server/db:/docker-entrypoint-initdb.d/
 
   pgadmin:
     container_name: pgadmin4_container
