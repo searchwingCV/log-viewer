@@ -1,6 +1,7 @@
 import random
 
 import pytest
+from common.config import TestConfig
 from domain.flight_file.value_objects import AllowedFiles
 from infrastructure.db.orm import Base, Drone, Flight, FlightFile, Mission
 from sqlalchemy import create_engine
@@ -9,7 +10,7 @@ from sqlalchemy.orm import sessionmaker
 
 @pytest.fixture(scope="function")
 def test_db_session():
-    engine = create_engine("postgresql+psycopg2://postgres:postgres@localhost:5431/postgres")
+    engine = create_engine(TestConfig.SQLALCHEMY_DATABASE_URI, pool_pre_ping=True)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
     db = SessionLocal()
