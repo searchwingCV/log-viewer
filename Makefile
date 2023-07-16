@@ -1,3 +1,6 @@
+dev-env-conda:
+	conda activate swing && eval $(shdotenv --env server/.env)
+
 auto-model:
 	python devdocs/model/autogenerate.py
 
