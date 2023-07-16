@@ -13,7 +13,7 @@ test-server:
     POSTGRES_TEST_PORT: 5432
     POSTGRES_TEST_SERVER: test-db
   services:
-    - name: rmargar/timescaledb-ha-toolkit:latest
+    - name: timescale/timescaledb-ha:pg14.8-ts2.11.1-oss
       alias: test-db
   cache:
     paths:
