@@ -127,9 +127,10 @@ class LogProcessingService:
         message_field: str,
         start_timestamp: datetime | None = None,
         end_timestamp: datetime | None = None,
+        n_points: int | None = None,
     ) -> MavLinkTimeseries:
         with self._session as session:
             timeseries = self._mavlink_timeseries_repository.get_by_flight_type_field(
-                session, flight_id, message_type, message_field, start_timestamp, end_timestamp
+                session, flight_id, message_type, message_field, start_timestamp, end_timestamp, n_points
             )
         return timeseries

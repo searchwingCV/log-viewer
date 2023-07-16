@@ -10,10 +10,12 @@ from sqlalchemy.orm import sessionmaker
 
 @pytest.fixture(scope="function")
 def test_db_session():
-    engine = create_engine(TestConfig.SQLALCHEMY_DATABASE_URI)
+    engine = create_engine(TestConfig.SQLALCHEMY_DATABASE_URI, pool_pre_ping=True)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    Base.metadata.create_all(bind=engine)
+
     db = SessionLocal()
+
+    Base.metadata.create_all(bind=engine)
 
     try:
         yield db
