@@ -6,3 +6,4 @@ coverage>=7.1.0
 pytest-cov>=3.0.0
 faker>=17.5.0
 httpx
+pytest-rerunfailures

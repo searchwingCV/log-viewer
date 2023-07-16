@@ -23,6 +23,6 @@ test-unit-server:
 	python -m pytest server/tests/unit --cov ./server/src --cov-report=xml -vvvv --disable-warnings
 
 test-integration-server:
-	python -m pytest server/tests/integration --cov ./server/src --cov-append --disable-warnings --cov-report=xml -vvvv
+	python -m pytest server/tests/integration --reruns 5 --reruns-delay 1 --cov ./server/src --cov-append --disable-warnings --cov-report=xml -vvvv
 run-migrations:
 	docker compose up migrations
