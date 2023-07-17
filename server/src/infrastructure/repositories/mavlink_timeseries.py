@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Type
 
 from common.logging import get_logger
@@ -67,21 +68,65 @@ class MavLinkTimeseriesRepository(BaseRepository):
         flight_messages.add_entries(entries)
         return flight_messages
 
-    def get_by_flight_type_field(
-        self,
-        session: Session,
-        flight_id: ID_Type,
-        message_type: str,
-        message_field: str,
-    ) -> MavLinkTimeseries:
+    def _timeseries_sql_query(
+        self, flight_id: ID_Type, message_type: str, message_field, start_timestamp, end_timestamp
+    ) -> str:
         query = f"""
         SELECT mavlink_timeseries.timestamp, mavlink_timeseries.value
         FROM mavlink_timeseries
         WHERE mavlink_timeseries.flight_id = {flight_id}
         AND mavlink_timeseries.message_type = '{message_type}'
         AND mavlink_timeseries.message_field = '{message_field}'
-        ORDER BY mavlink_timeseries.timestamp ASC;
         """
+        if start_timestamp:
+            query += f" AND mavlink_timeseries.timestamp >= '{start_timestamp}'"
+        if end_timestamp:
+            query += f" AND mavlink_timeseries.timestamp <= '{end_timestamp}'"
+        query += " ORDER BY mavlink_timeseries.timestamp ASC"
+        return query
+
+    def _timeseries_sql_query_lttb(
+        self,
+        flight_id: ID_Type,
+        message_type: str,
+        message_field: str,
+        start_timestamp: datetime,
+        end_timestamp: datetime,
+        n_points: int,
+    ) -> str:
+        query = f"""
+        SELECT time as timestamp, value
+        FROM unnest(
+            (SELECT lttb(timestamp, value, {n_points})
+                    FROM mavlink_timeseries
+                    WHERE mavlink_timeseries.flight_id = {flight_id}
+                    AND mavlink_timeseries.message_type = '{message_type}'
+                    AND mavlink_timeseries.message_field = '{message_field}'
+        """
+        if start_timestamp:
+            query += f" AND mavlink_timeseries.timestamp >= '{start_timestamp}'"
+        if end_timestamp:
+            query += f" AND mavlink_timeseries.timestamp <= '{end_timestamp}'"
+        query += " )) ORDER BY timestamp ASC"
+        return query
+
+    def get_by_flight_type_field(
+        self,
+        session: Session,
+        flight_id: ID_Type,
+        message_type: str,
+        message_field: str,
+        start_timestamp: datetime | None = None,
+        end_timestamp: datetime | None = None,
+        n_points: int | None = None,
+    ) -> MavLinkTimeseries:
+        if n_points is None:
+            query = self._timeseries_sql_query(flight_id, message_type, message_field, start_timestamp, end_timestamp)
+        else:
+            query = self._timeseries_sql_query_lttb(
+                flight_id, message_type, message_field, start_timestamp, end_timestamp, n_points
+            )
+
         result = session.execute(query).all()
 
         return MavLinkTimeseries.build_from_entries(

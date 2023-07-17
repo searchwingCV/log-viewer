@@ -86,8 +86,8 @@ async def delete_flight(id: int, flight_service: FlightService = Depends(get_fli
 @router.put("/{id}/file", status_code=status.HTTP_200_OK, response_model=FlightFileSerializer)
 def upload_file(
     id: int,
+    file: UploadFile,
     file_type: Annotated[AllowedFiles | None, Query()] = None,
-    file: Annotated[UploadFile | None, Query()] = None,
     process: bool = True,
     file_service: FileService = Depends(get_file_service),
 ):

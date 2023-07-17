@@ -52,10 +52,10 @@ class TestConfig(BaseConfig):
     LOG_LEVEL = 10
     SQLALCHEMY_DATABASE_URI = (
         "postgresql+psycopg2://"
-        f"{os.getenv('POSTGRES_USER')}:"
-        f"{os.getenv('POSTGRES_PASSWORD')}"
+        f"{os.getenv('POSTGRES_TEST_USER', 'postgres')}:"
+        f"{os.getenv('POSTGRES_TEST_PASSWORD', 'postgres')}"
         f"@{os.getenv('POSTGRES_TEST_SERVER')}:{os.getenv('POSTGRES_TEST_PORT')}"
-        f"/{os.getenv('POSTGRES_DB')}"
+        f"/{os.getenv('POSTGRES_TEST_DB', 'postgres')}"
     )
     TESTING = True
     RETRY_LIMIT = 1
