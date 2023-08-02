@@ -30,7 +30,6 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 # You only need to copy next.config.js if you are NOT using the default configuration
 COPY --from=builder /nextapp/next.config.js ./
-COPY --from=builder /nextapp/next-i18next.config.js ./
 COPY --from=builder /nextapp/public ./public
 COPY --from=builder /nextapp/pages ./pages
 COPY --from=builder /nextapp/.next ./.next
