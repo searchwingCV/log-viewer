@@ -18,15 +18,6 @@ const series2 = new Series({
     interval: 1,
 })
 
-
-const series3 = new Series({
-    from: '2017-01-01T00:00:33Z',
-    until: '2017-01-01T02:10:00Z',
-    numOfData: 60,
-    interval: 1,
-})
-
-
 series2
     .gaussian()
     .map((item: { timestamp: string; value: number }) => ({

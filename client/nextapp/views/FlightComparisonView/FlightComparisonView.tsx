@@ -1,18 +1,15 @@
+import { useContext } from 'react'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useQuery } from '@tanstack/react-query'
 import database, { type DexieLogOverallData } from '@idbSchema'
-import {
-  PlotPropsDrawer,
-  PLOT_DRAWER_EXTENDED,
-  LineChartComponent,
-} from '~/modules/PlotInterfaceComponents'
+import { UIContext } from '@lib/Context/ContextProvider'
+import { PlotDrawer } from '~/modules/PlotDrawer'
+import { LineChartComponent } from '~/modules/Chart'
 
 export const FlightComparisonView = ({ ids }: { ids: string[] }) => {
-  const { data: isExtended } = useQuery([PLOT_DRAWER_EXTENDED], () => {
-    return true
-  })
+  const { plotDrawerExtended } = useContext(UIContext)
+
   const router = useRouter()
 
   const { firstid, secondid } = router.query
@@ -30,8 +27,6 @@ export const FlightComparisonView = ({ ids }: { ids: string[] }) => {
     [firstid, secondid],
   )
 
-  const { data: sideNavExtended } = useQuery([PLOT_DRAWER_EXTENDED])
-
   if (!overallData) {
     return null
   }
@@ -45,7 +40,7 @@ export const FlightComparisonView = ({ ids }: { ids: string[] }) => {
                     bg-grey-light
                     `}
       >
-        <PlotPropsDrawer overallData={overallData} />
+        <PlotDrawer overallData={overallData} />
 
         <div
           className={clsx(
@@ -55,8 +50,8 @@ export const FlightComparisonView = ({ ids }: { ids: string[] }) => {
           )}
           style={{
             marginLeft: `${overallData.length * 270}px`,
-            minWidth: sideNavExtended ? `calc(100vw - ${overallData.length * 270}px)` : `100vw`,
-            transform: sideNavExtended
+            minWidth: plotDrawerExtended ? `calc(100vw - ${overallData.length * 270}px)` : `100vw`,
+            transform: plotDrawerExtended
               ? `translateX(0px)`
               : `translateX(-${overallData.length * 270}px)`,
           }}
@@ -76,10 +71,10 @@ export const FlightComparisonView = ({ ids }: { ids: string[] }) => {
                 `r-8
                  w-full
                  `,
-                sideNavExtended ? 'pl-12' : 'pl-28',
+                plotDrawerExtended ? 'pl-12' : 'pl-28',
               )}
             >
-              <LineChartComponent overallData={overallData} isComparingTwoFlights />
+              <LineChartComponent overallData={overallData} />
             </div>
           </div>
         </div>

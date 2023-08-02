@@ -1,10 +1,11 @@
 import { useRouter } from 'next/router'
 import { useQuery } from '@tanstack/react-query'
+import { differenceInMilliseconds } from 'date-fns'
 import type { DexieError } from 'dexie'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { ToastContainer, toast } from 'react-toastify'
 import { IndexDBErrorMessage } from '@lib/ErrorMessage'
-import { colorArr } from 'modules/PlotInterfaceComponents/colorArray'
+import { colorArr } from '~/lib/constants'
 import FlightComparisonView from 'views/FlightComparisonView'
 import { Layout } from '~/modules/Layouts/Layout'
 import database, { type DexieLogOverallData, OverallDataForFlightTable } from '@idbSchema'
@@ -70,6 +71,16 @@ const FlightCompareScreen: NextPageWithLayout = ({}) => {
               }-${retrievedFirstId > retrievedSecondId ? retrievedFirstId : retrievedSecondId}`,
             },
           ]
+
+          const totalMilliseconds = data
+            ?.map((data) => ({
+              flightid: data.flightid,
+              totalMs: differenceInMilliseconds(new Date(data.until), new Date(data.from)),
+            }))
+            .sort((a, b) => b.totalMs - a.totalMs)
+
+          const longerFlightId = totalMilliseconds[0].flightid
+
           data?.map((flightData) => {
             const retrievedId = retrievedFinalIds.find((id) => id.flightid === flightData.flightid)
 
@@ -78,6 +89,11 @@ const FlightCompareScreen: NextPageWithLayout = ({}) => {
 
               const dataForIDB = {
                 ...rest,
+                totalMilliseconds: differenceInMilliseconds(
+                  new Date(flightData.until),
+                  new Date(flightData.from),
+                ),
+                isLongerFlight: flightid === longerFlightId,
                 colorMatrix: colorArr
                   .map((color) => ({
                     color: color,

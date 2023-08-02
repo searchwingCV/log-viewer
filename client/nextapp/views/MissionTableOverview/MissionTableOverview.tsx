@@ -1,12 +1,12 @@
 //TODO: Refactor code of FlightTableOverview, MissionTableOverview & DroneTableOverview to avoid duplicate code
 import 'regenerator-runtime/runtime'
-import useElementSize from '@charlietango/use-element-size'
 import React, { useMemo } from 'react'
+import useElementSize from '@charlietango/use-element-size'
+import dynamic from 'next/dynamic'
 import type { AxiosError } from 'axios'
 import { useRouter } from 'next/router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
-import { useTranslation } from 'next-i18next'
 import {
   useTable,
   type Column,
@@ -25,16 +25,15 @@ import { FormProvider, useForm } from 'react-hook-form'
 import Button from 'modules/Button'
 import type { MissionSerializer, MissionUpdate } from '@schema'
 import { ApiErrorMessage } from '@lib/ErrorMessage'
+import { DrawerExtensionTypes } from '@lib/constants'
+
 import { patchMissions } from '~/api/mission/patchMissions'
 import { ALL_MISSIONS_KEY } from '~/api/mission/getMissions'
-import {
-  ColumnFilter,
-  TableBody,
-  TableHead,
-  DrawerExtensionTypes,
-  TableFrame,
-} from '~/modules/TableComponents'
+import { ColumnFilter, TableBody, TableHead } from '~/modules/TableComponents'
 import { missionColumns } from './missionColumns'
+
+//TODO: Fix TS bug concerning dynamic imports and generics once Typescript fixes it https://github.com/microsoft/TypeScript/issues/30712
+const TableFrame = dynamic(() => import('../../modules/TableComponents/TableFrame'), { ssr: false })
 
 export type PaginationTableInstance<T extends object> = TableInstance<T> &
   UsePaginationInstanceProps<T> & {
@@ -90,8 +89,6 @@ export const MissionTableOverview = ({
     }),
     [],
   )
-
-  const { t } = useTranslation()
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const columns = useMemo<Column<MissionSerializer>[]>(() => missionColumns(), [data])
@@ -177,6 +174,9 @@ export const MissionTableOverview = ({
   ) as PaginationTableInstance<MissionSerializer>
 
   return (
+    //TODO: Fix TS bug concerning dynamic imports and generics once Typescript fixes it https://github.com/microsoft/TypeScript/issues/30712
+    // eslint-disable-next-line
+    // @ts-expect-error
     <TableFrame<MissionSerializer>
       pageCount={pageCount}
       pageSize={pageSize}
@@ -233,7 +233,7 @@ export const MissionTableOverview = ({
                           w-[350px]
                           p-4`}
             >
-              {t('Submit Changes')}
+              {'Submit Changes'}
             </Button>
           ) : (
             <div className="min-h-[40px]"></div>

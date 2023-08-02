@@ -6,11 +6,12 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { ToastContainer } from 'react-toastify'
 import { toast } from 'react-toastify'
+import { differenceInMilliseconds } from 'date-fns'
 import type { DexieError } from 'dexie'
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 import database, { type DexieLogOverallData, OverallDataForFlightTable } from '@idbSchema'
-import { colorArr } from 'modules/PlotInterfaceComponents/colorArray'
+import { colorArr } from '~/lib/constants'
 import FlightDetailView from 'views/FlightDetailView'
 import { IndexDBErrorMessage } from '@lib/ErrorMessage'
 import { getDatesBetween } from '@lib/functions/getDatesBetween'
@@ -56,6 +57,7 @@ const FlightDetailScreen: NextPageWithLayout = ({}) => {
             color: color,
             taken: false,
           })),
+          totalMilliseconds: differenceInMilliseconds(new Date(data.until), new Date(data.from)),
           isIndividualFlight: true,
           timestamp: new Date(),
           groupedProperties: groupedProperties.map((groupedProp) => {

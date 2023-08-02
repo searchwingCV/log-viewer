@@ -13,7 +13,7 @@ export const LOG_OVERALL_DATA_MULTIPLE = 'LOG_OVERALL_DATA_MULTIPLE'
 
 const series2 = new Series({
     from: '2016-01-01T00:24:33Z',
-    until: '2016-01-02T01:10:00Z',
+    until: '2016-01-01T01:10:00Z',
     numOfData,
     interval: 1,
 })
@@ -80,7 +80,7 @@ const mockData: LogOverallData[] = [{
     flightModeTimeSeries: mockFlightModes,
     flightid: 1,
     from: '2016-01-01T00:24:33Z',
-    until: '2016-01-02T01:10:00Z',
+    until: '2016-01-01T01:10:00Z',
     groupedProperties: [
         {
             messageType: 'XKF1[0]',
@@ -157,7 +157,7 @@ const mockData: LogOverallData[] = [{
     flightModeTimeSeries: mockFlightModes,
     flightid: 2,
     from: '2017-01-01T00:00:33Z',
-    until: '2017-01-02T00:10:00Z',
+    until: '2017-01-01T02:10:00Z',
     groupedProperties: [
         {
             messageType: 'XKF1[0]',
