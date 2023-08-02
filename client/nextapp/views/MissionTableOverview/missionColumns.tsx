@@ -151,7 +151,7 @@ export const missionColumns = (): Column<MissionSerializer>[] => [
       if (isValid(parseISO(props.row.values.createdAt))) {
         return (
           <TippyValueWrapper tableHeadName={props.column.Header}>
-            <div>{format(parseISO(props.row.values.createdAt), 'hh:ss:mm dd.MM.yyyy')}</div>
+            <div>{format(parseISO(props.row.values.createdAt), 'kk:ss:mm dd.MM.yyyy')}</div>
           </TippyValueWrapper>
         )
       } else {
@@ -168,7 +168,7 @@ export const missionColumns = (): Column<MissionSerializer>[] => [
       if (isValid(parseISO(props.row.values.createdAt))) {
         return (
           <TippyValueWrapper tableHeadName={props.column.Header}>
-            <div>{format(parseISO(props.row.values.createdAt), 'hh:ss:mm dd.MM.yyyy')}</div>{' '}
+            <div>{format(parseISO(props.row.values.createdAt), 'kk:ss:mm dd.MM.yyyy')}</div>{' '}
           </TippyValueWrapper>
         )
       } else {

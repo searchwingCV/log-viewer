@@ -1,12 +1,19 @@
 import random
+from datetime import datetime
 
 import pytest
 from domain.flight_file.value_objects import AllowedFiles
 from faker import Faker
 from mock_providers import FlightLogProvider
+from pymavlog import MavLinkMessageSeries
 
 fake = Faker()
 fake.add_provider(FlightLogProvider)
+
+
+class MockMavLinkMessageSeries(MavLinkMessageSeries):
+    def __setitem__(self, key, value):
+        self._fields[key] = value
 
 
 @pytest.fixture
@@ -39,3 +46,15 @@ def get_sample_flight_file():
         return fake.flight_file(flight_id, file_type, version)
 
     return _get_sample_flight_file
+
+
+@pytest.fixture(scope="function")
+def mavlink_series():
+    rows = 300
+    series = MockMavLinkMessageSeries(name="FOO", columns=["timestamp", "Bar", "Baz"], types=[datetime, int, float])
+
+    series["timestamp"] = [datetime.now() for _ in range(rows)]
+    series["Bar"] = [idx for idx in range(rows)]
+    series["Baz"] = [random.random() for _ in range(rows)]
+
+    return series

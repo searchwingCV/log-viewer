@@ -16,10 +16,30 @@ def mock_mavlog():
 
 
 @pytest.fixture
-def get_log_processing_service(monkeypatch, mock_mavlog, mock_file_service, mock_flight_service):
-    def wrapper(mavlog=mock_mavlog, file_service=mock_file_service) -> LogProcessingService:
+def mock_mavlink_series_repository():
+    mock_mavlink_series_repository = Mock()
+    return mock_mavlink_series_repository
+
+
+@pytest.fixture
+def get_log_processing_service(
+    monkeypatch,
+    mock_mavlog,
+    mock_file_service,
+    mock_flight_service,
+    mock_mavlink_series_repository,
+    mock_session_factory,
+):
+    def wrapper(
+        mavlog=mock_mavlog, file_service=mock_file_service, mavlink_timeseries_repository=mock_mavlink_series_repository
+    ) -> LogProcessingService:
         monkeypatch.setattr(log_processing, "MavLog", mavlog)
-        lps = LogProcessingService(file_service=file_service, flight_service=mock_flight_service)
+        lps = LogProcessingService(
+            file_service=file_service,
+            flight_service=mock_flight_service,
+            mavlink_timeseries_repository=mavlink_timeseries_repository,
+            session=mock_session_factory,
+        )
         return lps
 
     return wrapper
@@ -47,3 +67,89 @@ def test_process_flight_duration_from_log(get_log_processing_service, mock_mavlo
     ).json(exclude_none=True)
 
     assert output == expected
+
+
+def test_save_timeseries(
+    get_log_processing_service, mock_mavlog, mock_file_service, mavlink_series, mock_mavlink_series_repository
+):
+    mock_file_service.get_by_flight_id_type.return_value = IOFile(
+        flight_file=FlightFile(
+            fk_flight=1, file_type=AllowedFiles.log, location="foo/bar/file.bin", id=1, created_at=datetime.now()
+        ),
+        io=BytesIO(b"foobar"),
+    )
+    mock_mavlog().types = ["FOO", "BAR"]
+    series = Mock()
+    series.side_effect = [mavlink_series, mavlink_series]
+    mock_mavlog().__getitem__ = series
+
+    lps = get_log_processing_service(
+        mavlog=mock_mavlog, file_service=mock_file_service, mavlink_timeseries_repository=mock_mavlink_series_repository
+    )
+
+    result = lps.save_timeseries(flight_id=1)
+
+    mock_mavlink_series_repository.delete_by_flight_id.assert_called_once()
+
+    assert mock_mavlink_series_repository.bulk_insert.call_count == 2
+    assert result == {"success": True, "errors": []}
+
+
+def test_save_timeseries_error(
+    get_log_processing_service,
+    mock_mavlog,
+    mock_file_service,
+    mavlink_series,
+    mock_mavlink_series_repository,
+    mock_session,
+):
+    mock_file_service.get_by_flight_id_type.return_value = IOFile(
+        flight_file=FlightFile(
+            fk_flight=1, file_type=AllowedFiles.log, location="foo/bar/file.bin", id=1, created_at=datetime.now()
+        ),
+        io=BytesIO(b"foobar"),
+    )
+    mock_mavlog().types = [
+        "FOO",
+        "BAR",
+    ]
+
+    series = Mock()
+    series.side_effect = [mavlink_series, Exception("foo")]
+    mock_mavlog().__getitem__ = series
+
+    lps = get_log_processing_service(
+        mavlog=mock_mavlog, file_service=mock_file_service, mavlink_timeseries_repository=mock_mavlink_series_repository
+    )
+
+    result = lps.save_timeseries(flight_id=1)
+
+    mock_mavlink_series_repository.delete_by_flight_id.assert_called_once()
+
+    assert mock_mavlink_series_repository.bulk_insert.call_count == 1
+
+    assert result == {"success": False, "errors": [{"message_type": "BAR", "error": "foo"}]}
+
+
+def test_get_message_properties(
+    get_log_processing_service, mock_mavlog, mock_file_service, mock_mavlink_series_repository
+):
+    mock_mavlink_series_repository.get_available_messages_by_group.return_value = {"foo": 1, "bar": 2}
+
+    lps = get_log_processing_service(
+        mavlog=mock_mavlog, file_service=mock_file_service, mavlink_timeseries_repository=mock_mavlink_series_repository
+    )
+    result = lps.get_message_properties(flight_id=1)
+
+    assert result == {"foo": 1, "bar": 2}
+
+
+def test_get_timeseries(get_log_processing_service, mock_mavlog, mock_file_service, mock_mavlink_series_repository):
+    mock_mavlink_series_repository.get_by_flight_type_field.return_value = {"foo": 1, "bar": 2}
+
+    lps: LogProcessingService = get_log_processing_service(
+        mavlog=mock_mavlog, file_service=mock_file_service, mavlink_timeseries_repository=mock_mavlink_series_repository
+    )
+    result = lps.get_timeseries(flight_id=1, message_type="foo", message_field="bar")
+
+    assert result == {"foo": 1, "bar": 2}

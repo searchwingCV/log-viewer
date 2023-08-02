@@ -34,6 +34,11 @@ class BaseConfig(object):
         "result_backend": f"redis://:{REDIS_PWD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
     }
 
+    MAVLOG_TIMESERIES_MAX_RATE_HZ = float(os.getenv("MAVLOG_TIMESERIES_MAX_RATE_HZ", 20))
+    MAVLOG_TIMESERIES_TYPES = os.getenv("MAVLOG_TIMESERIES_TYPES", "").split(",")
+    if not MAVLOG_TIMESERIES_TYPES:
+        MAVLOG_TIMESERIES_TYPES = None
+
 
 class Config(BaseConfig):
     LOG_LEVEL = 20
@@ -47,10 +52,10 @@ class TestConfig(BaseConfig):
     LOG_LEVEL = 10
     SQLALCHEMY_DATABASE_URI = (
         "postgresql+psycopg2://"
-        f"{os.getenv('POSTGRES_USER')}:"
-        f"{os.getenv('POSTGRES_PASSWORD')}"
+        f"{os.getenv('POSTGRES_TEST_USER', 'postgres')}:"
+        f"{os.getenv('POSTGRES_TEST_PASSWORD', 'postgres')}"
         f"@{os.getenv('POSTGRES_TEST_SERVER')}:{os.getenv('POSTGRES_TEST_PORT')}"
-        f"/{os.getenv('POSTGRES_DB')}"
+        f"/{os.getenv('POSTGRES_TEST_DB', 'postgres')}"
     )
     TESTING = True
     RETRY_LIMIT = 1

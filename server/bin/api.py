@@ -7,7 +7,7 @@ from alembic.config import Config as AlembicConfig
 from common.logging import get_logger
 from fastapi import FastAPI, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
-from presentation.rest.controllers import drone, file, flight, health, mission, root
+from presentation.rest.controllers import drone, file, flight, health, mavlink, mission, root
 from presentation.rest.serializers.errors import InternalServerError
 
 logger = get_logger(__name__)
@@ -65,7 +65,7 @@ def build_api() -> FastAPI:
         "http://localhost:3001",
         "https://staging.flight-data.searchwing.org",
         "https://flight-data.searchwing.org",
-        "https://frontend-flight-log.caprover.rmargar.net"
+        "https://frontend-flight-log.caprover.rmargar.net",
     ]
     app.add_middleware(
         CORSMiddleware,
@@ -81,6 +81,7 @@ def build_api() -> FastAPI:
     app.include_router(mission.router)
     app.include_router(flight.router)
     app.include_router(file.router)
+    app.include_router(mavlink.router)
 
     app.add_exception_handler(Exception, log_exception_handler)
 
