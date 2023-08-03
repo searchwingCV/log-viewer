@@ -17,6 +17,7 @@ export interface DexieLogFileTimeSeries extends LogFileTimeSeries {
     overallDataId: string
 }
 
+
 export interface DexieCustomPlot {
     id: string
     customFunction: string
@@ -29,6 +30,7 @@ export interface DexieCustomPlot {
         value: number;
     }[]
     overallDataId: string
+    calculatorExpressions: string[]
 }
 
 export type DexieOverallDataTimeSeries = {
@@ -50,6 +52,9 @@ export type DexieLogOverallData = Omit<LogOverallData, 'groupedProperties'> & {
     colorMatrix: DexieTakenColorMatrix[]
     id: string
     isIndividualFlight: boolean
+    timestamps: string[]
+    totalMilliseconds: number
+    isLongerFlight?: boolean
 }
 
 export type DexieTakenColorMatrix = {
@@ -60,8 +65,8 @@ export type DexieTakenColorMatrix = {
 
 database.version(1).stores({
     logFileTimeSeries: '++id, propId,  messageField, messageType, values, flightid, unit, color, timestamp, calculatorExpression, overallDataId',
-    overallDataForFlight: '++id, flightid, flightModeTimeSeries, groupedProperties, timestamp, colorMatrix, isIndividualFlight',
-    customFunction: '++id, flightid, customFunction, color, timestamp, hidden, overallDataId',
+    overallDataForFlight: '++id, flightid, flightModeTimeSeries, groupedProperties, timestamp, colorMatrix, isIndividualFlight, from, until, timestamps, totalMilliseconds, isLongerFlight',
+    customFunction: '++id, flightid, customFunction, color, timestamp, hidden, overallDataId, calculatorExpressions',
 });
 
 export const LogFileTimeSeriesTable = database.table('logFileTimeSeries');

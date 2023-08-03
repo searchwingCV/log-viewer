@@ -55,6 +55,8 @@ module.exports = {
           'linear-gradient(130deg, rgba(113,107,221,1.0) 0%, rgba(3,100,119,1.0) 70%)',
         'x-pink-to-blue':
           'linear-gradient(133deg, rgba(154,16,112,1) 32%, rgba(8,167,208,1) 90%, rgba(153,202,214,1) 100%, rgba(13,80,94,1) 100%, rgba(147,218,232,1) 100%)',
+        'x-pink-to-blue-low-opacity':
+          'linear-gradient(133deg, rgba(154,16,112,0.648879620207458) 32%, rgba(8,167,208,0.3883754185267857) 90%, rgba(153,202,214,1) 100%, rgba(13,80,94,1) 100%, rgba(147,218,232,1) 100%)',
       },
       boxShadow: {
         subtle: '2px 4px 15px 5px rgba(0,0,0,0.1)',

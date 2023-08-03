@@ -1,16 +1,16 @@
-import { type ReactNode } from 'react'
+import { type ReactNode, useContext } from 'react'
 import { useRouter } from 'next/router'
 import { type ColumnInstance } from 'react-table'
 import useMedia from '@charlietango/use-media'
 import clsx from 'clsx'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useQuery } from '@tanstack/react-query'
-
 import { animated, useSpring } from '@react-spring/web'
 import { ToastContainer } from 'react-toastify'
+import type { DrawerExtensionTypes } from '@lib/constants'
 import Select from 'modules/Select'
 import Button from 'modules/Button'
-import { CustomizeColumnsDrawer, type DrawerExtensionTypes } from './CustomizeColumnsDrawer'
+import { UIContext, getTableDrawerState } from '@lib/Context/ContextProvider'
+import { CustomizeColumnsDrawer } from './CustomizeColumnsDrawer'
 import { GlobalTextFilter } from './GlobalTextFilter'
 import { ToggleCustomizeOrder } from './ToggleCustomizeOrder'
 import { Pagination } from './Pagination'
@@ -33,7 +33,7 @@ export type TableFrameProps<TTableFrameColumnInstance extends object> = {
   width?: number
 }
 
-export const TableFrame = <TTableFrameColumnInstance extends object>({
+const TableFrame = <TTableFrameColumnInstance extends object>({
   children,
   pageCount,
   pageSize,
@@ -50,17 +50,24 @@ export const TableFrame = <TTableFrameColumnInstance extends object>({
   globalFilter,
   width,
 }: TableFrameProps<TTableFrameColumnInstance>) => {
+  const { tableDrawerToggleTypeState } = useContext(UIContext)
+
   const router = useRouter()
   const matches = useMedia({ minWidth: 1920 })
 
-  const { data: sideNavExtended } = useQuery([drawerExtensionType], () => {
-    return false
+  const sideNavExtended = getTableDrawerState({
+    type: drawerExtensionType,
+    tableDrawerState: tableDrawerToggleTypeState,
   })
 
   const slideX = useSpring({
     transform: sideNavExtended ? 'translate3d(20px,0,0)' : `translate3d(-240px,0,0)`,
     minWidth: sideNavExtended ? 'calc(100vw - 270px)' : `calc(100vw - 0px)`,
   })
+
+  if (!tableDrawerToggleTypeState) {
+    return null
+  }
 
   return (
     <div
@@ -169,3 +176,5 @@ export const TableFrame = <TTableFrameColumnInstance extends object>({
     </div>
   )
 }
+
+export default TableFrame

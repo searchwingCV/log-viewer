@@ -34,7 +34,7 @@ export const ApiErrorMessage = ({ error }: { error: AxiosError<any> }) => {
 
     return `Error submitting data: code ${status || 'no status code available'} - ${
       statusText || 'no status text available'
-    } <br/> Details:  <br/> ${finalErrorDetail} `
+    } <br/> Details:  <br/> ${finalErrorDetail || JSON.stringify(error)} `
   }
 
   return <div dangerouslySetInnerHTML={{ __html: getErrorMessage() }}></div>

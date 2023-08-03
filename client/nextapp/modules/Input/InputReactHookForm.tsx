@@ -2,7 +2,6 @@
   TODO: Make InputReactHookForn and Input become one component to remove duplicate code
 */
 import * as React from 'react'
-import { useTranslation } from 'next-i18next'
 import clsx from 'clsx'
 import { ErrorMessage } from '@hookform/error-message'
 import type {
@@ -53,8 +52,6 @@ export const InputReactHookForm = <TFormValues extends FieldValues>({
   type,
   ...rest
 }: FormInputProps<TFormValues>) => {
-  const { t } = useTranslation()
-
   //To ensure autofilled value is detected, animation on autofill-pseudo element is set up
   const [value, setValue] = React.useState(defaultValue)
 
@@ -132,7 +129,7 @@ export const InputReactHookForm = <TFormValues extends FieldValues>({
             )}
           >
             {placeholder}
-            {!rules?.required ? ` (${t('Optional')})` : ''}
+            {!rules?.required ? ` (Optional)` : ''}
           </label>
         ) : (
           <label
@@ -154,7 +151,7 @@ export const InputReactHookForm = <TFormValues extends FieldValues>({
             )}
           >
             {placeholder}
-            {!rules?.required ? ` (${t('Optional')})` : ''}
+            {!rules?.required ? `(Optional)` : ''}
           </label>
         )}
 
@@ -186,7 +183,7 @@ export const InputReactHookForm = <TFormValues extends FieldValues>({
                           text-xs
                           text-primary-red`}
             >
-              {t(message)}
+              {message}
             </p>
           )}
         />
