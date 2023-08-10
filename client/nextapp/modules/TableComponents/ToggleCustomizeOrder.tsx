@@ -1,20 +1,24 @@
-import { useQueryClient, useQuery } from '@tanstack/react-query'
+import { useContext } from 'react'
 import Button from 'modules/Button'
-import type { DrawerExtensionTypes } from './CustomizeColumnsDrawer'
+import type { DrawerExtensionTypes } from '@lib/constants'
+import { UIContext, getTableDrawerState } from '@lib/Context/ContextProvider'
 
 export const ToggleCustomizeOrder = ({ drawerKey }: { drawerKey: DrawerExtensionTypes }) => {
-  const { data: isExtended } = useQuery([drawerKey], () => {
-    return false
-  })
-
-  const queryClient = useQueryClient()
+  const { tableDrawerToggleTypeState, tableDrawerTypeToggleDispatch } = useContext(UIContext)
 
   const handleToggleDrawer = () => {
-    queryClient.setQueryData<boolean>([drawerKey], (prev) => {
-      return !prev
-    })
+    if (tableDrawerToggleTypeState) {
+      const matchingDrawerstate = getTableDrawerState({
+        type: drawerKey,
+        tableDrawerState: tableDrawerToggleTypeState,
+      })
+      tableDrawerTypeToggleDispatch?.({ type: drawerKey, payload: !matchingDrawerstate })
+    }
   }
 
+  if (!tableDrawerToggleTypeState) {
+    return null
+  }
   return (
     <div
       className="py-4
@@ -30,7 +34,12 @@ export const ToggleCustomizeOrder = ({ drawerKey }: { drawerKey: DrawerExtension
                     `}
         onClick={() => handleToggleDrawer()}
       >
-        {isExtended ? 'Close order customization' : 'Customize Order'}
+        {getTableDrawerState({
+          type: drawerKey,
+          tableDrawerState: tableDrawerToggleTypeState,
+        })
+          ? 'Close order customization'
+          : 'Customize Order'}
       </Button>
     </div>
   )

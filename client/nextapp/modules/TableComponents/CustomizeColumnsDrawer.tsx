@@ -1,15 +1,10 @@
-import { useRef, useEffect, useCallback } from 'react'
+import { useRef, useEffect, useCallback, useContext } from 'react'
 import { animated, useSpring } from '@react-spring/web'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import type { ColumnInstance } from 'react-table'
-import { useQueryClient, useQuery } from '@tanstack/react-query'
+import { UIContext, getTableDrawerState } from '@lib/Context/ContextProvider'
 import CircleIconButton from '~/modules/CircleIconButton'
-
-export enum DrawerExtensionTypes {
-  FLIGHT_DRAWER_EXTENDED = 'flight-drawer-extended',
-  MISSION_DRAWER_EXTENDED = 'mission-drawer-extended',
-  DRONE_DRAWER_EXTENDED = 'drone-drawer-extended',
-}
+import type { DrawerExtensionTypes } from '@lib/constants'
 
 type CustomizeOrderProps = {
   allColumns: ColumnInstance<any>[]
@@ -87,23 +82,25 @@ export const CustomizeColumnsDrawer = ({
   setColumnOrder,
   drawerKey,
 }: CustomizeOrderProps) => {
-  const ref = useRef<HTMLDivElement>(null)
-  const { data: isExtended } = useQuery([drawerKey])
+  const { tableDrawerToggleTypeState, tableDrawerTypeToggleDispatch } = useContext(UIContext)
 
-  const queryClient = useQueryClient()
+  const isExtended = getTableDrawerState({
+    type: drawerKey,
+    tableDrawerState: tableDrawerToggleTypeState,
+  })
+
+  const ref = useRef<HTMLDivElement>(null)
 
   const closeDrawer = useCallback(() => {
-    queryClient.setQueryData<boolean>([drawerKey], () => {
-      return false
-    })
-  }, [drawerKey, queryClient])
+    tableDrawerTypeToggleDispatch?.({ type: drawerKey, payload: false })
+  }, [tableDrawerTypeToggleDispatch, drawerKey])
 
   const slideX = useSpring({
     transform: isExtended ? 'translate3d(0px,0,0)' : `translate3d(-280px,0,0)`,
   })
 
   useEffect(() => {
-    const handleClick = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent) => {
       if (
         ref &&
         ref.current &&
@@ -114,10 +111,10 @@ export const CustomizeColumnsDrawer = ({
       }
     }
 
-    document.addEventListener('click', handleClick)
+    document.addEventListener('click', handleClickOutside)
 
     return () => {
-      document.removeEventListener('click', handleClick)
+      document.removeEventListener('click', handleClickOutside)
     }
   }, [ref, closeDrawer])
 

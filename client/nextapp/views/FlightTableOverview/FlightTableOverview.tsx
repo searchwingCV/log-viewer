@@ -3,9 +3,9 @@ import 'regenerator-runtime/runtime'
 import type { AxiosError } from 'axios'
 import React, { useCallback, useMemo } from 'react'
 import { useRouter } from 'next/router'
+import dynamic from 'next/dynamic'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
-import { useTranslation } from 'next-i18next'
 import {
   useTable,
   type Column,
@@ -24,18 +24,15 @@ import {
 import { FormProvider, useForm } from 'react-hook-form'
 import Button from 'modules/Button'
 import { ApiErrorMessage } from '@lib/ErrorMessage'
+import { DrawerExtensionTypes } from '@lib/constants'
 import { ALl_FLIGHTS_KEY } from '~/api/flight/getFlights'
 import type { FlightSerializer, FlightUpdate } from '@schema'
 import { patchFlights } from '~/api/flight/patchFlights'
 
-import {
-  SelectCheckbox,
-  ColumnFilter,
-  TableBody,
-  TableHead,
-  TableFrame,
-  DrawerExtensionTypes,
-} from 'modules/TableComponents'
+import { SelectCheckbox, ColumnFilter, TableBody, TableHead } from 'modules/TableComponents'
+
+//TODO: Fix TS bug concerning dynamic imports and generics once Typescript fixes it https://github.com/microsoft/TypeScript/issues/30712
+const TableFrame = dynamic(() => import('../../modules/TableComponents/TableFrame'), { ssr: false })
 
 import { flightColumns } from './flightColumns'
 
@@ -126,7 +123,6 @@ export const FlightTableOverview = ({
     [],
   )
 
-  const { t } = useTranslation()
   const columns = useMemo<Column<TableFlightSerializer>[]>(
     () => flightColumns(missionOptions, droneOptions),
     [missionOptions, droneOptions],
@@ -234,9 +230,9 @@ export const FlightTableOverview = ({
           Cell: ({ row }: any) => {
             if (!row?.isGrouped) {
               return (
-                <div>
+                <span>
                   <SelectCheckbox {...row.getToggleRowSelectedProps()} />
-                </div>
+                </span>
               )
             }
             return null
@@ -259,6 +255,9 @@ export const FlightTableOverview = ({
   }
 
   return (
+    //TODO: Fix TS bug concerning dynamic imports and generics once Typescript fixes it https://github.com/microsoft/TypeScript/issues/30712
+    // eslint-disable-next-line
+    // @ts-expect-error
     <TableFrame<TableFlightSerializer>
       pageCount={pageCount}
       pageSize={pageSize}
@@ -318,7 +317,7 @@ export const FlightTableOverview = ({
                 await goToDetailView()
               }}
             >
-              {t('Go to detail view')}
+              {'Go to detail view'}
             </Button>
           ) : !groupBy.length || groupBy?.[0] === '' ? (
             <Button
@@ -331,7 +330,7 @@ export const FlightTableOverview = ({
                               w-[350px]
                               p-4`}
             >
-              {t('Submit Changes')}
+              {'Submit Changes'}
             </Button>
           ) : (
             <div className="min-h-[40px]"></div>

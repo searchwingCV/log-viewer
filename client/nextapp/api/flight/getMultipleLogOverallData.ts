@@ -79,6 +79,8 @@ const mockFlightModes = series2
 const mockData: LogOverallData[] = [{
     flightModeTimeSeries: mockFlightModes,
     flightid: 1,
+    from: '2016-01-01T00:24:33Z',
+    until: '2016-01-01T01:10:00Z',
     groupedProperties: [
         {
             messageType: 'XKF1[0]',
@@ -154,6 +156,8 @@ const mockData: LogOverallData[] = [{
 {
     flightModeTimeSeries: mockFlightModes,
     flightid: 2,
+    from: '2017-01-01T00:00:33Z',
+    until: '2017-01-01T02:10:00Z',
     groupedProperties: [
         {
             messageType: 'XKF1[0]',

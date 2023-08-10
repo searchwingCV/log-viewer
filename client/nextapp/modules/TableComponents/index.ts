@@ -7,10 +7,9 @@ import { TableBody } from './TableBody'
 import { TextInputCell } from './TextInputCell'
 import { DateInputCell } from './DateInputCell'
 import { SelectInputCell } from './SelectInputCell'
-import { CustomizeColumnsDrawer, DrawerExtensionTypes } from './CustomizeColumnsDrawer'
+import { CustomizeColumnsDrawer } from './CustomizeColumnsDrawer'
 import { determineWidth } from './determineWidth'
 import { ToggleCustomizeOrder } from './ToggleCustomizeOrder'
 import TippyValueWrapper from './TippyValueWrapper'
-import { TableFrame } from './TableFrame'
 
-export { DrawerExtensionTypes, TableFrame, TippyValueWrapper, ToggleCustomizeOrder, GlobalTextFilter, Pagination, SelectCheckbox, ColumnFilter, TableBody, TableHead, TextInputCell, SelectInputCell, DateInputCell, CustomizeColumnsDrawer, determineWidth }
+export { TippyValueWrapper, ToggleCustomizeOrder, GlobalTextFilter, Pagination, SelectCheckbox, ColumnFilter, TableBody, TableHead, TextInputCell, SelectInputCell, DateInputCell, CustomizeColumnsDrawer, determineWidth }

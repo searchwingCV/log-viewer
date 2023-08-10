@@ -1,14 +1,12 @@
+import { useContext } from 'react'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useQuery } from '@tanstack/react-query'
 import type { LogOverallData } from '@schema'
+import { UIContext } from '@lib/Context/ContextProvider'
 import database, { type DexieLogOverallData } from '@idbSchema'
-import {
-  PlotPropsDrawer,
-  LineChartComponent,
-  PLOT_DRAWER_EXTENDED,
-} from '~/modules/PlotInterfaceComponents'
+import { PlotDrawer } from '~/modules/PlotDrawer'
+import { LineChartComponent } from '~/modules/Chart'
 
 export type FlightDetailViewProps = {
   logOverallData: LogOverallData
@@ -16,6 +14,7 @@ export type FlightDetailViewProps = {
 
 export const FlightDetailView = () => {
   const router = useRouter()
+  const { plotDrawerExtended } = useContext(UIContext)
 
   const { id } = router.query
 
@@ -31,8 +30,6 @@ export const FlightDetailView = () => {
       ?.toArray(),
   )
 
-  const { data: sideNavExtended } = useQuery([PLOT_DRAWER_EXTENDED])
-
   if (!overallData) {
     return null
   }
@@ -46,7 +43,7 @@ export const FlightDetailView = () => {
                     bg-grey-light
                     `}
       >
-        <PlotPropsDrawer overallData={overallData} />
+        <PlotDrawer overallData={overallData} />
 
         <div
           className={clsx(
@@ -54,7 +51,7 @@ export const FlightDetailView = () => {
              h-screen
              overflow-x-hidden`,
 
-            sideNavExtended
+            plotDrawerExtended
               ? `min-w-[calc(100vw_-_270px)]
                  translate-x-0
                  translate-y-0`
@@ -77,10 +74,10 @@ export const FlightDetailView = () => {
                 `r-8
                  w-full
                  `,
-                sideNavExtended ? 'pl-8' : 'pl-28',
+                plotDrawerExtended ? 'pl-8' : 'pl-28',
               )}
             >
-              <LineChartComponent overallData={overallData[0]} />
+              <LineChartComponent overallData={overallData} flightId={overallData?.[0]?.flightid} />
             </div>
           </main>
         </div>

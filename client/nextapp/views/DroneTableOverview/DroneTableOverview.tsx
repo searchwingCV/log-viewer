@@ -1,12 +1,12 @@
 //TODO: Refactor code of FlightTableOverview, MissionTableOverview & DroneTableOverview to avoid duplicate code
 import 'regenerator-runtime/runtime'
 import React, { useMemo } from 'react'
+import dynamic from 'next/dynamic'
 import type { AxiosError } from 'axios'
 import useElementSize from '@charlietango/use-element-size'
 import { useRouter } from 'next/router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
-import { useTranslation } from 'next-i18next'
 import {
   useTable,
   type Column,
@@ -25,15 +25,14 @@ import { FormProvider, useForm } from 'react-hook-form'
 import Button from 'modules/Button'
 import type { DroneSerializer, DroneUpdate } from '@schema'
 import { ApiErrorMessage } from '@lib/ErrorMessage'
+import { DrawerExtensionTypes } from '@lib/constants'
 import { patchDrones } from '~/api/drone/patchDrones'
 import { ALL_DRONES_KEY } from '~/api/drone/getDrones'
-import {
-  ColumnFilter,
-  TableBody,
-  TableHead,
-  TableFrame,
-  DrawerExtensionTypes,
-} from '~/modules/TableComponents'
+import { ColumnFilter, TableBody, TableHead } from '~/modules/TableComponents'
+
+//TODO: Fix TS bug concerning dynamic imports and generics once Typescript fixes it https://github.com/microsoft/TypeScript/issues/30712
+const TableFrame = dynamic(() => import('../../modules/TableComponents/TableFrame'), { ssr: false })
+
 import { droneColumns } from './droneColumns'
 export type PaginationTableInstance<T extends object> = TableInstance<T> &
   UsePaginationInstanceProps<T> & {
@@ -88,7 +87,6 @@ export const DroneTableOverview = ({
     [],
   )
 
-  const { t } = useTranslation()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const columns = useMemo<Column<DroneSerializer>[]>(() => droneColumns(), [data])
 
@@ -172,6 +170,9 @@ export const DroneTableOverview = ({
   ) as PaginationTableInstance<DroneSerializer>
 
   return (
+    //TODO: Fix TS bug concerning dynamic imports and generics once Typescript fixes it https://github.com/microsoft/TypeScript/issues/30712
+    // eslint-disable-next-line
+    // @ts-expect-error
     <TableFrame<DroneSerializer>
       pageCount={pageCount}
       pageSize={pageSize}
@@ -227,7 +228,7 @@ export const DroneTableOverview = ({
                               w-[350px]
                               p-4`}
             >
-              {t('Submit Changes')}
+              {'Submit Changes'}
             </Button>
           ) : (
             <div className="min-h-[40px]"></div>

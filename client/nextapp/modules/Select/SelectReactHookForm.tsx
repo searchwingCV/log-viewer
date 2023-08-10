@@ -2,7 +2,6 @@
   TODO: Make SelectReactHookForn and Select become one component to remove duplicate code
 */
 import * as React from 'react'
-import { useTranslation } from 'next-i18next'
 import clsx from 'clsx'
 import { ErrorMessage } from '@hookform/error-message'
 import type {
@@ -48,7 +47,6 @@ export const SelectReactHookForm = <TFormValues extends FieldValues>({
   ...rest
 }: FormSelectProps<TFormValues>) => {
   const [value, setValue] = React.useState(defaultValue || '')
-  const { t } = useTranslation()
 
   return (
     <div>
@@ -115,7 +113,7 @@ export const SelectReactHookForm = <TFormValues extends FieldValues>({
           )}
         >
           {placeholder}
-          {!rules?.required ? ` (${t('Optional')})` : ''}
+          {!rules?.required ? `(Optional)` : ''}
         </label>
         <div
           className={`absolute

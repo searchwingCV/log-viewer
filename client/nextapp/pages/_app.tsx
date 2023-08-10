@@ -4,78 +4,34 @@ import 'react-toastify/dist/ReactToastify.css'
 import type { ReactElement, ReactNode } from 'react'
 import { useState } from 'react'
 import type { AppProps } from 'next/app'
-import { QueryClient, QueryClientProvider, Hydrate } from '@tanstack/react-query'
+import {
+  QueryClient,
+  QueryClientProvider,
+  Hydrate,
+  type DehydratedState,
+} from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { appWithTranslation } from 'next-i18next'
+import { far } from '@fortawesome/free-regular-svg-icons'
+import { fas } from '@fortawesome/free-solid-svg-icons'
+import { fab } from '@fortawesome/free-brands-svg-icons'
 import type { NextPage } from 'next'
 import { config, library } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
-import {
-  faChevronLeft,
-  faChevronRight,
-  faChevronUp,
-  faChevronDown,
-  faEye,
-  faFile,
-  faCalendar,
-  faUser,
-  faStickyNote,
-  faStopCircle,
-  faSun,
-  faKeyboard,
-  faAngleDoubleLeft,
-  faAngleDoubleRight,
-  faPencil,
-  faPenSquare,
-  faAngleLeft,
-  faAngleRight,
-  faCircleXmark,
-  faUndo,
-  faAdd,
-  faPlusCircle,
-  faTrashCan,
-  faEyeSlash,
-  faCopy,
-} from '@fortawesome/free-solid-svg-icons'
+import { ContextProvider } from '@lib/Context/ContextProvider'
 
 config.autoAddCss = false
-library.add(
-  faChevronLeft,
-  faChevronRight,
-  faChevronUp,
-  faChevronDown,
-  faEye,
-  faFile,
-  faCalendar,
-  faUser,
-  faStickyNote,
-  faStopCircle,
-  faSun,
-  faKeyboard,
-  faAngleDoubleLeft,
-  faAngleDoubleRight,
-  faPencil,
-  faPenSquare,
-  faAngleLeft,
-  faAngleRight,
-  faCircleXmark,
-  faUndo,
-  faAdd,
-  faPlusCircle,
-  faTrashCan,
-  faEyeSlash,
-  faCopy,
-)
+library.add(far, fas, fab)
 
 export type NextPageWithLayout<Props = object> = NextPage<Props> & {
   getLayout?: (page: ReactElement) => ReactNode
 }
 
-type AppPropsWithLayout = AppProps & {
+function MyApp({
+  Component,
+  pageProps,
+}: AppProps<{ dehydratedState: DehydratedState }> & {
   Component: NextPageWithLayout
-}
-
-function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+}) {
   // Use the layout defined at the page level, if available
   // https://nextjs.org/docs/basic-features/layouts#with-typescript
   const getLayout = Component.getLayout ?? ((page) => page)
@@ -83,10 +39,12 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   return (
     <QueryClientProvider client={queryClient} contextSharing={false}>
-      <Hydrate state={pageProps.dehydratedState}>{getLayout(<Component {...pageProps} />)}</Hydrate>
+      <Hydrate state={pageProps.dehydratedState}>
+        <ContextProvider>{getLayout(<Component {...pageProps} />)}</ContextProvider>
+      </Hydrate>
       <ReactQueryDevtools />
     </QueryClientProvider>
   )
 }
 
-export default appWithTranslation(MyApp)
+export default MyApp

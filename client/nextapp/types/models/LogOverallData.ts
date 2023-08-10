@@ -15,4 +15,6 @@ export type LogOverallData = {
     flightid: number
     flightModeTimeSeries?: { time: string; mode: string }[];
     groupedProperties: GroupedProps[]
+    from: string
+    until: string
 }
