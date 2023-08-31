@@ -151,7 +151,7 @@ def test_update(add_sample_drone_to_db, test_db_session):
     assert drone_db.name == drone_updated.name
     assert drone_db.updated_at is not None
 
-    assert type(drone_updated) == Drone
+    assert type(drone_updated) is Drone
 
     update_data = DroneUpdate(name="NewName2")
     drone_updated = repository.update(test_db_session, 1, update_data)
