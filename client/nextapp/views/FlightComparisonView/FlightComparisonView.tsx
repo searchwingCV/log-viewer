@@ -4,8 +4,8 @@ import clsx from 'clsx'
 import { useLiveQuery } from 'dexie-react-hooks'
 import database, { type DexieLogOverallData } from '@idbSchema'
 import { UIContext } from '@lib/Context/ContextProvider'
-import { PlotDrawer } from '~/modules/PlotDrawer'
-import { LineChartComponent } from '~/modules/Chart'
+import { PlotDrawer } from '@modules/PlotDrawer'
+import { LineChartComponent } from '@modules/Chart'
 
 export const FlightComparisonView = ({ ids }: { ids: string[] }) => {
   const { plotDrawerExtended } = useContext(UIContext)

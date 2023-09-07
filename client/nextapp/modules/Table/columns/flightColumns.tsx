@@ -1,13 +1,8 @@
 import { format, parseISO, isValid, intervalToDuration } from 'date-fns'
 import type { Column } from 'react-table'
 import { FlightRating, FlightPurpose } from '@schema'
-import {
-  TextInputCell,
-  SelectInputCell,
-  determineWidth,
-  TippyValueWrapper,
-} from '~/modules/TableComponents'
-import type { TableFlightSerializer } from './FlightTableOverview'
+import { TextInputCell, SelectInputCell, determineWidth, TippyValueWrapper } from '@modules/Table'
+import type { TableFlightSerializer } from '@lib/globalTypes'
 
 export const flightColumns = (
   missionOptions?: { name: string; value: number }[],

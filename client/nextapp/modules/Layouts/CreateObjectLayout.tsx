@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react'
 import { useRouter } from 'next/router'
-import Button from '~/modules/Button'
+import Button from '@modules/Button'
 
 export type CreateObjectLayoutProps = { children: ReactNode }
 

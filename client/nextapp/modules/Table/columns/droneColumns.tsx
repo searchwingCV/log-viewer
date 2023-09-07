@@ -1,12 +1,7 @@
 import { format, parseISO, isValid } from 'date-fns'
 import type { Column } from 'react-table'
 import { type DroneSerializer, DroneStatus } from '@schema'
-import {
-  TextInputCell,
-  determineWidth,
-  SelectInputCell,
-  TippyValueWrapper,
-} from '~/modules/TableComponents'
+import { TextInputCell, determineWidth, SelectInputCell, TippyValueWrapper } from '@modules/Table'
 
 export const droneColumns = (): Column<DroneSerializer>[] => [
   {
