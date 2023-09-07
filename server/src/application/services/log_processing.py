@@ -34,6 +34,7 @@ class LogProcessingService:
         self._tasks = {
             "save_to_timeseries": self._mavlog_to_timeseries,
             "process_flight_duration": self._flight_duration_from_mavlog,
+            "process_battery": self._process_battery_from_mavlog,
         }
 
     def parse_log_file(self, flight_id: ID_Type, types: t.List[str] | None, max_rate_hz: float) -> dict:
@@ -134,3 +135,36 @@ class LogProcessingService:
                 session, flight_id, message_type, message_field, start_timestamp, end_timestamp, n_points
             )
         return timeseries
+
+    def _process_battery_from_mavlog(self, flight_id: ID_Type, mlog: MavLog) -> dict[str, t.Any]:
+        volt = mlog["BAT"]["Volt"]
+        current = mlog["BAT"]["Curr"]
+        enrg = mlog["BAT"]["EnrgTot"][-1]
+        power = volt * current
+
+        flight_updates = FlightComputedUpdate(
+            id=flight_id,
+            max_battery_voltage=volt.max(),
+            min_battery_voltage=volt.min(),
+            delta_battery_voltage=volt.max() - volt.min(),
+            avg_battery_current_a=current.mean(),
+            max_battery_current_a=current.max(),
+            min_battery_current_a=current.min(),
+            energy_consumed_wh=enrg,
+            avg_power_w=power.mean(),
+            max_power_w=power.max(),
+            min_power_w=power.min(),
+        )
+        logger.info(f"updating db with values  -> {flight_updates.dict(exclude_none=True)}")
+
+        self._flight_service.update(flight_updates)
+
+        logger.info("success")
+        return flight_updates.json(exclude_none=True)
+
+    def process_battery(self, flight_id: ID_Type) -> dict[str, t.Any]:
+        logger.info(f"processing battery for flight: {flight_id}")
+
+        mlog = self._read_and_parse_log(flight_id=flight_id, types=["BAT"])
+
+        return self._process_battery_from_mavlog(flight_id, mlog)
