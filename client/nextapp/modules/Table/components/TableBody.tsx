@@ -84,10 +84,10 @@ export const TableBody = <TColumnProps extends object>({
 
                     cell.column.id === firstColumnAccessor
                       ? `flex 
-                         rounded-r-[0px]
                          rounded-l-[0px]
-                         rounded-tl-lg
+                         rounded-r-[0px]
                          rounded-bl-lg
+                         rounded-tl-lg
                          px-4
                          last-of-type:align-middle`
                       : `
@@ -99,7 +99,6 @@ export const TableBody = <TColumnProps extends object>({
                     !row.isGrouped &&
                       `justify-center
                        text-center`,
-
                     hasNoSelection && cellIndex === 0
                       ? '-ml-3'
                       : cellIndex === 0 &&

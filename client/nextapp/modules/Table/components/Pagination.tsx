@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useRouter } from 'next/router'
-import CircleIconButton from '~/modules/CircleIconButton'
+import CircleIconButton from '@modules/CircleIconButton'
 
 type TablePaginationProps = {
   pageSize: number
@@ -113,8 +113,8 @@ export const Pagination = ({
           className={`mr-4
                       rounded-md
                       border-0
-                      py-2
                       px-4
+                      py-2
                       shadow-subtle`}
           defaultValue={queryPage}
           value={queryPage}
@@ -135,8 +135,8 @@ export const Pagination = ({
         className={`rounded-md
                     border-0
                     bg-primary-white
-                    py-[11px]
                     px-6
+                    py-[11px]
                     shadow-subtle`}
         onChange={async (e) => {
           const isSelectionPossible =

@@ -1,8 +1,21 @@
+/*
+  This context provider is used to manage the state of the UI and has nothing
+  to do with backend data. It is used to manage the state of the table drawer
+  and plot drawer.
+  It is used in the following components:
+  - client/nextapp/modules/TableComponents/Table.tsx
+  - client/nextapp/modules/PlotDrawer/PlotDrawer.tsx
+  - client/nextapp/modules/Table/components/CustomizeColumnsDrawer.tsx
+  - client/nextapp/modules/Table/components/ToggleCustomizeOrder.tsx
+  - client/nextapp/views/FlightComparisonView/FlightComparisonView.tsx
+  - client/nextapp/views/FlightDetailView/FlightDetailView.tsx
+*/
+
 import { type ReactNode, useReducer, useState, createContext, type Dispatch } from 'react'
-import { DrawerExtensionTypes } from '@lib/constants'
+import { TableType } from '@lib/globalTypes'
 
 export type TableDrawerToggleAction = {
-  type: DrawerExtensionTypes
+  type: TableType
   payload: boolean
 }
 
@@ -15,10 +28,10 @@ export type TableDrawerState = {
 export type ContextProps = {
   setTableDrawerExtended: Dispatch<boolean>
   setPlotDrawerExtended: Dispatch<boolean>
-  setTableDrawerType: Dispatch<DrawerExtensionTypes>
+  setTableDrawerType: Dispatch<TableType>
   tableDrawerExtended: boolean
   plotDrawerExtended: boolean
-  currentTableDrawerType: DrawerExtensionTypes
+  currentTableDrawerType: TableType
   tableDrawerTypeToggleDispatch: Dispatch<TableDrawerToggleAction>
   tableDrawerToggleTypeState: TableDrawerState
 }
@@ -36,13 +49,13 @@ const tableDrawerToggleReducer = (
   action: TableDrawerToggleAction,
 ): TableDrawerState => {
   switch (action.type) {
-    case DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED: {
+    case TableType.FLIGHT: {
       return { ...state, flightTableDrawerToggle: action.payload }
     }
-    case DrawerExtensionTypes.MISSION_DRAWER_EXTENDED: {
+    case TableType.MISSION: {
       return { ...state, missionTableDrawerToggle: action.payload }
     }
-    case DrawerExtensionTypes.DRONE_DRAWER_EXTENDED: {
+    case TableType.DRONE: {
       return { ...state, droneTableDrawerToggle: action.payload }
     }
     default:
@@ -54,20 +67,20 @@ export const getTableDrawerState = ({
   type,
   tableDrawerState,
 }: {
-  type: DrawerExtensionTypes
+  type: TableType
   tableDrawerState?: TableDrawerState
 }): boolean => {
   if (!tableDrawerState) {
     return false
   }
   switch (type) {
-    case DrawerExtensionTypes.FLIGHT_DRAWER_EXTENDED: {
+    case TableType.FLIGHT: {
       return tableDrawerState.flightTableDrawerToggle
     }
-    case DrawerExtensionTypes.MISSION_DRAWER_EXTENDED: {
+    case TableType.MISSION: {
       return tableDrawerState.missionTableDrawerToggle
     }
-    case DrawerExtensionTypes.DRONE_DRAWER_EXTENDED: {
+    case TableType.DRONE: {
       return tableDrawerState.droneTableDrawerToggle
     }
     default:
