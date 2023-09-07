@@ -8,7 +8,7 @@ import { debounce } from 'lodash'
 import { LineChart, Line, YAxis, ResponsiveContainer, Brush, Label } from 'recharts'
 import useWindowSize from '@lib/hooks/useWindowSize'
 import { UIContext } from '@lib/Context/ContextProvider'
-import { type BrushDataProps, FixedTimeIntervals } from '@lib/global-types'
+import { type BrushDataProps, FixedTimeIntervals } from '@lib/globalTypes'
 import type { LogFileTimeSeries } from '@schema'
 import type { DexieCustomPlot, DexieLogFileTimeSeries, DexieLogOverallData } from '@idbSchema'
 import { ApiErrorMessage } from '@lib/ErrorMessage'
@@ -312,8 +312,8 @@ export const ComposedBrush = ({
                               absolute
                               right-0
                               top-3
-                              mt-4
                               -mr-2
+                              mt-4
                               flex
                               h-8
                               items-center

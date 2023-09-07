@@ -6,7 +6,7 @@ import clsx from 'clsx'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { animated, useSpring } from '@react-spring/web'
 import { ToastContainer } from 'react-toastify'
-import type { DrawerExtensionTypes } from '@lib/constants'
+import type { TableType } from '@lib/globalTypes'
 import Select from 'modules/Select'
 import Button from 'modules/Button'
 import { UIContext, getTableDrawerState } from '@lib/Context/ContextProvider'
@@ -22,8 +22,7 @@ export type TableFrameProps<TTableFrameColumnInstance extends object> = {
   totalNumber: number
   pageOptions: number[]
   pageIndex: number
-  tableType: 'flight' | 'mission' | 'drone'
-  drawerExtensionType: DrawerExtensionTypes
+  tableType: TableType
   groupByOptions: { name: string; value: string }[]
   allColumns: ColumnInstance<TTableFrameColumnInstance>[]
   setColumnOrder: (updater: string[] | ((columnOrder: string[]) => string[])) => void
@@ -41,7 +40,6 @@ const TableFrame = <TTableFrameColumnInstance extends object>({
   pageOptions,
   pageIndex,
   tableType,
-  drawerExtensionType,
   groupByOptions,
   allColumns,
   setColumnOrder,
@@ -56,7 +54,7 @@ const TableFrame = <TTableFrameColumnInstance extends object>({
   const matches = useMedia({ minWidth: 1920 })
 
   const sideNavExtended = getTableDrawerState({
-    type: drawerExtensionType,
+    type: tableType,
     tableDrawerState: tableDrawerToggleTypeState,
   })
 
@@ -81,7 +79,7 @@ const TableFrame = <TTableFrameColumnInstance extends object>({
       <CustomizeColumnsDrawer
         allColumns={allColumns}
         setColumnOrder={setColumnOrder}
-        drawerKey={drawerExtensionType}
+        drawerKey={tableType}
       />
       <animated.div
         className={clsx(`ml-side-drawer-width
@@ -102,10 +100,10 @@ const TableFrame = <TTableFrameColumnInstance extends object>({
                       relative
                       mx-auto                     
                       mb-40
+                      pb-12
                       pl-2
                       pr-8
-                      pt-20
-                      pb-12`}
+                      pt-20`}
         >
           <div
             className={`mb-4
@@ -113,8 +111,8 @@ const TableFrame = <TTableFrameColumnInstance extends object>({
                         grid-cols-[minmax(700px,_1fr)_200px]
                         grid-rows-2
                         items-end
-                        gap-y-2
-                        gap-x-8`}
+                        gap-x-8
+                        gap-y-2`}
           >
             <GlobalTextFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
 
@@ -141,7 +139,7 @@ const TableFrame = <TTableFrameColumnInstance extends object>({
                             py-3`}
                 onClick={async () => {
                   await router.push(
-                    `/add/${tableType}?curentPageSize=${pageSize}&currentPageCount=${pageCount}&totalNumber=${totalNumber}`,
+                    `/add/${tableType.toLowerCase()}?curentPageSize=${pageSize}&currentPageCount=${pageCount}&totalNumber=${totalNumber}`,
                   )
                 }}
               >
@@ -149,7 +147,7 @@ const TableFrame = <TTableFrameColumnInstance extends object>({
                 <span className="ml-3">{`Add new ${tableType}`}</span>
               </Button>
             </div>
-            <ToggleCustomizeOrder drawerKey={drawerExtensionType} />
+            <ToggleCustomizeOrder drawerKey={tableType} />
           </div>
 
           {children}
@@ -169,8 +167,8 @@ const TableFrame = <TTableFrameColumnInstance extends object>({
                         grid-cols-[minmax(700px,_1fr)_200px]
                         grid-rows-2
                         items-end
-                        gap-y-2
-                        gap-x-8`}
+                        gap-x-8
+                        gap-y-2`}
         ></div>
       </animated.div>
     </div>

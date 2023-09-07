@@ -1,86 +1,62 @@
-//TODO: Refactor code of FlightTableOverview, MissionTableOverview & DroneTableOverview to avoid duplicate code
 import 'regenerator-runtime/runtime'
 import React, { useMemo } from 'react'
 import useElementSize from '@charlietango/use-element-size'
 import dynamic from 'next/dynamic'
-import type { AxiosError } from 'axios'
 import { useRouter } from 'next/router'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
 import {
   useTable,
   type Column,
+  type Row,
   usePagination,
   type TableInstance,
   type UsePaginationInstanceProps,
   type UsePaginationState,
   useGroupBy,
   useSortBy,
+  useRowSelect,
   useExpanded,
   useFilters,
   useGlobalFilter,
   useColumnOrder,
 } from 'react-table'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, type UseFormReturn } from 'react-hook-form'
 import Button from 'modules/Button'
-import type { MissionSerializer, MissionUpdate } from '@schema'
-import { ApiErrorMessage } from '@lib/ErrorMessage'
-import { DrawerExtensionTypes } from '@lib/constants'
-
-import { patchMissions } from '~/api/mission/patchMissions'
-import { ALL_MISSIONS_KEY } from '~/api/mission/getMissions'
-import { ColumnFilter, TableBody, TableHead } from '~/modules/TableComponents'
-import { missionColumns } from './missionColumns'
+import type { TableType } from '@lib/globalTypes'
+import { ColumnFilter, TableBody, TableHead, SelectCheckbox } from '@modules/Table'
 
 //TODO: Fix TS bug concerning dynamic imports and generics once Typescript fixes it https://github.com/microsoft/TypeScript/issues/30712
-const TableFrame = dynamic(() => import('../../modules/TableComponents/TableFrame'), { ssr: false })
+const TableFrame = dynamic(() => import('./components/TableFrame'), { ssr: false })
 
-export type PaginationTableInstance<T extends object> = TableInstance<T> &
+export type PaginationTableInstance<T extends { id: number }> = TableInstance<T> &
   UsePaginationInstanceProps<T> & {
     state: UsePaginationState<T>
   }
 
-export const MissionTableOverview = ({
+export function Table<T extends { id: number }>({
   data,
   totalNumber,
+  columns,
+  groupByOptions,
+  tableType,
+  patchInstances,
+  hasSelectBox,
+  onSelectRow,
+  formMethods,
 }: {
-  data: MissionSerializer[]
+  data: T[]
   totalNumber: number
-}) => {
+  columns: Column<T>[]
+  groupByOptions: { name: string; value: string }[]
+  tableType: TableType
+  formMethods: UseFormReturn<T>
+  patchInstances: (items: any) => void
+  hasSelectBox?: boolean
+  onSelectRow?: (row: Row<T>[]) => void
+}) {
   const [ref, size] = useElementSize()
   const router = useRouter()
   const { pagesize: queryPageSize } = router.query
-  const queryClient = useQueryClient()
-
-  const updateMissions = useMutation(patchMissions, {
-    onSuccess: async () => {
-      toast('Data changed.', {
-        type: 'success',
-        position: toast.POSITION.BOTTOM_CENTER,
-      })
-      methods.reset()
-
-      await queryClient.invalidateQueries([ALL_MISSIONS_KEY])
-
-      await queryClient.invalidateQueries([ALL_MISSIONS_KEY, pageCount, pageSize])
-    },
-    onError: (error: AxiosError<any>) => {
-      toast(<ApiErrorMessage error={error} />, {
-        type: 'error',
-        position: toast.POSITION.BOTTOM_CENTER,
-        delay: 1,
-      })
-
-      //TODO: implement scrolling to input if error from be
-      //scrollInputIntoView(`input-${data[0]}`)
-    },
-  })
-  //TODO: find type
-  const methods = useForm<any>({
-    criteriaMode: 'all',
-    mode: 'onSubmit',
-    defaultValues: {},
-  })
 
   const defaultColumn = useMemo(
     () => ({
@@ -90,53 +66,53 @@ export const MissionTableOverview = ({
     [],
   )
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const columns = useMemo<Column<MissionSerializer>[]>(() => missionColumns(), [data])
-
-  const onSubmit = methods.handleSubmit((formData) => {
-    const changedKeys = Object.keys(formData).filter((item) => formData[item] !== '')
+  const onSubmit = formMethods.handleSubmit((formData) => {
+    const changedKeys = Object.keys(formData).filter((item) => formData[item as keyof T] !== '')
     const changedIds = changedKeys.map((key) => key.split('-')[1])
-    const changedMissions = data.filter((mission) => {
-      return changedIds.includes(mission.id.toString())
+    const changedRowInstances = data.filter((tableRowInstance) => {
+      return changedIds.includes(tableRowInstance.id.toString())
     })
-
-    const newMissions: MissionUpdate[] = changedMissions.map((mission) => {
-      const keysBelongingToMission = changedKeys.filter((key) => {
-        const missionid = key.split('-')[1]
-        return mission.id.toString() === missionid
+    const newtableRowInstances = changedRowInstances.map((tableRowInstance) => {
+      const keysBelongingTotableRowInstance = changedKeys.filter((key) => {
+        const tableRowInstanceid = key.split('-')[1]
+        return tableRowInstance.id.toString() === tableRowInstanceid
       })
-      const changedProps = keysBelongingToMission
+      const changedProps = keysBelongingTotableRowInstance
         .map((key) => {
           return {
             [key.split('-')[0]]:
-              formData[key] === 'delete'
+              formData[key as keyof T] === 'delete'
                 ? ''
                 : key.startsWith('fk') //fkKeys have to be numbers
-                ? parseInt(formData[key])
-                : formData[key] === 'true'
+                ? parseInt(
+                    formData[key as keyof T] !== 'undefined'
+                      ? (formData[key as keyof T] as string)
+                      : '-1',
+                  )
+                : formData[key as keyof T] === 'true'
                 ? true
-                : formData[key] === 'false'
+                : formData[key as keyof T] === 'false'
                 ? false
-                : formData[key],
+                : formData[key as keyof T],
           }
         })
         .reduce((prev, cur) => {
           return { ...prev, ...cur }
         })
 
-      const { id } = mission
-      const newMission = { ...changedProps, id }
+      const { id } = tableRowInstance
+      const newtableRowInstance = { ...changedProps, id }
 
-      return newMission
+      return newtableRowInstance
     })
 
-    if (!newMissions.length) {
+    if (!newtableRowInstances.length) {
       toast(
         'No new data inserted. Non-nullable fields will not change if empty string was inserted.',
         { type: 'error', position: toast.POSITION.BOTTOM_CENTER },
       )
     } else {
-      updateMissions.mutate(newMissions)
+      patchInstances(newtableRowInstances)
     }
   })
 
@@ -155,6 +131,7 @@ export const MissionTableOverview = ({
     allColumns,
     setColumnOrder,
     selectedFlatRows,
+    toggleAllPageRowsSelected,
   } = useTable(
     {
       columns: columns,
@@ -171,25 +148,55 @@ export const MissionTableOverview = ({
     useSortBy,
     useExpanded,
     usePagination,
-  ) as PaginationTableInstance<MissionSerializer>
+    useRowSelect,
+
+    (hooks) => {
+      hasSelectBox &&
+        hooks.visibleColumns.push((columns: Column<T>[]) => [
+          {
+            id: 'selection',
+            Header: () => (
+              <a
+                type="button"
+                className={`
+                         -mr-3
+                         ml-1
+                         mt-2
+                         text-xs`}
+                onClick={() => toggleAllPageRowsSelected(false)}
+              >
+                <span className="block">Reset</span>
+                <span>Sel</span>
+              </a>
+            ),
+            Cell: ({ row }: { row: any }) => {
+              if (!row?.isGrouped) {
+                return (
+                  <span>
+                    <SelectCheckbox {...row.getToggleRowSelectedProps()} />
+                  </span>
+                )
+              }
+              return null
+            },
+          },
+          ...columns,
+        ])
+    },
+  ) as PaginationTableInstance<T>
 
   return (
     //TODO: Fix TS bug concerning dynamic imports and generics once Typescript fixes it https://github.com/microsoft/TypeScript/issues/30712
     // eslint-disable-next-line
     // @ts-expect-error
-    <TableFrame<MissionSerializer>
+    <TableFrame<T>
       pageCount={pageCount}
       pageSize={pageSize}
       totalNumber={totalNumber}
       pageOptions={pageOptions}
       pageIndex={pageIndex}
-      tableType={'mission'}
-      drawerExtensionType={DrawerExtensionTypes.MISSION_DRAWER_EXTENDED}
-      groupByOptions={[
-        { name: 'None', value: '' },
-        { name: 'Partner Organization', value: 'partnerOrganization' },
-        { name: 'Mission Id', value: 'id' },
-      ]}
+      tableType={tableType}
+      groupByOptions={groupByOptions}
       allColumns={allColumns}
       setColumnOrder={setColumnOrder}
       setGlobalFilter={setGlobalFilter}
@@ -197,7 +204,7 @@ export const MissionTableOverview = ({
       setGroupBy={setGroupBy}
       width={size.width}
     >
-      <FormProvider {...methods}>
+      <FormProvider {...formMethods}>
         <form onSubmit={onSubmit}>
           <div className="overflow-x-scroll">
             <table {...getTableProps()} className={`rounded-xl`} ref={ref}>
@@ -206,8 +213,8 @@ export const MissionTableOverview = ({
                 allColumns={allColumns}
                 setColumnOrder={setColumnOrder}
               ></TableHead>
-              <TableBody<MissionSerializer>
-                hasNoSelection
+              <TableBody<T>
+                hasNoSelection={!hasSelectBox}
                 getTableBodyProps={getTableBodyProps}
                 page={page}
                 prepareRow={prepareRow}
@@ -222,16 +229,32 @@ export const MissionTableOverview = ({
               ></TableBody>
             </table>
           </div>
-          {!groupBy.length || groupBy?.[0] === '' ? (
+          {selectedFlatRows.length ? (
             <Button
-              disabled={!methods.formState.isDirty}
+              buttonStyle="Main"
+              type="button"
+              className={`sticky
+                             bottom-20
+                             left-[100vw]
+                             w-[350px]
+                             p-4`}
+              isSpecial
+              onClick={() => {
+                onSelectRow && selectedFlatRows && onSelectRow(selectedFlatRows)
+              }}
+            >
+              {'Go to detail view'}
+            </Button>
+          ) : !groupBy.length || groupBy?.[0] === '' ? (
+            <Button
+              disabled={!formMethods.formState.isDirty}
               buttonStyle="Main"
               type="submit"
               className={`sticky
-                          left-[100vw]
-                          bottom-20
-                          w-[350px]
-                          p-4`}
+                              bottom-20
+                              left-[100vw]
+                              w-[350px]
+                              p-4`}
             >
               {'Submit Changes'}
             </Button>
