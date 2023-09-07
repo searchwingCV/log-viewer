@@ -1,7 +1,6 @@
 import random
 from datetime import datetime
 
-import numpy as np
 import pytest
 from domain.flight_file.value_objects import AllowedFiles
 from faker import Faker
@@ -50,7 +49,7 @@ def get_sample_flight_file():
 
 
 @pytest.fixture(scope="function")
-def test_mavlink_series():
+def mavlink_series():
     rows = 300
     series = MockMavLinkMessageSeries(name="FOO", columns=["timestamp", "Bar", "Baz"], types=[datetime, int, float])
 
@@ -59,23 +58,3 @@ def test_mavlink_series():
     series["Baz"] = [random.random() for _ in range(rows)]
 
     return series
-
-
-@pytest.fixture(scope="function")
-def get_mock_mavlink_series():
-    def wrapper(name="FOO", columns=["Bar", "Baz"], data=[]):
-        rows = 300
-        data_types = [type(d[0]) for d in data]
-        series = MockMavLinkMessageSeries(name=name, columns=["timestamp"] + columns, types=[datetime] + data_types)
-
-        series["timestamp"] = np.array([datetime.now() for _ in range(rows)])
-
-        if not data:
-            for c in columns:
-                series[c] = np.array([random.random() for _ in range(rows)])
-        else:
-            for idx, c in enumerate(columns):
-                series[c] = np.array(data[idx])
-        return series
-
-    return wrapper
