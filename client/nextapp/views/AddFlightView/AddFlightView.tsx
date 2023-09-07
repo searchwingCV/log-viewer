@@ -6,16 +6,15 @@ import { ToastContainer, toast } from 'react-toastify'
 import { pickBy } from 'lodash'
 import { useMutation, useQueries } from '@tanstack/react-query'
 import { FlightRating, FlightPurpose, type CreateFlightSerializer, AllowedFiles } from '@schema'
-import Button from '~/modules/Button'
-import { getDrones, ALL_DRONES_KEY } from '~/api/drone/getDrones'
-import { getMissions, ALL_MISSIONS_KEY } from '~/api/mission/getMissions'
-import { InputReactHookForm } from '~/modules/Input/InputReactHookForm'
-import { SelectReactHookForm } from '~/modules/Select/SelectReactHookForm'
-import { postFlight } from '~/api/flight/postFlight'
-import { putLogFile } from '~/api/flight/putLogFile'
+import Button from '@modules/Button'
+import FileUpload from '@modules/FileUpload'
+import { InputReactHookForm } from '@modules/Input/InputReactHookForm'
+import { SelectReactHookForm } from '@modules/Select/SelectReactHookForm'
+import { getDrones, ALL_DRONES_KEY } from '@api/drone'
+import { getMissions, ALL_MISSIONS_KEY } from '@api/mission'
+import { postFlight, putLogFile } from '@api/flight'
 import { useGoToLastTablePage } from '@lib/hooks/useGoToLastTablePage'
 import { ApiErrorMessage } from '@lib/ErrorMessage'
-import FileUpload from '~/modules/FileUpload'
 
 interface AddFlightForm extends CreateFlightSerializer {
   file?: Blob[]
@@ -161,7 +160,11 @@ export const AddFlightView = () => {
     return (
       <>
         <ToastContainer />
-        <form className="relative w-[600px] [&>div]:mt-8" onSubmit={onSubmit}>
+        <form
+          className={`relative w-[600px]
+                      [&>div]:mt-8`}
+          onSubmit={onSubmit}
+        >
           <SelectReactHookForm<AddFlightForm>
             register={register}
             rules={{
@@ -242,7 +245,8 @@ export const AddFlightView = () => {
           <div className="mt-4 flex items-center">
             <input
               type="checkbox"
-              className="mr-4 h-5 w-5"
+              className={`mr-4
+                          h-5 w-5`}
               onChange={() => setHasLogFile(!hasLogFile)}
             />
             <span> Attach a log file </span>
@@ -278,8 +282,8 @@ export const AddFlightView = () => {
           <Button
             buttonStyle="Main"
             className={`absolute
-                        right-0
                         left-0
+                        right-0
                         z-10
                         mt-12
                         h-16

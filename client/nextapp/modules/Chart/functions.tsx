@@ -15,8 +15,8 @@ import {
 } from '@idbSchema'
 import { type LogFileTimeSeries } from '@schema'
 import { flightModes } from 'lib/constants'
-import { FixedTimeIntervals } from 'lib/global-types'
-import type { BrushDataProps } from '@lib/global-types'
+import { FixedTimeIntervals } from '@lib/globalTypes'
+import type { BrushDataProps } from '@lib/globalTypes'
 
 export const calculateSignatureNumbers = ({
   name,

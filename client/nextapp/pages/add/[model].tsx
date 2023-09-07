@@ -1,9 +1,10 @@
 import type { GetStaticProps } from 'next'
 import { useRouter } from 'next/router'
-import { CreateObjectLayout } from '~/modules/Layouts/CreateObjectLayout'
-import { AddDroneView } from '~/views/AddDroneView/AddDroneView'
-import AddFlightView from '~/views/AddFlightView'
-import AddMissionView from '~/views/AddMissionView'
+import { AddDroneView } from '@views/AddDroneView/AddDroneView'
+import AddFlightView from '@views/AddFlightView'
+import AddMissionView from '@views/AddMissionView'
+import { CreateObjectLayout } from '@modules/Layouts/CreateObjectLayout'
+
 import type { NextPageWithLayout } from '../_app'
 
 const models = ['flight', 'drone', 'mission']

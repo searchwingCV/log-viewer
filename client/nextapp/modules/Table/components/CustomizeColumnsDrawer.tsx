@@ -3,13 +3,13 @@ import { animated, useSpring } from '@react-spring/web'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import type { ColumnInstance } from 'react-table'
 import { UIContext, getTableDrawerState } from '@lib/Context/ContextProvider'
-import CircleIconButton from '~/modules/CircleIconButton'
-import type { DrawerExtensionTypes } from '@lib/constants'
+import CircleIconButton from '@modules/CircleIconButton'
+import type { TableType } from '@lib/globalTypes'
 
 type CustomizeOrderProps = {
   allColumns: ColumnInstance<any>[]
   setColumnOrder: (updater: string[] | ((columnOrder: string[]) => string[])) => void
-  drawerKey: DrawerExtensionTypes
+  drawerKey: TableType
 }
 
 export const CustomizeOrder = ({ allColumns, setColumnOrder }: CustomizeOrderProps) => {
@@ -121,8 +121,8 @@ export const CustomizeColumnsDrawer = ({
   return (
     <animated.div
       className={`fixed
-                  top-0
                   bottom-0
+                  top-0
                   z-10
                   h-full
                   w-side-drawer
