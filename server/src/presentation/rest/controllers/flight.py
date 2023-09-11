@@ -87,7 +87,7 @@ async def delete_flight(id: int, flight_service: FlightService = Depends(get_fli
 def upload_file(
     id: int,
     file: UploadFile,
-    file_type: Annotated[AllowedFiles | None, Query()] = None,
+    file_type: Annotated[AllowedFiles, Query()],
     process: bool = True,
     file_service: FileService = Depends(get_file_service),
 ):
