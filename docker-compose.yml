@@ -16,6 +16,7 @@ services:
       - '80:80'
     depends_on:
       - db
+      - worker
     environment:
       - POSTGRES_USER=searchwing
       - POSTGRES_PASSWORD=searchwing
@@ -58,6 +59,7 @@ services:
       - ./client/nextapp:/app
     depends_on:
       - server
+      - worker
     ports:
       - 3000:3000
     environment:
