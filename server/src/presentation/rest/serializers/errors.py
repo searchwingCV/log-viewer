@@ -8,6 +8,7 @@ class ErrorCodes(Enum):
     invalid_payload = "invalid-payload"
     not_found = "not-found"
     internal_error = "internal-error"
+    invalid_query = "invalid-query"
 
 
 class APIError(APISerializer):
@@ -44,3 +45,8 @@ class EntityNotFoundError(NotFoundError, EntityID):
 class InvalidPayloadError(APIError):
     title: str = "Invalid payload"
     code: ErrorCodes = ErrorCodes.invalid_payload
+
+
+class InvalidQueryError(APIError):
+    title: str = "Invalid query"
+    code: ErrorCodes = ErrorCodes.invalid_query
