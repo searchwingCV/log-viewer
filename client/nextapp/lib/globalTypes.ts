@@ -31,4 +31,5 @@ export enum TableType {
 export type TableFlightSerializer = Omit<FlightSerializer, 'fkMission' | 'fkDrone'> & {
     fkMission: string | undefined
     fkDrone: string | undefined
+    buttons: undefined
 }

@@ -7,11 +7,14 @@ type ColumnType =
     | 'date'
     | 'dateInput'
     | 'numberInput'
+    | 'buttons'
 
 export const determineWidth = (columnType: ColumnType) => {
     switch (columnType) {
         case 'number':
             return 'w-[80px]'
+        case 'buttons':
+            return 'w-[150px]'
         case 'text':
             return 'w-[100px]'
         case 'date':

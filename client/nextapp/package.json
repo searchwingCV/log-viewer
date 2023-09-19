@@ -59,6 +59,7 @@
     "react-toastify": "^9.0.4",
     "recharts": "^2.7.2",
     "rxjs": "^7.5.5",
+    "tailwind-merge": "^1.14.0",
     "tailwindcss-gradients": "^3.0.0",
     "time-series-data-generator": "^0.1.5",
     "zustand": "^4.3.7"

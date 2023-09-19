@@ -10,6 +10,26 @@ export const flightColumns = (
 ): Column<TableFlightSerializer>[] => [
   {
     Header: 'Flight Id',
+    accessor: 'buttons',
+    width: determineWidth('number'),
+    Cell: (props: any) => {
+      return (
+        <div>
+          <button
+            className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+            onClick={() => {
+              console.log('props', props)
+            }}
+          >
+            Edit
+          </button>
+        </div>
+      )
+    },
+  },
+
+  {
+    Header: 'Flight Id',
     accessor: 'id',
     width: determineWidth('number'),
   },
