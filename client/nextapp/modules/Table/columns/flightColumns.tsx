@@ -1,28 +1,72 @@
+import { useState } from 'react'
 import { format, parseISO, isValid, intervalToDuration } from 'date-fns'
+import { useRouter } from 'next/router'
+import { toast } from 'react-toastify'
+
 import type { Column } from 'react-table'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import type { AxiosError } from 'axios'
+
 import { FlightRating, FlightPurpose } from '@schema'
 import { TextInputCell, SelectInputCell, determineWidth, TippyValueWrapper } from '@modules/Table'
 import type { TableFlightSerializer } from '@lib/globalTypes'
+import { RowActionButton } from '@views/RowActionButton/RowActionButton'
+import WarningModal from '@modules/WarningModal'
+import { deleteFlight } from '@api/flight/deleteFlight'
+import { ApiErrorMessage } from '@lib/ErrorMessage'
+import { ALl_FLIGHTS_KEY } from '@api/flight'
 
 export const flightColumns = (
   missionOptions?: { name: string; value: number }[],
   droneOptions?: { name: string; value: number }[],
 ): Column<TableFlightSerializer>[] => [
   {
-    Header: 'Flight Id',
+    Header: 'Actions',
     accessor: 'buttons',
-    width: determineWidth('number'),
+    width: determineWidth('buttons'),
     Cell: (props: any) => {
+      const router = useRouter()
+
+      const [isModalOpen, setIsModalOpen] = useState(false)
+      const queryClient = useQueryClient()
+      const { page: queryPage, pagesize: queryPageSize } = router.query
+
+      const deleteMutation = useMutation(deleteFlight, {
+        onSuccess: async (data) => {
+          toast('Flight deleted.', {
+            type: 'success',
+          })
+          await queryClient.invalidateQueries([
+            ALl_FLIGHTS_KEY,
+            parseInt(queryPage as string) || 1,
+            parseInt(queryPageSize as string) || 10,
+          ])
+        },
+        onError: (error: AxiosError<any>) => {
+          toast(<ApiErrorMessage error={error} />, {
+            type: 'error',
+          })
+        },
+      })
       return (
-        <div>
-          <button
-            className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-            onClick={() => {
-              console.log('props', props)
+        <div className="flex justify-center">
+          <RowActionButton
+            variant="delete"
+            tooltipText="Delete flight"
+            onClick={() => setIsModalOpen(true)}
+          />
+          <RowActionButton variant="download" tooltipText="Download flight log file" />
+          <RowActionButton variant="link" tooltipText="Go to file manager page" />
+          <RowActionButton variant="upload" tooltipText="Upload a log file" />
+          <WarningModal
+            modalTitle={'Are you sure you want to delete this flight?'}
+            modalText="This action cannot be undone. All the files uploaded to this flight will also be deleted."
+            isOpen={isModalOpen}
+            closeModal={() => setIsModalOpen(false)}
+            proceedAction={() => {
+              deleteMutation.mutate({ flightId: props.row.values.id })
             }}
-          >
-            Edit
-          </button>
+          />
         </div>
       )
     },

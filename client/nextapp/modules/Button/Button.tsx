@@ -58,7 +58,7 @@ export const Button = ({
             ? `bg-grey-medium
                cursor-not-allowed`
             : `bg-primary-light-petrol
-               hover:bg-primary-dark-petrol`,
+               hover:bg-secondary-dark-petrol`,
         )
       case 'Tertiary':
         return clsx(

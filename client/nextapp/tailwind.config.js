@@ -25,13 +25,20 @@ module.exports = {
           black: '#000000',
           white: '#ffffff',
           'light-petrol': '#6da9b5',
-          'dark-petrol': '#1e7182',
           'indigo-blue': '#3F0FB7',
           red: '#E9132D',
           green: '#77D866',
           rose: '#f093c6',
           activeGreen: '#aafc53',
         },
+
+        secondary: {
+          'dark-red': '#870919',
+          'dark-petrol': '#1e7182',
+          'dark-indigo-blue': '#230a61',
+          'dark-rose': '#ad5a88',
+        },
+
         grey: {
           light: '#F8F8F8',
           medium: '#CACACA',

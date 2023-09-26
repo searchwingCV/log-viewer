@@ -8,9 +8,7 @@ export const getFlights = async (page: number, size: number) => {
     const data: Page_FlightSerializer_ = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/flight?page=${page}&size=${size}`)
         .then((res) => {
             return res.data
-        }).catch((e) =>
-            console.error(e)
-        )
+        })
 
     return data
 }

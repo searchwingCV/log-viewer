@@ -73,8 +73,8 @@ const Select = memo(
                   ? `bg-primary-red
                    text-primary-white`
                   : getValues(name) && getValues(name) !== defaultValue
-                  ? `text-primary-white
-                   odd:bg-primary-dark-petrol`
+                  ? `odd:bg-secondary-dark-petrol
+                   text-primary-white`
                   : `bg-grey-light
                    text-primary-rose`,
               )}
@@ -101,8 +101,8 @@ const Select = memo(
             {!getValues(name) && getValues(name) !== defaultValue ? (
               <span
                 className={`absolute
-                          top-1/2
                           left-1/2
+                          top-1/2
                           h-[18px]
                           w-[90px]
                           -translate-x-1/2

@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+
 import type { TableBodyPropGetter, TableBodyProps as ReactTableBodyProps, Row } from 'react-table'
 
 export type TestProps<TColumnProps extends object> = {
@@ -65,8 +66,8 @@ export const TableBody = <TColumnProps extends object>({
                bg-primary-white
                text-xs
                transition-opacity
-               hover:opacity-60`,
-              isEven ? `border-l-primary-dark-petrol` : 'border-l-primary-indigo-blue',
+             `,
+              isEven ? `border-l-secondary-dark-petrol` : 'border-l-primary-indigo-blue',
             )}
           >
             {row.cells.map((cell: any, cellIndex: number) => {
