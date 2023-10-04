@@ -1,5 +1,5 @@
 /*  
-  TODO: Make InputReactHookForn and Input become one component to remove duplicate code
+  TODO: Make InputReactHookForm and Input become one component to remove duplicate code
 */
 import * as React from 'react'
 import clsx from 'clsx'
@@ -80,8 +80,8 @@ export const InputReactHookForm = <TFormValues extends FieldValues>({
             appearane-none
             peer
             absolute
-            top-6
             bottom-0
+            top-6
             z-10
             h-10
             w-full
@@ -89,9 +89,9 @@ export const InputReactHookForm = <TFormValues extends FieldValues>({
             border-b
             border-solid
             bg-transparent
+            pb-3
             pl-0
             pt-1
-            pb-3
             caret-grey-dark
             !outline-none
             outline-0
