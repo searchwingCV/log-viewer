@@ -1,10 +1,11 @@
 from abc import ABC
-from typing import Generic, List, Sequence, TypeVar
+from typing import Generic, List, Optional, Sequence, TypeVar
 
 from domain.flight_file.entities import FlightFile
 from domain.flight_file.value_objects import AllowedFiles
 from presentation.rest.serializers import APISerializer
 from presentation.rest.serializers.errors import UnprocessableEntityError
+from presentation.rest.serializers.flight import FlightSerializer
 from pydantic import Field
 from pydantic.generics import GenericModel
 
@@ -30,8 +31,8 @@ class FileDownloadResponse(APISerializer):
     download_link: str
 
     @classmethod
-    def build_from_record(cls, record: FlightFile, base_url: str):
-        download_link = f"{base_url}file/{record.id}"
+    def build_from_record(cls, record: FlightFile):
+        download_link = f"/file/{record.id}"
         return cls(id=record.id, download_link=download_link)
 
 
@@ -56,7 +57,7 @@ class FlightFilesListResponse(APISerializer):
     apm: FileListResponse
 
     @classmethod
-    def build_from_records(cls, records: List[FlightFile], flight_id: int, base_url: str):
+    def build_from_records(cls, records: List[FlightFile], flight_id: int):
         log = FileListResponse()
         apm = FileListResponse()
         tlog = FileListResponse()
@@ -65,13 +66,17 @@ class FlightFilesListResponse(APISerializer):
         for record in records:
             match record.file_type:
                 case AllowedFiles.log:
-                    log.add(FileDownloadResponse.build_from_record(record, base_url))
+                    log.add(FileDownloadResponse.build_from_record(record))
                 case AllowedFiles.tlog:
-                    tlog.add(FileDownloadResponse.build_from_record(record, base_url))
+                    tlog.add(FileDownloadResponse.build_from_record(record))
                 case AllowedFiles.apm:
-                    apm.add(FileDownloadResponse.build_from_record(record, base_url))
+                    apm.add(FileDownloadResponse.build_from_record(record))
                 case AllowedFiles.rosbag:
-                    rosbag.add(FileDownloadResponse.build_from_record(record, base_url))
+                    rosbag.add(FileDownloadResponse.build_from_record(record))
                 case _:
                     raise ValueError(f"Unsupported file type -> {record.file_type}")
         return cls(flight_id=flight_id, log=log, tlog=tlog, apm=apm, rosbag=rosbag)
+
+
+class FlightWithFilesResponse(FlightSerializer):
+    files: Optional[FlightFilesListResponse] = None
