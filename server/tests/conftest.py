@@ -13,6 +13,11 @@ fake.add_provider(FlightLogProvider)
 
 
 class MockMavLinkMessageSeries(MavLinkMessageSeries):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._columns = ["timestamp", "Bar", "Baz"]
+        self._types = [datetime, int, float]
+
     def __setitem__(self, key, value):
         self._fields[key] = value
 

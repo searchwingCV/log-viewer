@@ -65,7 +65,7 @@ def test_get_by_flight_type_field(test_db_session, mavlink_series, fill_mock_dat
     timestamp_1 = timestamps[10]
     timestamp_2 = timestamps[15]
     series = repository.get_by_flight_type_field(test_db_session, 1, "FOO", "Bar", timestamp_1, timestamp_2)
-    # from time import sleep; sleep(1)
+
     assert len(series.values) == 6
 
     series = repository.get_by_flight_type_field(test_db_session, 1, "FOO", "Bar", timestamp_1, timestamp_2, 3)
