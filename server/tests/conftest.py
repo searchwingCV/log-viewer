@@ -58,3 +58,21 @@ def mavlink_series():
     series["Baz"] = [random.random() for _ in range(rows)]
 
     return series
+
+
+@pytest.fixture(scope="function")
+def get_mock_mavlink_series():
+    def wrapper(name="FOO", columns=["Bar", "Baz"], data=[]):
+        rows = 300
+        data_types = [type(d[0]) for d in data]
+        series = MockMavLinkMessageSeries(name=name, columns=columns, types=data_types)
+
+        if not data:
+            for c in columns:
+                series[c] = np.array([random.random() for _ in range(rows)])
+        else:
+            for idx, c in enumerate(columns):
+                series[c] = np.array(data[idx])
+        return series
+
+    return wrapper
