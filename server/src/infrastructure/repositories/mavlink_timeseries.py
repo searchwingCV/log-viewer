@@ -34,7 +34,6 @@ class MavLinkTimeseriesRepository(BaseRepository):
                         if (type(value) in [int, float]) and (field not in ["timestamp", "TimeUS"])
                     ]
                 )
-            breakpoint()
             logger.info(f"inserting {series.name}, columns={series.columns}")
             session.bulk_insert_mappings(
                 self._model,

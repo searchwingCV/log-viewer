@@ -17,5 +17,10 @@
   "[python]": {
     "editor.defaultFormatter": "ms-python.python"
   },
-  "eslint.workingDirectories": ["./client/nextapp"]
+  "eslint.workingDirectories": [
+    "./client/nextapp"
+  ],
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  }
 }
