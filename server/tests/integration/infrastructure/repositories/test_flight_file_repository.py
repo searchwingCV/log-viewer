@@ -1,6 +1,7 @@
 import pytest
 from domain.flight_file.entities import BaseFlightFile, FlightFile
 from domain.flight_file.value_objects import AllowedFiles
+from infrastructure.db.orm import FlightFile as FlightFileModel
 from infrastructure.repositories import FlightFileRepository
 
 
@@ -59,3 +60,12 @@ def test_get_by_flight_and_type(fill_mock_data, test_db_session, flight_id, shou
     repository = FlightFileRepository()
     flight_file = repository.get_by_flight_and_type(flight_id, file_type, test_db_session)
     assert (flight_file is None) == should_return_none
+
+
+def test_delete_by_flight_id(fill_mock_data, test_db_session):
+    fill_mock_data(nb_flights=10, chances_missing_file=0)
+    flight_id = 1
+
+    repository = FlightFileRepository()
+    repository.delete_by_flight_id(test_db_session, flight_id)
+    assert test_db_session.query(FlightFileModel).filter_by(fk_flight=flight_id).count() == 0
