@@ -13,6 +13,9 @@ fake.add_provider(FlightLogProvider)
 
 
 class MockMavLinkMessageSeries(MavLinkMessageSeries):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     def __setitem__(self, key, value):
         self._fields[key] = value
 
@@ -54,6 +57,9 @@ def test_mavlink_series():
     rows = 300
     series = MockMavLinkMessageSeries(name="FOO", columns=["timestamp", "Bar", "Baz"], types=[datetime, int, float])
 
+    series._columns = ["timestamp", "Bar", "Baz"]
+    series._types = [datetime, int, float]
+
     series["timestamp"] = [datetime.now() for _ in range(rows)]
     series["Bar"] = [idx for idx in range(rows)]
     series["Baz"] = [random.random() for _ in range(rows)]
@@ -66,9 +72,7 @@ def get_mock_mavlink_series():
     def wrapper(name="FOO", columns=["Bar", "Baz"], data=[]):
         rows = 300
         data_types = [type(d[0]) for d in data]
-        series = MockMavLinkMessageSeries(name=name, columns=["timestamp"] + columns, types=[datetime] + data_types)
-
-        series["timestamp"] = np.array([datetime.now() for _ in range(rows)])
+        series = MockMavLinkMessageSeries(name=name, columns=columns, types=data_types)
 
         if not data:
             for c in columns:
