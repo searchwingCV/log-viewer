@@ -15,10 +15,10 @@ import { far } from '@fortawesome/free-regular-svg-icons'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 import type { NextPage } from 'next'
-import { config, library } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import { ContextProvider } from '@lib/Context/ContextProvider'
 
+const { library, config } = require('@fortawesome/fontawesome-svg-core')
 config.autoAddCss = false
 library.add(far, fas, fab)
 

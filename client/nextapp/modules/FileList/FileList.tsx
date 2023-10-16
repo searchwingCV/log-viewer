@@ -3,6 +3,7 @@
   https://tanstack.com/table/v8/docs/guide/migrating
 */
 import { useMemo } from 'react'
+import { format, parseISO, isValid, intervalToDuration } from 'date-fns'
 import {
   useTable,
   type Column,
@@ -21,6 +22,7 @@ import {
 } from 'react-table'
 import clsx from 'clsx'
 import { Button } from 'modules/Button/Button'
+import { RowActionButton } from '@modules/RowActionButton'
 
 interface IFlightFile {
   id: number
@@ -28,6 +30,7 @@ interface IFlightFile {
   name: string
   uploaded: string
   size: string
+  deleteLink: string
 }
 
 export type FileListProps = {
@@ -40,22 +43,59 @@ export const FileList = ({ files }: FileListProps) => {
       {
         Header: 'Id',
         accessor: 'id',
+        width: 'w-[60px]',
       },
       {
         Header: 'Name',
         accessor: 'name',
+        width: 'w-[200px]',
       },
-      {
-        Header: 'Download',
-        accessor: 'downloadLink',
-      },
+
       {
         Header: 'Uploaded',
         accessor: 'uploaded',
+        width: 'w-[200px]',
+        Cell: (props: any) => {
+          if (isValid(parseISO(props.row.values.uploaded))) {
+            return <span>{format(parseISO(props.row.values.uploaded), 'kk:ss:mm dd.MM.yyyy')}</span>
+          } else {
+            return <div></div>
+          }
+        },
       },
       {
         Header: 'Size',
         accessor: 'size',
+        width: 'w-[80px]',
+      },
+      {
+        Header: 'Download',
+        accessor: 'downloadLink',
+        width: 'w-[100px]',
+
+        Cell: (props: any) => {
+          return (
+            <RowActionButton
+              tooltipText={'Download file'}
+              url={props.row.values?.downloadLink}
+              variant="download"
+            />
+          )
+        },
+      },
+      {
+        Header: 'Delete',
+        accessor: 'deleteLink',
+        width: 'w-[80px]',
+        Cell: (props: any) => {
+          return (
+            <RowActionButton
+              tooltipText={'Delete file'}
+              url={props.row.values?.deleteLink}
+              variant="delete"
+            />
+          )
+        },
       },
     ],
     [],
@@ -66,17 +106,22 @@ export const FileList = ({ files }: FileListProps) => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = table
 
   return (
-    <div className="container">
-      {/* Apply the table props */}
-      <table {...getTableProps()}>
-        <thead>
+    <div className=" relative overflow-x-auto rounded-md">
+      <table {...getTableProps()} className="w-full border-separate border-spacing-0 ">
+        <thead
+          className="h-12
+                     bg-primary-light-petrol text-white"
+        >
           {headerGroups.map((headerGroup, i) => (
             <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.getHeaderGroupProps().key}>
               {headerGroup.headers.map((column) => (
-                // Aplicamos las propiedades de ordenación a cada columna
                 <th
                   {...column.getHeaderProps(column.getSortByToggleProps())}
-                  className={column.isSorted ? (column.isSortedDesc ? 'desc' : 'asc') : ''}
+                  className={clsx(
+                    'text-center',
+                    column.width,
+                    column.isSorted ? (column.isSortedDesc ? 'desc' : 'asc') : '',
+                  )}
                   key={column.getHeaderProps(column.getSortByToggleProps()).key}
                 >
                   {column.render('Header')}
@@ -85,31 +130,34 @@ export const FileList = ({ files }: FileListProps) => {
             </tr>
           ))}
         </thead>
-        {/* Apply the table body props */}
         <tbody {...getTableBodyProps()}>
-          {
-            // Loop over the table rows
-            rows.map((row) => {
-              // Prepare the row for display
-              prepareRow(row)
-              return (
-                // Apply the row props
-                <tr {...row.getRowProps()} key={row.getRowProps().key}>
-                  {row.cells.map((cell) => {
-                    // Apply the cell props
-                    return (
-                      <td {...cell.getCellProps()} key={cell.getCellProps().key}>
-                        {
-                          // Render the cell contents
-                          cell.render('Cell')
-                        }
-                      </td>
-                    )
-                  })}
-                </tr>
-              )
-            })
-          }
+          {rows.map((row) => {
+            prepareRow(row)
+            return (
+              <tr {...row.getRowProps()} key={row.getRowProps().key}>
+                {row.cells.map((cell) => {
+                  return (
+                    <td
+                      {...cell.getCellProps()}
+                      key={cell.getCellProps().key}
+                      className={clsx(
+                        cell.column.width,
+                        `border-b border-grey-medium
+                      
+                    p-3 text-center
+
+                      
+                      
+                      `,
+                      )}
+                    >
+                      {cell.render('Cell')}
+                    </td>
+                  )
+                })}
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
