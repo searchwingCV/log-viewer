@@ -30,10 +30,12 @@ class MavLinkTimeseriesRepository(BaseRepository):
                             "message_field": field,
                             "value": value,
                         }
-                        for idx, value in enumerate(series[field])
+                        for idx, value in enumerate(series.raw_fields[field])
                         if (type(value) in [int, float]) and (field not in ["timestamp", "TimeUS"])
                     ]
                 )
+                if len(data) == 0:
+                    logger.warning(f"empty field -> {field}")
             logger.info(f"inserting {series.name}, columns={series.columns}")
             session.bulk_insert_mappings(
                 self._model,
@@ -42,6 +44,7 @@ class MavLinkTimeseriesRepository(BaseRepository):
             session.commit()
             logger.info("inserting %s - done", series.name)
         except Exception as e:
+            logger.exception("something went wrong while inserting")
             session.rollback()
             raise e
 
