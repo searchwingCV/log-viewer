@@ -34,6 +34,12 @@ def get_flight_service():
         mission_repository=MissionRepository(),
         repository=FlightRepository(),
         mavlink_timeseries_repository=MavLinkTimeseriesRepository(),
+        file_repository=FlightFileRepository(),
+        storage=Storage(
+            rootpath=config.STORAGE_ROOT,
+            protocol=config.STORAGE_PROTOCOL,
+            options={option: value for option, value in config.STORAGE_OPTIONS.items() if option is not None},
+        ),
     )
 
 
