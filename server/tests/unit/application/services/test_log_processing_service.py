@@ -6,6 +6,7 @@ import pytest
 from application.services import LogProcessingService, log_processing
 from domain.flight.entities import FlightComputedUpdate
 from domain.flight_file.entities import AllowedFiles, FlightFile, IOFile
+from domain.mavlink_timeseries.entities import MavLinkFlightMessageProperties, MavLinkMessageProperties
 from pymavlog import MavLog
 
 
@@ -31,12 +32,15 @@ def get_log_processing_service(
     mock_session_factory,
 ):
     def wrapper(
-        mavlog=mock_mavlog, file_service=mock_file_service, mavlink_timeseries_repository=mock_mavlink_series_repository
+        mavlog=mock_mavlog,
+        file_service=mock_file_service,
+        mavlink_timeseries_repository=mock_mavlink_series_repository,
+        flight_service=mock_flight_service,
     ) -> LogProcessingService:
         monkeypatch.setattr(log_processing, "MavLog", mavlog)
         lps = LogProcessingService(
             file_service=file_service,
-            flight_service=mock_flight_service,
+            flight_service=flight_service,
             mavlink_timeseries_repository=mavlink_timeseries_repository,
             session=mock_session_factory,
         )
@@ -132,16 +136,52 @@ def test_save_timeseries_error(
 
 
 def test_get_message_properties(
-    get_log_processing_service, mock_mavlog, mock_file_service, mock_mavlink_series_repository
+    get_log_processing_service,
+    mock_flight_service,
+    mock_mavlog,
+    mock_file_service,
+    mock_mavlink_series_repository,
+    get_sample_flight,
 ):
-    mock_mavlink_series_repository.get_available_messages_by_group.return_value = {"foo": 1, "bar": 2}
-
+    test_flight = get_sample_flight()
+    mock_flight_service.get_by_id.return_value = test_flight
+    mock_mavlink_series_repository.get_available_messages_by_group.return_value = MavLinkFlightMessageProperties(
+        flight_id=1,
+        message_properties=[
+            MavLinkMessageProperties(
+                **{
+                    "message_type": "FOO",
+                    "message_fields": [
+                        {"name": "BAR", "unit": "BAR_UNIT"},
+                    ],
+                }
+            ),
+        ],
+    )
+    expected = MavLinkFlightMessageProperties(
+        flight_id=1,
+        message_properties=[
+            MavLinkMessageProperties(
+                **{
+                    "message_type": "FOO",
+                    "message_fields": [
+                        {"name": "BAR", "unit": "BAR_UNIT"},
+                    ],
+                }
+            ),
+        ],
+        start_timestamp=test_flight.log_start_time,
+        end_timestamp=test_flight.log_end_time,
+    )
     lps = get_log_processing_service(
-        mavlog=mock_mavlog, file_service=mock_file_service, mavlink_timeseries_repository=mock_mavlink_series_repository
+        mavlog=mock_mavlog,
+        file_service=mock_file_service,
+        mavlink_timeseries_repository=mock_mavlink_series_repository,
+        flight_service=mock_flight_service,
     )
     result = lps.get_message_properties(flight_id=1)
 
-    assert result == {"foo": 1, "bar": 2}
+    assert result == expected
 
 
 def test_get_timeseries(get_log_processing_service, mock_mavlog, mock_file_service, mock_mavlink_series_repository):

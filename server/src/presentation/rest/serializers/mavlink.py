@@ -22,6 +22,8 @@ class FlightModeRangeSerializer(FlightModeRange, APISerializer):
 
 
 class MavLinkFlightMessagePropertiesSerializer(MavLinkFlightMessageProperties, APISerializer):
+    start_timestamp: datetime | None
+    end_timestamp: datetime | None
     message_properties: t.List[MavLinkMessagePropertiesSerializer]
     flight_mode_timeseries: t.List[FlightModeRangeSerializer] = Field(
         default=[],
