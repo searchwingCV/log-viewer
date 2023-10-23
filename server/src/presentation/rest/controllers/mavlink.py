@@ -29,7 +29,7 @@ def get_message_properties(
 ):
     response = []
     for id in flight_id:
-        props = log_processing_service.get_message_properties(id)
+        props = log_processing_service.get_message_properties(flight_id=id)
         response.append(MavLinkFlightMessagePropertiesSerializer.from_orm(props))
     return response
 

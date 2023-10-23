@@ -116,8 +116,11 @@ class LogProcessingService:
         return {"success": not bool(errors), "errors": errors}
 
     def get_message_properties(self, flight_id: ID_Type) -> MavLinkFlightMessageProperties:
+        flight = self._flight_service.get_by_id(flight_id)
         with self._session as session:
             props = self._mavlink_timeseries_repository.get_available_messages_by_group(session, flight_id)
+        props.start_timestamp = flight.log_start_time
+        props.end_timestamp = flight.log_end_time
         return props
 
     def get_timeseries(
