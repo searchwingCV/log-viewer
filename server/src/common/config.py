@@ -14,6 +14,8 @@ class BaseConfig(object):
         f"/{os.environ['POSTGRES_DB']}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_POOL_SIZE = int(os.getenv("SQLALCHEMY_POOL_SIZE", 10))
+    SQLALCHEMY_MAX_OVERFLOW = int(os.getenv("SQLALCHEMY_MAX_OVERFLOW", 20))
 
     STORAGE_PROTOCOL = os.getenv("STORAGE_PROTOCOL", "file")
     STORAGE_ROOT = os.getenv("STORAGE_ROOT", "/data")
