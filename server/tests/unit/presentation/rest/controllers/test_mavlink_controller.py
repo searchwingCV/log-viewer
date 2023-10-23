@@ -11,18 +11,26 @@ from domain.mavlink_timeseries.entities import (
 from presentation.rest.dependencies import get_log_processing_service
 
 
-def test_get_mavlink_props(test_client, mock_log_processing_service):
+def test_get_mavlink_props(test_client, mock_log_processing_service, mock_flight_service, get_sample_flight):
+    sample_flight = get_sample_flight()
+    sample_flight.log_start_time = datetime(2021, 1, 1, 0)
+    sample_flight.log_end_time = datetime(2021, 1, 1, 1)
+    mock_flight_service.get_by_id.return_value = sample_flight
     mock_log_processing_service.get_message_properties.return_value = MavLinkFlightMessageProperties(
         flight_id=1,
         message_properties=[
             MavLinkMessageProperties(message_type="FOO", message_fields=[MavlinkMessageField(name="Bar", unit="Baz")]),
             MavLinkMessageProperties(message_type="BAR", message_fields=[MavlinkMessageField(name="Foo")]),
         ],
+        start_timestamp=sample_flight.log_start_time,
+        end_timestamp=sample_flight.log_end_time,
     )
     test_client.app.dependency_overrides[get_log_processing_service] = lambda: mock_log_processing_service
     expected = """
     [{
         "flightId": 1,
+        "startTimestamp": "2021-01-01T00:00:00",
+        "endTimestamp": "2021-01-01T01:00:00",
         "messageProperties": [
             {
                 "messageType": "FOO",
@@ -41,7 +49,6 @@ def test_get_mavlink_props(test_client, mock_log_processing_service):
     }]
     """
     response = test_client.get("/mavlink/message-properties?flight_id=1")
-
     assert response.status_code == 200
     assert response.json() == json.loads(expected)
 

@@ -49,6 +49,8 @@ class MavLinkMessageProperties(BaseModel):
 
 class MavLinkFlightMessageProperties(BaseModel):
     flight_id: ID_Type
+    start_timestamp: datetime | None
+    end_timestamp: datetime | None
     message_properties: t.List[MavLinkMessageProperties]
 
     def add_entries(self, entries: t.List[t.Tuple[str, str]]):
