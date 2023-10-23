@@ -21,7 +21,9 @@
       "@lib/*": ["./lib/*"],
       "@constants": ["./lib/constants"],
       "@idbSchema": ["./dexie-database"],
-
+      "@modules/*": ["./modules/*"],
+      "@api/*": ["./api/*"],
+      "@views/*": ["./views/*"],
       "~/*": ["./*"]
     }
   },

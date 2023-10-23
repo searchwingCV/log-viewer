@@ -1,9 +1,9 @@
 import { useContext } from 'react'
 import Button from 'modules/Button'
-import type { DrawerExtensionTypes } from '@lib/constants'
 import { UIContext, getTableDrawerState } from '@lib/Context/ContextProvider'
+import type { TableType } from '@lib/globalTypes'
 
-export const ToggleCustomizeOrder = ({ drawerKey }: { drawerKey: DrawerExtensionTypes }) => {
+export const ToggleCustomizeOrder = ({ drawerKey }: { drawerKey: TableType }) => {
   const { tableDrawerToggleTypeState, tableDrawerTypeToggleDispatch } = useContext(UIContext)
 
   const handleToggleDrawer = () => {
@@ -29,8 +29,8 @@ export const ToggleCustomizeOrder = ({ drawerKey }: { drawerKey: DrawerExtension
         type="button"
         buttonStyle="Main"
         className={`min-w-[250px]
-                    py-3
                     px-2
+                    py-3
                     `}
         onClick={() => handleToggleDrawer()}
       >

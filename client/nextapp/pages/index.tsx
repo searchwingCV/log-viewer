@@ -2,7 +2,7 @@
   Currently the user is immediately redirected to the flights view
 */
 import type { GetStaticProps } from 'next'
-import { Layout } from '~/modules/Layouts/Layout'
+import { Layout } from '@modules/Layouts'
 
 const Index = ({}) => {
   return (

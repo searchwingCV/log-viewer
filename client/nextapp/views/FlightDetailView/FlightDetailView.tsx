@@ -5,8 +5,8 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import type { LogOverallData } from '@schema'
 import { UIContext } from '@lib/Context/ContextProvider'
 import database, { type DexieLogOverallData } from '@idbSchema'
-import { PlotDrawer } from '~/modules/PlotDrawer'
-import { LineChartComponent } from '~/modules/Chart'
+import { PlotDrawer } from '@modules/PlotDrawer'
+import { LineChartComponent } from '@modules/Chart'
 
 export type FlightDetailViewProps = {
   logOverallData: LogOverallData

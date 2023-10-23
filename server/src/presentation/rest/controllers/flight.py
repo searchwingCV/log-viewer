@@ -8,12 +8,16 @@ from common.logging import get_logger
 from domain.flight_file.value_objects import AllowedFiles
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, UploadFile, status
 from presentation.rest.dependencies import get_file_service, get_flight_service
-from presentation.rest.mixins import CRUDMixin
-from presentation.rest.serializers import Page, Params, UpdateSerializer
+from presentation.rest.mixins import FlightMixin
+from presentation.rest.serializers import Page, UpdateSerializer
 from presentation.rest.serializers.errors import EntityNotFoundError, InvalidPayloadError
 from presentation.rest.serializers.file import FlightFileSerializer
 from presentation.rest.serializers.flight import CreateFlightSerializer, FlightSerializer, FlightUpdate
-from presentation.rest.serializers.responses import BatchUpdateResponse, FlightFilesListResponse
+from presentation.rest.serializers.responses import (
+    BatchUpdateResponse,
+    FlightFilesListResponse,
+    FlightWithFilesResponse,
+)
 from presentation.worker.tasks import parse_log_file
 
 ROUTE_PREFIX = "/flight"
@@ -38,18 +42,15 @@ async def add_flight(
         return Response(status_code=status.HTTP_400_BAD_REQUEST, content=error.json())
 
 
-@router.get("", response_model=Page[FlightSerializer], status_code=status.HTTP_200_OK)
+@router.get("", response_model=Page[FlightWithFilesResponse], status_code=status.HTTP_200_OK)
 async def retrieve_all_flights(
+    request: Request,
     page: Union[int, None] = Query(default=1),
     size: Union[int, None] = Query(default=DEFAULT_PAGE_LEN),
     flight_service: FlightService = Depends(get_flight_service),
+    file_service: FileService = Depends(get_file_service),
 ):
-    total, flights = flight_service.get_all_with_pagination(page, size)
-    return Page.create(
-        items=flights,
-        total=total,
-        params=Params(page=page, size=size, path=ROUTE_PREFIX),
-    )
+    return FlightMixin.get_paginated_flights_with_files(page, size, flight_service, file_service).dict()
 
 
 @router.get("/{id}", response_model=FlightSerializer, status_code=status.HTTP_200_OK)
@@ -73,7 +74,7 @@ async def update_flight(
     flights_to_update: UpdateSerializer[FlightUpdate],
     flight_service: FlightService = Depends(get_flight_service),
 ):
-    response = CRUDMixin.update_items(flights_to_update, flight_service)
+    response = FlightMixin.update_items(flights_to_update, flight_service)
     return response
 
 
@@ -87,7 +88,7 @@ async def delete_flight(id: int, flight_service: FlightService = Depends(get_fli
 def upload_file(
     id: int,
     file: UploadFile,
-    file_type: Annotated[AllowedFiles | None, Query()] = None,
+    file_type: Annotated[AllowedFiles, Query()],
     process: bool = True,
     file_service: FileService = Depends(get_file_service),
 ):
@@ -119,4 +120,4 @@ def list_files(
     file_service: FileService = Depends(get_file_service),
 ):
     result = file_service.list_all_files(id)
-    return FlightFilesListResponse.build_from_records(result, id, request.base_url)
+    return FlightFilesListResponse.build_from_records(result, id)

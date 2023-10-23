@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
-
-type CheckboxType = {
+interface CheckboxType {
   indeterminate: boolean
   className?: string
 }

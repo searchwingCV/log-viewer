@@ -1,12 +1,7 @@
 import { format, parseISO, isValid } from 'date-fns'
 import type { Column } from 'react-table'
 import type { MissionSerializer } from '@schema'
-import {
-  DateInputCell,
-  TextInputCell,
-  determineWidth,
-  TippyValueWrapper,
-} from '~/modules/TableComponents'
+import { DateInputCell, TextInputCell, determineWidth, TippyValueWrapper } from '@modules/Table'
 
 export const missionColumns = (): Column<MissionSerializer>[] => [
   {

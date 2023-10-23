@@ -14,6 +14,8 @@ class BaseConfig(object):
         f"/{os.environ['POSTGRES_DB']}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_POOL_SIZE = int(os.getenv("SQLALCHEMY_POOL_SIZE", 10))
+    SQLALCHEMY_MAX_OVERFLOW = int(os.getenv("SQLALCHEMY_MAX_OVERFLOW", 20))
 
     STORAGE_PROTOCOL = os.getenv("STORAGE_PROTOCOL", "file")
     STORAGE_ROOT = os.getenv("STORAGE_ROOT", "/data")
@@ -35,9 +37,9 @@ class BaseConfig(object):
     }
 
     MAVLOG_TIMESERIES_MAX_RATE_HZ = float(os.getenv("MAVLOG_TIMESERIES_MAX_RATE_HZ", 20))
-    MAVLOG_TIMESERIES_TYPES = os.getenv("MAVLOG_TIMESERIES_TYPES", "").split(",")
-    if not MAVLOG_TIMESERIES_TYPES:
-        MAVLOG_TIMESERIES_TYPES = None
+    MAVLOG_TIMESERIES_TYPES = os.getenv("MAVLOG_TIMESERIES_TYPES")
+    if MAVLOG_TIMESERIES_TYPES is not None:
+        MAVLOG_TIMESERIES_TYPES = MAVLOG_TIMESERIES_TYPES.split(",")
 
 
 class Config(BaseConfig):
