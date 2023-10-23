@@ -53,7 +53,7 @@ def get_sample_flight_file():
 
 
 @pytest.fixture(scope="function")
-def mavlink_series():
+def test_mavlink_series():
     rows = 300
     series = MockMavLinkMessageSeries(name="FOO", columns=["timestamp", "Bar", "Baz"], types=[datetime, int, float])
 
