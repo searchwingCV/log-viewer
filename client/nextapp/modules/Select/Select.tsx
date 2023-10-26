@@ -1,24 +1,16 @@
-/*  
-  TODO: Make SelectReactHookForn and Select become one component to remove duplicate code
-*/
 import * as React from 'react'
 import clsx from 'clsx'
 import { Button } from 'modules/Button/Button'
 
 type SelectProps = {
-  name: string
-  type?: 'text'
-  placeholder?: string
-  disabled?: boolean
   options: { name: string; value: string | number }[]
   children?: React.ReactNode
-  className?: string
   defaultValue?: string | null
   onSetValue: (value: [string]) => void
   hasResetButton?: boolean
   classNameResetButtonContainer?: string
   resetButtonText?: string
-}
+} & React.ComponentProps<'input'>
 
 export const Select = ({
   children,
@@ -30,7 +22,6 @@ export const Select = ({
   hasResetButton,
   classNameResetButtonContainer,
   resetButtonText,
-  ...rest
 }: SelectProps) => {
   const [value, setValue] = React.useState(
     defaultValue && defaultValue !== 'None' ? defaultValue : '',
@@ -50,8 +41,8 @@ export const Select = ({
               appearane-none
               peer
               absolute
-              top-6
               bottom-0
+              top-6
               z-10
               h-10
               w-full
@@ -59,9 +50,9 @@ export const Select = ({
               border-b
               border-solid
               bg-transparent
+              pb-3
               pl-0
               pt-1
-              pb-3
               caret-grey-dark
               !outline-none
               outline-0
@@ -69,7 +60,6 @@ export const Select = ({
               focus:ring-0`,
               disabled ? 'pointer-events-none' : 'border-grey-medium',
             )}
-            {...rest}
             onChange={(e) => {
               setValue(e.target.value)
               onSetValue([e.target.value])

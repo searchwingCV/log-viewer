@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useAsyncDebounce } from 'react-table'
-import Input from 'modules/Input'
+import { Input } from 'modules/Input'
 
 export type GlobalTextFilterProps = {
   globalFilter: string

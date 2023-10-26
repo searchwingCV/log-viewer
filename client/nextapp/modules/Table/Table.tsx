@@ -1,3 +1,8 @@
+/*TODO: We have to migrate to react-table v8 at some point. However, the documentation on migration 
+  is still really bad. 
+  https://tanstack.com/table/v8/docs/guide/migrating
+*/
+
 import 'regenerator-runtime/runtime'
 import React, { useMemo } from 'react'
 import useElementSize from '@charlietango/use-element-size'

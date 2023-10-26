@@ -5,17 +5,10 @@ import NextLink from 'next/link'
 export type ButtonStyle = 'Main' | 'Secondary' | 'Tertiary' | 'Link'
 
 export type ButtonProps = {
-  children?: React.ReactNode | JSX.Element
-  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
-  className?: string
-  disabled?: boolean
-  type?: React.ButtonHTMLAttributes<HTMLButtonElement>['type']
   buttonStyle: ButtonStyle
-  title?: string
   href?: string
-  id?: string
   isSpecial?: boolean
-}
+} & React.ComponentProps<'button'>
 
 export const Button = ({
   className,
