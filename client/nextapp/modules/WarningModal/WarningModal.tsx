@@ -3,7 +3,6 @@ import { Dialog, Transition } from '@headlessui/react'
 
 type ModalProps = {
   children?: React.ReactNode
-  modalText: string
   modalTitle: string
   isOpen: boolean
   closeModal: () => void
@@ -11,36 +10,24 @@ type ModalProps = {
 }
 export function WarningModal({
   proceedAction,
-  modalText,
   modalTitle,
   isOpen,
   closeModal,
+  children,
 }: ModalProps) {
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog
-        as="div"
-        className={`relative
-                    z-10`}
-        onClose={closeModal}
-      >
+      <Dialog as="div" className="relative z-10" onClose={closeModal}>
         <Transition.Child
           as={Fragment}
-          enter={`ease-out
-                  duration-300`}
+          enter="ease-out duration-300"
           enterFrom="opacity-0"
           enterTo="opacity-100"
-          leave={`ease-in
-                  duration-200`}
+          leave="ease-in duration-200"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div
-            className={`fixed
-                        inset-0
-                        bg-black
-                        bg-opacity-25`}
-          />
+          <div className="fixed inset-0 bg-black bg-opacity-25" />
         </Transition.Child>
 
         <div
@@ -58,18 +45,12 @@ export function WarningModal({
           >
             <Transition.Child
               as={Fragment}
-              enter={`ease-out
-                      duration-300`}
-              enterFrom={`opacity-0
-                          scale-95`}
-              enterTo={`opacity-100
-                        scale-100`}
-              leave={`ease-in
-                      duration-200`}
-              leaveFrom={`opacity-100
-                          scale-100`}
-              leaveTo={`opacity-0
-                        scale-95`}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel
                 className={`w-full
@@ -93,14 +74,7 @@ export function WarningModal({
                 >
                   {modalTitle}
                 </Dialog.Title>
-                <div className="mt-2">
-                  <p
-                    className={`text-sm
-                              text-gray-500`}
-                  >
-                    {modalText}
-                  </p>
-                </div>
+                <div className="mt-2">{children}</div>
 
                 <div className="mt-4 flex justify-around gap-x-2 px-4">
                   {proceedAction ? (

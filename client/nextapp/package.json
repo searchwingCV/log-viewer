@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "eslint": "eslint . --ext ts --ext tsx --ext js",
-    "generate-client": "openapi --input  http://0.0.0.0/openapi.json --output ./types --client axios",
+    "generate-client": "openapi --input  https://api.staging.flight-data.searchwing.org/openapi.json --output ./types --client axios",
     "prepare": "cd ../.. && husky install client/nextapp/.husky"
   },
   "dependencies": {

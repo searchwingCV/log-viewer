@@ -7,7 +7,7 @@ import { QueryClient, dehydrate, useQueries } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 import { type Column, type Row } from 'react-table'
 import { useForm } from 'react-hook-form'
-import type { FlightSerializer, FlightUpdate } from '@schema'
+import type { FlightWithFilesResponse, FlightUpdate } from '@schema'
 import type { TableFlightSerializer } from '@lib/globalTypes'
 import { useFetchAllFlightsQuery, getFlights, ALl_FLIGHTS_KEY, patchFlights } from '@api/flight'
 import { getDrones, ALL_DRONES_KEY } from '@api/drone'
@@ -95,7 +95,7 @@ const FlightOverviewPage: NextPageWithLayout = () => {
   })
 
   const parseVerboseNamesForForeignKeys = useCallback(
-    (data: FlightSerializer[]) => {
+    (data: FlightWithFilesResponse[]) => {
       const dataCopy = [...data]
       const parsedData = dataCopy.map((flight) => {
         const { fkDrone, fkMission, ...rest } = flight
@@ -134,6 +134,8 @@ const FlightOverviewPage: NextPageWithLayout = () => {
   if (!verboseData || !data) {
     return null
   }
+
+  console.log(data)
 
   return (
     <Table<TableFlightSerializer>
