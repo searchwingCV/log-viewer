@@ -1,67 +1,73 @@
 import { useRouter } from 'next/router'
-import { Layout } from 'modules/Layouts/Layout'
+import type { GetServerSideProps } from 'next'
+import { QueryClient, dehydrate, useQuery } from '@tanstack/react-query'
+import type { FlightFilesListResponse } from '@schema'
 import { FileList } from 'modules/FileList'
+import { Layout } from 'modules/Layouts/Layout'
+
 import { FileUploadForm } from 'modules/FileUploadForm'
-import { useGoToLastTablePage } from '@lib/hooks/useGoToLastTablePage'
+import { ALL_FILES_BY_FLIGHT, getFilesByFlight } from '@api/flight'
 import type { NextPageWithLayout } from '../_app'
 
-const files = [
-  {
-    id: 1,
-    downloadLink: 'https://codesandbox.io/s/xil63?file=/src/App.js',
-    name: 'somefile.png',
-    uploaded: '2021-08-04T12:00:00',
-    size: '1.2MB',
-    deleteLink: 'https://codesandbox.io/s/xil63?file=/src/App.js',
-  },
-  {
-    id: 2,
-    downloadLink: 'https://codesandbox.io/s/xil63?file=/src/App.js',
-    name: 'somefile2.png',
-    uploaded: '2021-08-04T12:00:00',
-    size: '10MB',
-    deleteLink: 'https://codesandbox.io/s/xil63?file=/src/App.js',
-  },
-  {
-    id: 3,
-    downloadLink: 'https://codesandbox.io/s/xil63?file=/src/App.js',
-    name: 'somefile3.png',
-    uploaded: '2021-08-04T12:00:00',
-    size: '10MB',
-    deleteLink: 'https://codesandbox.io/s/xil63?file=/src/App.js',
-  },
-  {
-    id: 4,
-    downloadLink: 'https://codesandbox.io/s/xil63?file=/src/App.js',
-    name: 'somefile4.png',
-    uploaded: '2021-08-04T12:00:00',
-    size: '10MB',
-    deleteLink: 'https://codesandbox.io/s/xil63?file=/src/App.js',
-  },
-]
+const normalizeDataForTable = (data: FlightFilesListResponse) => {
+  const { flightId, ...flightIdRemoved } = data
+  return Object.keys(flightIdRemoved)
+    .map(
+      (key) =>
+        flightIdRemoved[key as keyof typeof flightIdRemoved]?.data?.map((item) => ({
+          ...item,
+          type: key,
+          deleteLink: `flight/file/${item.id}`,
+        })) || [],
+    )
+    .flat()
+}
+
 const FileManagerScreen: NextPageWithLayout = ({}) => {
   const router = useRouter()
   const { id } = router.query
+  const { data } = useQuery<FlightFilesListResponse>(
+    [ALL_FILES_BY_FLIGHT, id],
+    () => getFilesByFlight(parseInt(id as string)),
+    {
+      keepPreviousData: true,
+      staleTime: 10 * (60 * 100), // 1 mins
+    },
+  )
+
   return (
     <>
-      <div className={`flex h-screen w-full`}>
-        <div className="flex h-screen min-w-[60vw] flex-col  items-center  border-r-2 pb-8 pt-48 ">
-          <h2 className="mb-16 text-xl font-bold">{`FILES FOR FLIGHT ${id}`}</h2>
-
-          {files?.length > 0 ? (
+      <div className={` flex h-screen w-full`}>
+        <div className=" flex h-screen min-w-[60vw] flex-col items-center border-r-2 pb-8 pt-48 ">
+          <div className="mb-16">
+            <h2 className="text-xl">{`FILES FOR FLIGHT ${id}`}</h2>
+          </div>
+          {!data ? (
             <div className="h-24 text-xl">No files found</div>
           ) : (
-            <FileList files={[]} />
+            <FileList files={normalizeDataForTable(data)} />
           )}
         </div>
-        <div>upload</div>
-
-        <FileUploadForm />
+        <FileUploadForm flightId={parseInt(id as string)} />
       </div>
     </>
   )
 }
 
 FileManagerScreen.getLayout = (page) => <Layout>{page}</Layout>
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const id = context.query.id
+  const queryClient = new QueryClient()
+  await queryClient.prefetchQuery([ALL_FILES_BY_FLIGHT, 1, 10], () =>
+    getFilesByFlight(parseInt((id || '-1') as string)),
+  )
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
+  }
+}
 
 export default FileManagerScreen

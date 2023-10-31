@@ -34,7 +34,7 @@ const MissionOverviewPage: NextPageWithLayout = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
 
-  const { page: queryPage, pagesize: queryPageSize, backFromAddForm } = router.query
+  const { page: queryPage, pagesize: queryPageSize, backwards } = router.query
 
   const { data, refetch } = useFetchAllMissionsQuery(
     parseInt(queryPage as string) || 1,
@@ -64,10 +64,10 @@ const MissionOverviewPage: NextPageWithLayout = () => {
     const refetchData = async () => {
       await refetch()
     }
-    if (backFromAddForm) {
+    if (backwards) {
       refetchData().catch((e) => console.error(e))
     }
-  }, [backFromAddForm, refetch])
+  }, [backwards, refetch])
 
   const formMethods = useForm<MissionSerializer>({
     criteriaMode: 'all',

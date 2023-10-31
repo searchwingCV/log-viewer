@@ -57,8 +57,8 @@ export const SelectReactHookForm = <TFormValues extends FieldValues>({
              appearane-none
              peer
              absolute
-             top-6
              bottom-0
+             top-6
              z-10
              h-10
              w-full
@@ -66,9 +66,9 @@ export const SelectReactHookForm = <TFormValues extends FieldValues>({
              border-b
              border-solid
              bg-transparent
+             pb-3
              pl-0
              pt-1
-             pb-3
              caret-grey-dark
              !outline-none
              outline-0
@@ -82,6 +82,7 @@ export const SelectReactHookForm = <TFormValues extends FieldValues>({
               onChange: (e) => {
                 setValue(e.target.value)
               },
+
               ...(rules || {}),
             }))}
         >

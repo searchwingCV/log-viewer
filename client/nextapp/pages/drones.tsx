@@ -19,7 +19,7 @@ const DroneTablePage: NextPageWithLayout = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
 
-  const { page: queryPage, pagesize: queryPageSize, backFromAddForm } = router.query
+  const { page: queryPage, pagesize: queryPageSize, backwards } = router.query
   const { data, refetch } = useFetchAllDronesQuery(
     parseInt(queryPage as string) || 1,
     parseInt(queryPageSize as string) || 10,
@@ -51,10 +51,10 @@ const DroneTablePage: NextPageWithLayout = () => {
     const refetchData = async () => {
       await refetch()
     }
-    if (backFromAddForm) {
+    if (backwards) {
       refetchData().catch((e) => console.error(e))
     }
-  }, [backFromAddForm, refetch])
+  }, [backwards, refetch])
 
   const formMethods = useForm<DroneSerializer>({
     criteriaMode: 'all',

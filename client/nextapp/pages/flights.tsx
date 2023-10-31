@@ -20,7 +20,7 @@ import type { NextPageWithLayout } from './_app'
 
 const FlightOverviewPage: NextPageWithLayout = () => {
   const router = useRouter()
-  const { page: queryPage, pagesize: queryPageSize, backFromAddForm } = router.query
+  const { page: queryPage, pagesize: queryPageSize, backwards } = router.query
 
   const { data, refetch } = useFetchAllFlightsQuery(
     parseInt(queryPage as string) || 1,
@@ -115,18 +115,18 @@ const FlightOverviewPage: NextPageWithLayout = () => {
     const refetchData = async () => {
       await refetch()
     }
-    if (backFromAddForm) {
+    if (backwards) {
       refetchData().catch((e) => console.error(e))
     }
-  }, [backFromAddForm, refetch])
+  }, [backwards, refetch])
 
   const verboseData: TableFlightSerializer[] | null = useMemo(() => {
     return data?.items ? parseVerboseNamesForForeignKeys(data.items) : null
   }, [data, parseVerboseNamesForForeignKeys])
 
   const columns = useMemo<Column<TableFlightSerializer>[]>(
-    () => flightColumns(missions, drones),
-    [missions, drones],
+    () => flightColumns(missions, drones, data?.total),
+    [missions, drones, data?.total],
   )
 
   const onUpdateFlights = (items: FlightUpdate[]) => updateFlights.mutate(items)
@@ -134,8 +134,6 @@ const FlightOverviewPage: NextPageWithLayout = () => {
   if (!verboseData || !data) {
     return null
   }
-
-  console.log(data)
 
   return (
     <Table<TableFlightSerializer>

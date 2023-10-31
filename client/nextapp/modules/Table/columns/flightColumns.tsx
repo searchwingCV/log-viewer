@@ -9,8 +9,9 @@ import type { AxiosError } from 'axios'
 import { FlightRating, FlightPurpose } from '@schema'
 import { TextInputCell, SelectInputCell, determineWidth, TippyValueWrapper } from '@modules/Table'
 import type { TableFlightSerializer } from '@lib/globalTypes'
+import { FileUploadForm } from '@modules/FileUploadForm'
 import { RowActionButton } from '@modules/RowActionButton/RowActionButton'
-import WarningModal from '@modules/WarningModal'
+import ModalOverlay from '@modules/ModalOverlay'
 import { deleteFlight } from '@api/flight'
 import { ApiErrorMessage } from '@lib/ErrorMessage'
 import { ALl_FLIGHTS_KEY } from '@api/flight'
@@ -19,6 +20,7 @@ import { numberOfFilesSavedForFlight } from '../functions'
 export const flightColumns = (
   missionOptions?: { name: string; value: number }[],
   droneOptions?: { name: string; value: number }[],
+  totalNumber?: number,
 ): Column<TableFlightSerializer>[] => [
   {
     Header: 'Actions',
@@ -28,6 +30,7 @@ export const flightColumns = (
       const router = useRouter()
 
       const [isModalOpen, setIsModalOpen] = useState(false)
+      const [isModalOpenUpload, setIsModalOpenUpload] = useState(false)
       const queryClient = useQueryClient()
       const { page: queryPage, pagesize: queryPageSize } = router.query
 
@@ -55,11 +58,24 @@ export const flightColumns = (
             tooltipText="Delete flight"
             onClick={() => setIsModalOpen(true)}
           />
-          <RowActionButton variant="link" tooltipText="Go to file manager page" />
-          <RowActionButton variant="upload" tooltipText="Upload a log file" />
-          <WarningModal
+          <RowActionButton
+            variant="link"
+            tooltipText="Go to file manager page"
+            linkTitle="go to flight filemanager page"
+            url={`/filemanager/${props.row.original.id}?curentPageSize=${queryPageSize}&currentPageCount=${queryPage}&totalNumber=${totalNumber}`}
+          />
+          <RowActionButton
+            variant="upload"
+            onClick={() => setIsModalOpenUpload(true)}
+            tooltipText="Upload a log file for creating plot data and a flight detail page"
+          />
+          <ModalOverlay
             modalTitle={'Are you sure you want to delete this flight?'}
             isOpen={isModalOpen}
+            linkProps={{
+              link: `/filemanager/${props.row.original.id}?curentPageSize=${queryPageSize}&currentPageCount=${queryPage}&totalNumber=${totalNumber}`,
+              linkText: 'See files',
+            }}
             closeModal={() => setIsModalOpen(false)}
             proceedAction={() => {
               deleteMutation.mutate({ flightId: props.row.values.id })
@@ -70,14 +86,29 @@ export const flightColumns = (
                         text-gray-500`}
             >
               <p>
-                {`This action cannot be undone. All the files uploaded to this flight will also be deleted.`}
+                This action cannot be undone. All the files uploaded to this flight will also be
+                deleted.
               </p>
               <p>
                 {`Number of files that are going to be deleted: 
               ${numberOfFilesSavedForFlight(props.row.original)}`}
               </p>
             </div>
-          </WarningModal>
+          </ModalOverlay>
+
+          <ModalOverlay
+            modalTitle={''}
+            isOpen={isModalOpenUpload}
+            closeModal={() => setIsModalOpenUpload(false)}
+            hideCancelButton
+          >
+            <div
+              className={`text-sm
+                        text-gray-500`}
+            >
+              <FileUploadForm flightId={props.row.original.id} insideModal />
+            </div>
+          </ModalOverlay>
         </div>
       )
     },

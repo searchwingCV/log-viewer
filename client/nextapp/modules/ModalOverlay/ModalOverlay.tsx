@@ -1,5 +1,7 @@
 import { Fragment } from 'react'
+import clsx from 'clsx'
 import { Dialog, Transition } from '@headlessui/react'
+import Button from '@modules/Button'
 
 type ModalProps = {
   children?: React.ReactNode
@@ -7,13 +9,20 @@ type ModalProps = {
   isOpen: boolean
   closeModal: () => void
   proceedAction?: () => void
+  linkProps?: {
+    link: string
+    linkText: string
+  }
+  hideCancelButton?: boolean
 }
-export function WarningModal({
+export function ModalOverlay({
   proceedAction,
   modalTitle,
   isOpen,
   closeModal,
   children,
+  linkProps,
+  hideCancelButton,
 }: ModalProps) {
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -54,7 +63,7 @@ export function WarningModal({
             >
               <Dialog.Panel
                 className={`w-full
-                            max-w-md
+                            max-w-[600px]
                             transform
                             overflow-hidden
                             rounded-2xl
@@ -67,7 +76,8 @@ export function WarningModal({
               >
                 <Dialog.Title
                   as="h3"
-                  className={`text-lg
+                  className={`mb-4
+                              text-lg
                               font-medium
                               leading-6
                               text-gray-900`}
@@ -76,55 +86,36 @@ export function WarningModal({
                 </Dialog.Title>
                 <div className="mt-2">{children}</div>
 
-                <div className="mt-4 flex justify-around gap-x-2 px-4">
+                <div
+                  className={clsx(
+                    'mt-8 grid h-12 w-full justify-around gap-x-2 px-4',
+                    linkProps ? 'grid-cols-3' : 'grid-cols-2',
+                  )}
+                >
+                  {linkProps ? (
+                    <Button buttonStyle="Main" href={linkProps.link} isSpecial>
+                      <span className="flex h-full w-full items-center justify-center">
+                        {linkProps.linkText}
+                      </span>
+                    </Button>
+                  ) : null}
                   {proceedAction ? (
-                    <button
-                      type="button"
-                      className={`inline-flex
-                                  justify-center
-                                  rounded-md
-                                  border
-                                  border-transparent
-                                  bg-primary-light-petrol
-                                  px-4
-                                  py-2
-                                  text-sm
-                                  font-medium
-                                  text-white
-                                  hover:bg-secondary-dark-petrol
-                                  focus:outline-none
-                                  focus-visible:ring-2
-                                  focus-visible:ring-offset-2`}
+                    <Button
+                      buttonStyle="Secondary"
+                      className="h-full w-full"
                       onClick={() => {
                         proceedAction()
                         closeModal()
                       }}
                     >
                       Proceed with action
-                    </button>
+                    </Button>
                   ) : null}
-
-                  <button
-                    type="button"
-                    className={`inline-flex
-                                justify-center
-                                rounded-md
-                                border
-                                border-transparent
-                                bg-primary-red
-                                px-4
-                                py-2
-                                text-sm
-                                font-medium
-                                text-white
-                                hover:bg-secondary-dark-red
-                                focus:outline-none
-                                focus-visible:ring-2
-                                focus-visible:ring-offset-2`}
-                    onClick={closeModal}
-                  >
-                    Cancel and go back
-                  </button>
+                  {hideCancelButton ? null : (
+                    <Button buttonStyle="Tertiary" className="w-full" onClick={closeModal}>
+                      Cancel and go back
+                    </Button>
+                  )}
                 </div>
               </Dialog.Panel>
             </Transition.Child>

@@ -2,35 +2,29 @@
   is still really bad. 
   https://tanstack.com/table/v8/docs/guide/migrating
 */
-import { useMemo } from 'react'
-import { format, parseISO, isValid, intervalToDuration } from 'date-fns'
-import {
-  useTable,
-  type Column,
-  type Row,
-  usePagination,
-  type TableInstance,
-  type UsePaginationInstanceProps,
-  type UsePaginationState,
-  useGroupBy,
-  useSortBy,
-  useRowSelect,
-  useExpanded,
-  useFilters,
-  useGlobalFilter,
-  useColumnOrder,
-} from 'react-table'
+import { useMemo, useState } from 'react'
+import { useTable, type Column, useSortBy } from 'react-table'
 import clsx from 'clsx'
-import { Button } from 'modules/Button/Button'
+import { toast } from 'react-toastify'
+import type { AxiosError } from 'axios'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+
+import ModalOverlay from '@modules/ModalOverlay'
+
+import { ApiErrorMessage } from '@lib/ErrorMessage'
+
 import { RowActionButton } from '@modules/RowActionButton'
+import { deleteFile } from '@api/flight/deleteFile'
+import { ALL_FILES_BY_FLIGHT } from '@api/flight'
 
 interface IFlightFile {
   id: number
   downloadLink: string
-  name: string
-  uploaded: string
-  size: string
+  name?: string
+  uploaded?: string
+  size?: string
   deleteLink: string
+  type: string
 }
 
 export type FileListProps = {
@@ -41,59 +35,106 @@ export const FileList = ({ files }: FileListProps) => {
   const columns = useMemo(
     () => [
       {
-        Header: 'Id',
+        Header: 'File Id',
         accessor: 'id',
-        width: 'w-[60px]',
-      },
-      {
-        Header: 'Name',
-        accessor: 'name',
-        width: 'w-[200px]',
+        width: 'w-[120px]',
       },
 
+      //TODO: maybe add this later back if BE offers this data
+      // {
+      //   Header: 'Name',
+      //   accessor: 'name',
+      //   width: 'w-[200px]',
+      // },
+
+      // {
+      //   Header: 'Uploaded',
+      //   accessor: 'uploaded',
+      //   width: 'w-[200px]',
+      //   Cell: (props: any) => {
+      //     if (isValid(parseISO(props.row.values.uploaded))) {
+      //       return <span>{format(parseISO(props.row.values.uploaded), 'kk:ss:mm dd.MM.yyyy')}</span>
+      //     } else {
+      //       return <div></div>
+      //     }
+      //   },
+      // },
+      // {
+      //   Header: 'Size',
+      //   accessor: 'size',
+      //   width: 'w-[120px]',
+      // },
+
       {
-        Header: 'Uploaded',
-        accessor: 'uploaded',
-        width: 'w-[200px]',
-        Cell: (props: any) => {
-          if (isValid(parseISO(props.row.values.uploaded))) {
-            return <span>{format(parseISO(props.row.values.uploaded), 'kk:ss:mm dd.MM.yyyy')}</span>
-          } else {
-            return <div></div>
-          }
-        },
-      },
-      {
-        Header: 'Size',
-        accessor: 'size',
-        width: 'w-[80px]',
+        Header: 'Type',
+        accessor: 'type',
+        width: 'w-[150px]',
       },
       {
         Header: 'Download',
         accessor: 'downloadLink',
-        width: 'w-[100px]',
-
+        width: 'w-[120px]',
         Cell: (props: any) => {
           return (
-            <RowActionButton
-              tooltipText={'Download file'}
-              url={props.row.values?.downloadLink}
-              variant="download"
-            />
+            <div className="flex justify-center text-xs">
+              <RowActionButton
+                tooltipText={'Download file'}
+                url={`${process.env.NEXT_PUBLIC_API_URL}${props.row.values?.downloadLink}`}
+                variant="download"
+              />
+            </div>
           )
         },
       },
       {
         Header: 'Delete',
         accessor: 'deleteLink',
-        width: 'w-[80px]',
+        width: 'w-[120px]',
         Cell: (props: any) => {
+          const [isModalOpen, setIsModalOpen] = useState(false)
+          const queryClient = useQueryClient()
+          const deleteMutation = useMutation(deleteFile, {
+            onSuccess: async (data) => {
+              toast('Flight deleted.', {
+                type: 'success',
+              })
+              await queryClient.invalidateQueries([
+                ALL_FILES_BY_FLIGHT,
+                { flightId: data.flightId },
+              ])
+            },
+            onError: (error: AxiosError<any>) => {
+              toast(<ApiErrorMessage error={error} />, {
+                type: 'error',
+              })
+            },
+          })
+
           return (
-            <RowActionButton
-              tooltipText={'Delete file'}
-              url={props.row.values?.deleteLink}
-              variant="delete"
-            />
+            <div className="flex justify-center text-xs">
+              <RowActionButton
+                tooltipText={'Delete file'}
+                url={props.row.values?.deleteLink}
+                variant="delete"
+                onClick={() => setIsModalOpen(true)}
+              />
+
+              <ModalOverlay
+                modalTitle={'Are you sure you want to delete this file?'}
+                isOpen={isModalOpen}
+                closeModal={() => setIsModalOpen(false)}
+                proceedAction={() => {
+                  deleteMutation.mutate({ url: props.row.values?.deleteLink })
+                }}
+              >
+                <div
+                  className={`text-sm
+                        text-gray-500`}
+                >
+                  <p>{`This action cannot be undone.`}</p>
+                </div>
+              </ModalOverlay>
+            </div>
           )
         },
       },

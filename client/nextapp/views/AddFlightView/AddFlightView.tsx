@@ -98,7 +98,6 @@ export const AddFlightView = () => {
       await reset()
       if (!hasLogFile) {
         await new Promise((resolve) => setTimeout(resolve, 2000))
-
         await goToLastTableName()
       } else {
         if (selectedLogFile) {

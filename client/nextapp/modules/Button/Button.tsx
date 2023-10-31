@@ -30,7 +30,7 @@ export const Button = ({
           `button
            text-primary-white
            decoration-primary-white
-           rounded-xl
+           rounded-md
            shadow-subtle`,
           disabled
             ? `bg-grey-dark
@@ -45,7 +45,7 @@ export const Button = ({
           `button
            text-primary-white
            decoration-primary-white
-           rounded-xl
+           rounded-md
            shadow-subtle`,
           disabled
             ? `bg-grey-medium
@@ -57,17 +57,11 @@ export const Button = ({
         return clsx(
           `button
              text-white
-             text-xs
              decoration-primary-white
              rounded-lg
              shadow-subtle
-             bg-opacity-[20%]
-             bg-white`,
-          disabled
-            ? `  opacity-30
-                 cursor-not-allowed`
-            : `
-                 hover:bg-opacity-[40%]`,
+             bg-primary-red`,
+          disabled ? ` cursor-not-allowed` : `hover:bg-opacity-[40%]`,
         )
       case 'Link':
         return clsx(
@@ -75,10 +69,9 @@ export const Button = ({
            underline-offset-8
            text-grey-dark`,
 
-          disabled
-            ? `bg-transparent
-               cursor-not-allowed`
-            : ``,
+          disabled &&
+            `bg-transparent
+               cursor-not-allowed`,
         )
       default:
         return ''
