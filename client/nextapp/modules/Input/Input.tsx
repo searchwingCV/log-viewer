@@ -1,26 +1,15 @@
-/*  
-  TODO: Make InputReactHookForn and Input become one component to remove duplicate code
-*/
-
 import * as React from 'react'
 import clsx from 'clsx'
 import { Button } from 'modules/Button/Button'
 
 export type InputProps = {
-  name: string
-  type?: 'text' | 'email' | 'tel' | 'password' | 'number' | 'radio'
-  maxLength?: number
-  required?: boolean
-  autoComplete?: string
-  placeholder?: string
-  disabled?: boolean
   defaultValue?: string | null
   hasInitialValue?: boolean
   classNameInputContainer?: string
   onChangeInput?: (value: string) => void
   hasResetButton?: boolean
   classNameResetButtonContainer?: string
-}
+} & React.ComponentProps<'input'>
 
 export const Input = ({
   required,
@@ -62,8 +51,8 @@ export const Input = ({
               appearane-none
               peer
               absolute
-              top-6
               bottom-0
+              top-6
               z-10
               h-6
               w-full
@@ -71,9 +60,9 @@ export const Input = ({
               border-b
               border-solid
               bg-transparent
+              pb-3
               pl-0
               pt-1
-              pb-3
               caret-grey-dark
               !outline-none
               outline-0

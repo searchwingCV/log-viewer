@@ -1,15 +1,15 @@
 import Tippy from '@tippyjs/react'
-import type { ReactNode } from 'react'
-
+import React from 'react'
 type TippyValueWrapper = {
   tableHeadName: string
-  children: ReactNode
+  value: string
+  children?: React.ReactNode
 }
 
-const TippyValueWrapper = ({ tableHeadName, children }: TippyValueWrapper) => {
+const TippyValueWrapper = ({ tableHeadName, value, children }: TippyValueWrapper) => {
   return (
-    <Tippy content={tableHeadName}>
-      <div>{children}</div>
+    <Tippy content={`${tableHeadName}: ${value} `}>
+      <div className="overflow-hidden">{children || value}</div>
     </Tippy>
   )
 }

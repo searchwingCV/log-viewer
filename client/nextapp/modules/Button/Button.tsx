@@ -5,17 +5,10 @@ import NextLink from 'next/link'
 export type ButtonStyle = 'Main' | 'Secondary' | 'Tertiary' | 'Link'
 
 export type ButtonProps = {
-  children?: React.ReactNode | JSX.Element
-  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
-  className?: string
-  disabled?: boolean
-  type?: React.ButtonHTMLAttributes<HTMLButtonElement>['type']
   buttonStyle: ButtonStyle
-  title?: string
   href?: string
-  id?: string
   isSpecial?: boolean
-}
+} & React.ComponentProps<'button'>
 
 export const Button = ({
   className,
@@ -37,7 +30,7 @@ export const Button = ({
           `button
            text-primary-white
            decoration-primary-white
-           rounded-xl
+           rounded-md
            shadow-subtle`,
           disabled
             ? `bg-grey-dark
@@ -52,29 +45,23 @@ export const Button = ({
           `button
            text-primary-white
            decoration-primary-white
-           rounded-xl
+           rounded-md
            shadow-subtle`,
           disabled
             ? `bg-grey-medium
                cursor-not-allowed`
             : `bg-primary-light-petrol
-               hover:bg-primary-dark-petrol`,
+               hover:bg-secondary-dark-petrol`,
         )
       case 'Tertiary':
         return clsx(
           `button
              text-white
-             text-xs
              decoration-primary-white
              rounded-lg
              shadow-subtle
-             bg-opacity-[20%]
-             bg-white`,
-          disabled
-            ? `  opacity-30
-                 cursor-not-allowed`
-            : `
-                 hover:bg-opacity-[40%]`,
+             bg-primary-red`,
+          disabled ? ` cursor-not-allowed` : `hover:bg-opacity-[40%]`,
         )
       case 'Link':
         return clsx(
@@ -82,10 +69,9 @@ export const Button = ({
            underline-offset-8
            text-grey-dark`,
 
-          disabled
-            ? `bg-transparent
-               cursor-not-allowed`
-            : ``,
+          disabled &&
+            `bg-transparent
+               cursor-not-allowed`,
         )
       default:
         return ''

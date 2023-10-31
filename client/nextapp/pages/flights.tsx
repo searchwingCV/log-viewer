@@ -7,7 +7,7 @@ import { QueryClient, dehydrate, useQueries } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 import { type Column, type Row } from 'react-table'
 import { useForm } from 'react-hook-form'
-import type { FlightSerializer, FlightUpdate } from '@schema'
+import type { FlightWithFilesResponse, FlightUpdate } from '@schema'
 import type { TableFlightSerializer } from '@lib/globalTypes'
 import { useFetchAllFlightsQuery, getFlights, ALl_FLIGHTS_KEY, patchFlights } from '@api/flight'
 import { getDrones, ALL_DRONES_KEY } from '@api/drone'
@@ -20,7 +20,7 @@ import type { NextPageWithLayout } from './_app'
 
 const FlightOverviewPage: NextPageWithLayout = () => {
   const router = useRouter()
-  const { page: queryPage, pagesize: queryPageSize, backFromAddForm } = router.query
+  const { page: queryPage, pagesize: queryPageSize, backwards } = router.query
 
   const { data, refetch } = useFetchAllFlightsQuery(
     parseInt(queryPage as string) || 1,
@@ -95,7 +95,7 @@ const FlightOverviewPage: NextPageWithLayout = () => {
   })
 
   const parseVerboseNamesForForeignKeys = useCallback(
-    (data: FlightSerializer[]) => {
+    (data: FlightWithFilesResponse[]) => {
       const dataCopy = [...data]
       const parsedData = dataCopy.map((flight) => {
         const { fkDrone, fkMission, ...rest } = flight
@@ -115,18 +115,18 @@ const FlightOverviewPage: NextPageWithLayout = () => {
     const refetchData = async () => {
       await refetch()
     }
-    if (backFromAddForm) {
+    if (backwards) {
       refetchData().catch((e) => console.error(e))
     }
-  }, [backFromAddForm, refetch])
+  }, [backwards, refetch])
 
   const verboseData: TableFlightSerializer[] | null = useMemo(() => {
     return data?.items ? parseVerboseNamesForForeignKeys(data.items) : null
   }, [data, parseVerboseNamesForForeignKeys])
 
   const columns = useMemo<Column<TableFlightSerializer>[]>(
-    () => flightColumns(missions, drones),
-    [missions, drones],
+    () => flightColumns(missions, drones, data?.total),
+    [missions, drones, data?.total],
   )
 
   const onUpdateFlights = (items: FlightUpdate[]) => updateFlights.mutate(items)

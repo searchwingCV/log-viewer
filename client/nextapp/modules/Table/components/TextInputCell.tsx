@@ -75,9 +75,9 @@ const Input = memo(
               max-h-[31px]
               w-full
               rounded-md
-              pt-2
               pb-2
               pl-2
+              pt-2
               text-center
               placeholder-primary-black
               focus:ring-0
@@ -86,7 +86,7 @@ const Input = memo(
                   ? `bg-primary-red
                    text-primary-white`
                   : newValue !== '' && newValue !== defaultValue && newValue !== undefined
-                  ? `bg-primary-dark-petrol
+                  ? `bg-secondary-dark-petrol
                    text-primary-white`
                   : `bg-grey-light`,
                 type === 'number' ? 'pr-2' : 'pr-6',
@@ -120,11 +120,11 @@ const Input = memo(
             className={clsx(
               `
                           absolute
-                          top-1/2
                           left-1/2
+                          top-1/2
                           h-[18px]
-                          -translate-y-1/2
                           -translate-x-1/2
+                          -translate-y-1/2
                           transform
                           overflow-hidden
                           truncate

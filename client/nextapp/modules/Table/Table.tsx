@@ -1,3 +1,8 @@
+/*TODO: We have to migrate to react-table v8 at some point. However, the documentation on migration 
+  is still really bad. 
+  https://tanstack.com/table/v8/docs/guide/migrating
+*/
+
 import 'regenerator-runtime/runtime'
 import React, { useMemo } from 'react'
 import useElementSize from '@charlietango/use-element-size'
@@ -66,7 +71,7 @@ export function Table<T extends { id: number }>({
     [],
   )
 
-  const onSubmit = formMethods.handleSubmit((formData) => {
+  const onSubmit = formMethods.handleSubmit((formData, e) => {
     const changedKeys = Object.keys(formData).filter((item) => formData[item as keyof T] !== '')
     const changedIds = changedKeys.map((key) => key.split('-')[1])
     const changedRowInstances = data.filter((tableRowInstance) => {
@@ -205,7 +210,7 @@ export function Table<T extends { id: number }>({
       width={size.width}
     >
       <FormProvider {...formMethods}>
-        <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit} id="db-instance-form">
           <div className="overflow-x-scroll">
             <table {...getTableProps()} className={`rounded-xl`} ref={ref}>
               <TableHead
@@ -247,6 +252,7 @@ export function Table<T extends { id: number }>({
             </Button>
           ) : !groupBy.length || groupBy?.[0] === '' ? (
             <Button
+              form={'db-instance-form'}
               disabled={!formMethods.formState.isDirty}
               buttonStyle="Main"
               type="submit"

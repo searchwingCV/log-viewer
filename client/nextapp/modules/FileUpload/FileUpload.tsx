@@ -49,7 +49,7 @@ export const FileUpload = <TFormValues extends FieldValues>({
                         justify-center
                         rounded-xl
                         border
-                        border-dashed`}
+                        border-grey-medium`}
           >
             <div {...getRootProps()}>
               <input
@@ -86,7 +86,7 @@ export const FileUpload = <TFormValues extends FieldValues>({
                   'No file selected.'
                 )}{' '}
               </div>
-              {!disabled && (
+              {errors?.[name] && (
                 <ErrorMessage
                   errors={errors}
                   name={name as any}
@@ -94,16 +94,17 @@ export const FileUpload = <TFormValues extends FieldValues>({
                     <p
                       className={`error-message
                                   absolute
-                                  top-full
                                   left-0
-                                  pt-1 text-xs
+                                  top-full
+                                  pt-1
+                                  text-xs
                                   text-primary-red`}
                     >
-                      {message}
+                      {'file is required'}
                     </p>
                   )}
                 />
-              )}{' '}
+              )}
             </div>
           </div>
         )}

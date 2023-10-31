@@ -19,7 +19,7 @@ export const useGoToLastTablePage = ({ tableName }: { tableName: string }) => {
             await new Promise((resolve) => setTimeout(resolve, 1000))
             await router.push(
                 `/${tableName}?page=${hasToOpenNewPage ? curentPageCountConverted + 1 : curentPageCountConverted
-                }&pagesize=${curentPageSizeConverted}&backFromAddForm=true`,
+                }&pagesize=${curentPageSizeConverted}&backwards=true`,
             )
 
 
