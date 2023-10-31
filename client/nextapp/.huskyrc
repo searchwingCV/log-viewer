@@ -1,5 +1,5 @@
 {
   "hooks": {
-    "pre-commit": "npx lint-staged && tsc"
+    "pre-commit": "npx lint-staged && npx tsc"
   }
 }
