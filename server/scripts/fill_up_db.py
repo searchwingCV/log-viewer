@@ -4,12 +4,15 @@ Script that fills up the database with mock data
 
 import random
 from argparse import ArgumentParser
+from io import BytesIO
 
+from common.config import Config
 from common.logging import get_logger
 from domain.flight_file.value_objects import AllowedFiles
 from faker import Faker
 from infrastructure.db.orm import Drone, Flight, FlightFile, Mission
 from infrastructure.db.session import SessionContextManager
+from infrastructure.storage import Storage
 from sqlalchemy.orm import Session
 from tests.mock_providers import FlightLogProvider
 
@@ -17,6 +20,11 @@ fake = Faker()
 fake.add_provider(FlightLogProvider)
 logger = get_logger("db-faker")
 db = SessionContextManager()
+storage = Storage(
+    rootpath=Config.STORAGE_ROOT,
+    protocol=Config.STORAGE_PROTOCOL,
+    options={option: value for option, value in Config.STORAGE_OPTIONS.items() if option is not None},
+)
 
 
 def insert_drones(nb_drones: int, session: Session):
@@ -64,6 +72,8 @@ def insert_flight_files(nb_flights: int, chances_missing_file: float, session: S
             session.add(flight_file)
             session.commit()
             session.refresh(flight_file)
+            test_stream = BytesIO(b"foobar")
+            storage.save(test_stream, flight_file.location)
 
 
 def get_args():
@@ -110,7 +120,6 @@ def check_db_has_data(session: Session):
 
 
 if __name__ == "__main__":
-
     args = get_args()
 
     with db as session:

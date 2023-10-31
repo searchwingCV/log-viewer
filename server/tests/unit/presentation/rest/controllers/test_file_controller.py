@@ -60,11 +60,11 @@ def test_list_files(test_client, mock_file_service, get_sample_flight_file):
 
     assert data["log"]["count"] == 1
     assert data["log"]["data"][0]["id"] == 1
-    assert data["log"]["data"][0]["downloadLink"] == "http://testserver/file/1"
+    assert data["log"]["data"][0]["downloadLink"] == "/file/1"
 
     assert data["rosbag"]["count"] == 1
     assert data["rosbag"]["data"][0]["id"] == 2
-    assert data["rosbag"]["data"][0]["downloadLink"] == "http://testserver/file/2"
+    assert data["rosbag"]["data"][0]["downloadLink"] == "/file/2"
 
     assert data["apm"]["count"] == 0
     assert data["tlog"]["count"] == 0

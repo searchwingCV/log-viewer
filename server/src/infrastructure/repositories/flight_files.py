@@ -12,7 +12,7 @@ class FlightFileRepository(BaseRepository):
     _entity = FlightFile
 
     def get_by_flight(self, fk_flight: ID_Type, session: Session) -> List[FlightFile]:
-        result = session.query(self._model).filter_by(**{"fk_flight": fk_flight}).all()
+        result = session.query(self._model).filter_by(fk_flight=fk_flight).all()
         return [self._model_to_schema(row) for row in result]
 
     def get_by_flight_and_type(
@@ -23,3 +23,7 @@ class FlightFileRepository(BaseRepository):
             return self._model_to_schema(result)
         else:
             return None
+
+    def delete_by_flight_id(self, session: Session, flight_id: ID_Type) -> None:
+        session.query(self._model).filter_by(fk_flight=flight_id).delete()
+        session.commit()
