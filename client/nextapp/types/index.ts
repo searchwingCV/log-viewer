@@ -53,3 +53,5 @@ export { FlightService } from './services/FlightService';
 export { HealthService } from './services/HealthService';
 export { MavlinkService } from './services/MavlinkService';
 export { MissionService } from './services/MissionService';
+export type { LogFileTimeSeries } from './models/LogFileTimeSeries'
+export type { LogOverallData, GroupedProps } from './models/LogOverallData'

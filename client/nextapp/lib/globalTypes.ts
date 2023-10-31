@@ -6,7 +6,7 @@ import type { FlightWithFilesResponse } from '@schema';
 export type BrushDataProps = {
     startIndex: number
     endIndex: number
-    flightId: number
+    flightid: number
     startTimestamp: string
     endTimestamp: string
     intervalVisibleInChart: boolean
