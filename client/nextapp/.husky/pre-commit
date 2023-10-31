@@ -3,3 +3,4 @@
 
 cd client/nextapp 
 npx lint-staged
+tsc
