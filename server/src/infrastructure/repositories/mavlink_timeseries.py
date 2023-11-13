@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Type
 
@@ -8,6 +9,7 @@ from infrastructure.db.orm import MavLinkTimeseries as MavLinkTimeseriesModel
 from infrastructure.repositories.base import BaseRepository
 from pymavlog import MavLinkMessageSeries
 from sqlalchemy.orm import Session
+from tenacity import before_sleep_log, retry, stop_after_attempt, wait_exponential
 
 logger = get_logger(__name__)
 
@@ -16,6 +18,11 @@ class MavLinkTimeseriesRepository(BaseRepository):
     _model: Type[MavLinkTimeseriesModel] = MavLinkTimeseriesModel
     _entity: Type[MavLinkTimeseries] = MavLinkTimeseries
 
+    @retry(
+        stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=5, max=10),
+        before_sleep=before_sleep_log(logger, logging.DEBUG),
+    )
     def bulk_insert(self, session: Session, flight_id: ID_Type, series: MavLinkMessageSeries):
         try:
             timestamps = series["timestamp"]
