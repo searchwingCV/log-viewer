@@ -14,7 +14,7 @@ import { uploadFileForFlight } from '@api/flight'
 
 interface FileUploadType {
   file: Blob
-  uploadFileForFlight?: boolean
+  producePlots?: boolean
   fileType: AllowedFiles
 }
 
@@ -60,6 +60,7 @@ export const FileUploadForm = ({ flightId, insideModal }: FileUploadFormProps) =
 
   const onSubmit = handleSubmit((data, e) => {
     e?.preventDefault()
+
     uploadFile.mutate({ ...data, flightId })
   })
 
@@ -105,7 +106,7 @@ export const FileUploadForm = ({ flightId, insideModal }: FileUploadFormProps) =
             <SelectReactHookForm<FileUploadType>
               register={register}
               errors={errors}
-              name="uploadFileForFlight"
+              name="producePlots"
               options={[
                 {
                   name: 'Yes - process this file to create timeseries plots for this flight (only files of type log can be processed)',

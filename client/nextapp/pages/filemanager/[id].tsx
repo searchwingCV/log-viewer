@@ -17,7 +17,7 @@ const normalizeDataForTable = (data: FlightFilesListResponse) => {
         flightIdRemoved[key as keyof typeof flightIdRemoved]?.data?.map((item) => ({
           ...item,
           type: key,
-          deleteLink: `flight/file/${item.id}`,
+          deleteLink: `/flight/file/${item.id}`,
         })) || [],
     )
     .flat()
@@ -37,8 +37,8 @@ const FileManagerScreen: NextPageWithLayout = ({}) => {
 
   return (
     <>
-      <div className={` flex h-screen w-full`}>
-        <div className=" flex h-screen min-w-[60vw] flex-col items-center border-r-2 pb-8 pt-48 ">
+      <div className={'flex h-screen w-full'}>
+        <div className="flex h-screen min-w-[60vw] flex-col items-center border-r-2 pb-8 pt-48">
           <div className="mb-16">
             <h2 className="text-xl">{`FILES FOR FLIGHT ${id}`}</h2>
           </div>

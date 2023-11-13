@@ -183,13 +183,7 @@ export const FileList = ({ files }: FileListProps) => {
                       key={cell.getCellProps().key}
                       className={clsx(
                         cell.column.width,
-                        `border-b border-grey-medium
-                      
-                    p-3 text-center
-
-                      
-                      
-                      `,
+                        `border-b border-grey-medium p-3 text-center`,
                       )}
                     >
                       {cell.render('Cell')}
