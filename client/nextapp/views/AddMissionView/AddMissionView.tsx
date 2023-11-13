@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query'
 import type { CreateMissionSerializer } from '@schema'
 import { ApiErrorMessage } from '@lib/ErrorMessage'
 import Button from '@modules/Button'
-import { InputReactHookForm } from '@modules/Input/InputReactHookForm'
+import { InputReactHookForm } from '@modules/Input'
 import { postMission } from '@api/mission'
 import { useGoToLastTablePage } from '@lib/hooks/useGoToLastTablePage'
 

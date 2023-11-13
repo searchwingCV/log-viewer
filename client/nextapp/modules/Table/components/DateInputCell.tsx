@@ -68,7 +68,7 @@ const Input = memo(
                   ? `bg-primary-red
                  text-primary-white`
                   : !!getValues(name) && newValue && newValue !== parsedDefault
-                  ? `bg-primary-dark-petrol
+                  ? `bg-secondary-dark-petrol
                  text-primary-white`
                   : `bg-grey-light`,
               )}
@@ -120,8 +120,8 @@ const Input = memo(
               <span
                 className={`
                           absolute
-                          top-1/2
                           left-10
+                          top-1/2
                           h-[18px]
                           w-[110px]
                           -translate-y-1/2
@@ -139,8 +139,8 @@ const Input = memo(
             {!getValues(name) && parsedDefault ? (
               <span
                 className={`absolute
-                        top-1/2
                         left-1/2
+                        top-1/2
                         h-[18px]
                         w-[120px]
                         -translate-x-1/2

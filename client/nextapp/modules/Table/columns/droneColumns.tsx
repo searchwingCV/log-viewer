@@ -136,7 +136,10 @@ export const droneColumns = (): Column<DroneSerializer>[] => [
     Cell: (props: any) => {
       if (isValid(parseISO(props.row.values.createdAt))) {
         return (
-          <TippyValueWrapper tableHeadName={props.column.Header}>
+          <TippyValueWrapper
+            tableHeadName={props.column.Header}
+            value={format(parseISO(props.row.values.createdAt), 'kk:ss:mm dd.MM.yyyy')}
+          >
             <div>{format(parseISO(props.row.values.createdAt), 'kk:ss:mm dd.MM.yyyy')}</div>
           </TippyValueWrapper>
         )
@@ -153,7 +156,10 @@ export const droneColumns = (): Column<DroneSerializer>[] => [
     Cell: (props: any) => {
       if (isValid(parseISO(props.row.values.createdAt))) {
         return (
-          <TippyValueWrapper tableHeadName={props.column.Header}>
+          <TippyValueWrapper
+            tableHeadName={props.column.Header}
+            value={format(parseISO(props.row.values.createdAt), 'kk:ss:mm dd.MM.yyyy')}
+          >
             <div>{format(parseISO(props.row.values.createdAt), 'kk:ss:mm dd.MM.yyyy')}</div>{' '}
           </TippyValueWrapper>
         )

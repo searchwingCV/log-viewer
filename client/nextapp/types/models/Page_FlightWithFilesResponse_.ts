@@ -2,10 +2,10 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { FlightSerializer } from './FlightSerializer';
+import type { FlightWithFilesResponse } from './FlightWithFilesResponse';
 
-export type Page_FlightSerializer_ = {
-    items: Array<FlightSerializer>;
+export type Page_FlightWithFilesResponse_ = {
+    items: Array<FlightWithFilesResponse>;
     total: number;
     page: number;
     size: number;

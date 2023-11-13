@@ -1,3 +1,3 @@
-import { Select } from "./Select";
+export { SelectReactHookForm } from "./SelectReactHookForm";
+export { Select } from "./Select";
 
-export default Select
