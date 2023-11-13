@@ -16,8 +16,8 @@ logger = get_logger(__name__)
 
 @router.get("/{id}", response_class=StreamingResponse)
 def download_file(id: str, file_service: FileService = Depends(get_file_service)):
-    io_file = file_service.get_file(id)
     try:
+        io_file = file_service.get_file(id)
         filename = io_file.flight_file.location.split("/")[-1]
         return StreamingResponse(
             content=io_file.io,

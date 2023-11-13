@@ -57,12 +57,12 @@ class BaseRepository:
     def get_by_id(self, session: Session, id: ID_Type, raise_not_found_exc: bool = False) -> Union[T_Model, None]:
         try:
             model = session.query(self._model).filter_by(id=id).first()
-            if model is None:
-                if raise_not_found_exc:
-                    raise NotFoundException(id=id, table_name=self._model)
-                return model
         except Exception as e:
             raise DBException(self._model, e) from e
+        if model is None:
+            if raise_not_found_exc:
+                raise NotFoundException(id=id, table_name=self._model)
+            return None
         return self._entity.from_orm(model)
 
     def delete_by_id(self, session: Session, id: ID_Type) -> None:
