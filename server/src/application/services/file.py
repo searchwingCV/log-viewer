@@ -74,13 +74,17 @@ class FileService(BaseCRUDService):
         return flight_file
 
     def delete_file(self, file_id: ID_Type):
-        flight_file = self._repository.get_by_id(file_id)
-        if flight_file is not None:
-            self.__delete_binary_file(flight_file.location)
-            with self._session as session:
-                self._repository.delete_by_id(session, file_id)
-        else:
-            pass
+        with self._session as session:
+            flight_file = self._repository.get_by_id(id=file_id, session=session)
+            if flight_file is not None:
+                try:
+                    self.__delete_binary_file(flight_file.location)
+                    self._repository.delete_by_id(session, file_id)
+                except Exception:
+                    logger.exception(f"Failed to delete file {flight_file.location}")
+                    session.rollback()
+            else:
+                return
 
     def list_all_files(self, flight_id: ID_Type) -> List[FlightFile]:
         with self._session as session:
