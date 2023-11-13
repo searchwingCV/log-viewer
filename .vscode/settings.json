@@ -15,7 +15,7 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "python.envFile": "${workspaceFolder}/server/.env",
   "[python]": {
-    "editor.defaultFormatter": "ms-python.python"
+    "editor.defaultFormatter": "ms-python.black-formatter"
   },
   "eslint.workingDirectories": [
     "./client/nextapp"

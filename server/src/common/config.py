@@ -34,6 +34,7 @@ class BaseConfig(object):
     CELERY_CONFIG = {
         "broker_url": f"redis://:{REDIS_PWD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
         "result_backend": f"redis://:{REDIS_PWD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
+        "max_retries": int(os.getenv("CELERY_MAX_RETRIES", 3)),
     }
 
     MAVLOG_TIMESERIES_MAX_RATE_HZ = float(os.getenv("MAVLOG_TIMESERIES_MAX_RATE_HZ", 20))
