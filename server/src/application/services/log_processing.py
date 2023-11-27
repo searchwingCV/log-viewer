@@ -69,13 +69,7 @@ class LogProcessingService:
             log_start_time=mlog.start_timestamp,
             log_duration=mlog.end_timestamp - mlog.start_timestamp,
         )
-
-        logger.info(f"updating db with values  -> {flight_updates.dict(exclude_none=True)}")
-
-        self._flight_service.update(flight_updates)
-
-        logger.info("success")
-        return flight_updates.json(exclude_none=True)
+        return self._update(flight_updates)
 
     def _read_and_parse_log(self, flight_id: ID_Type, types: t.List[str] | None, max_rate: float = None) -> MavLog:
         iofile = self._file_service.get_by_flight_id_type(flight_id, AllowedFiles.log)
@@ -158,12 +152,7 @@ class LogProcessingService:
             max_power_w=power.max(),
             min_power_w=power.min(),
         )
-        logger.info(f"updating db with values  -> {flight_updates.dict(exclude_none=True)}")
-
-        self._flight_service.update(flight_updates)
-
-        logger.info("success")
-        return flight_updates.json(exclude_none=True)
+        return self._update(flight_updates)
 
     def process_battery(self, flight_id: ID_Type) -> dict[str, t.Any]:
         logger.info(f"processing battery for flight: {flight_id}")
@@ -171,3 +160,29 @@ class LogProcessingService:
         mlog = self._read_and_parse_log(flight_id=flight_id, types=["BAT"])
 
         return self._process_battery_from_mavlog(flight_id, mlog)
+
+    def _update(self, updates: FlightComputedUpdate) -> dict[str, t.Any]:
+        logger.info(f"updating db with values  -> {updates.dict(exclude_none=True)}")
+        self._flight_service.update(updates)
+        logger.info("success")
+        return updates.json(exclude_none=True)
+
+    def process_gps(self, flight_id: ID_Type) -> dict[str, t.Any]:
+        logger.info(f"processing gps for flight: {flight_id}")
+
+        mlog = self._read_and_parse_log(flight_id=flight_id, types=["GPS"])
+
+        return self._process_gps_from_mavlog(flight_id, mlog)
+
+    def _process_gps_from_mavlog(self, flight_id: ID_Type, mlog: MavLog) -> dict[str, t.Any]:
+        flight_updates = FlightComputedUpdate(
+            id=flight_id,
+            start_latitude=mlog["GPS"]["Lat"][0],
+            start_longitude=mlog["GPS"]["Lng"][0],
+            end_latitude=mlog["GPS"]["Lat"][-1],
+            end_longitude=mlog["GPS"]["Lng"][-1],
+            max_vertical_speed_down_kmh=mlog["GPS"]["VZ"].min(),
+            max_vertical_speed_up_kmh=mlog["GPS"]["VZ"].max(),
+            max_groundspeed_kmh=mlog["GPS"]["Spd"].max(),
+        )
+        return self._update(flight_updates)
