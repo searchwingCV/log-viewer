@@ -95,7 +95,7 @@ class Flight(BaseFlight, DomainEntity):
     pass
 
 
-class FlightUpdate(IBaseFlight, DomainUpdate):
+class FlightUpdate(IBaseFlight, EntityID, DomainUpdate):
     @validator("fk_drone", "fk_mission", "location", "drone_needs_repair", pre=True)
     def _check_which_none(cls, v):
         if v is None:
