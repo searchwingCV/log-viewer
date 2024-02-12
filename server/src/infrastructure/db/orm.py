@@ -2,7 +2,7 @@ from datetime import datetime as dt
 
 from common.constants import MAX_MISSION_ALIAS_LEN
 from domain.drone.value_objects import DroneStatus
-from domain.flight.value_objects import FlightPurpose, FlightRating, WindIntensity
+from domain.flight.value_objects import FlightProcessingStatus, FlightPurpose, FlightRating, WindIntensity
 from geoalchemy2 import Geometry
 from sqlalchemy import (
     Boolean,
@@ -86,6 +86,8 @@ class Flight(BaseModel):
     purpose = Column(Enum(FlightPurpose), nullable=True)
     notes = Column(Text)
     drone_needs_repair = Column(Boolean, default=False, nullable=False)
+    processing_status = Column(Enum(FlightProcessingStatus), default=FlightProcessingStatus.not_processed)
+    processing_error_msg = Column(String)
 
     # From weather API
     temperature_celsius = Column(Float)
