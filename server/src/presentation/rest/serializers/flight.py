@@ -1,4 +1,3 @@
-from domain import EntityID
 from domain.flight.entities import Flight
 from domain.flight.entities import FlightUpdate as IFlightUpdate
 from domain.flight.entities import IBaseFlight
@@ -13,5 +12,5 @@ class FlightSerializer(Flight, APISerializer):
     pass
 
 
-class FlightUpdate(IFlightUpdate, EntityID, APISerializer):
+class FlightUpdate(IFlightUpdate, APISerializer):
     pass
