@@ -5,7 +5,8 @@ from datetime import datetime
 from application.services import FileService, FlightService
 from common.logging import get_logger
 from domain import ID_Type
-from domain.flight.entities import FlightComputedUpdate
+from domain.flight.entities import FlightComputedUpdate, FlightUpdate
+from domain.flight.value_objects import FlightProcessingStatus
 from domain.flight_file.value_objects import AllowedFiles
 from domain.mavlink_timeseries.entities import MavLinkFlightMessageProperties, MavLinkTimeseries
 from infrastructure.db.session import SessionContextManager
@@ -35,15 +36,17 @@ class LogProcessingService:
             "save_to_timeseries": self._mavlog_to_timeseries,
             "process_flight_duration": self._flight_duration_from_mavlog,
             "process_battery": self._process_battery_from_mavlog,
+            "process_gps": self._process_gps_from_mavlog,
         }
 
     def parse_log_file(self, flight_id: ID_Type, types: t.List[str] | None, max_rate_hz: float) -> dict:
         logger.info(f"parsing log file for flight: {flight_id}")
-
+        self._flight_service.update(FlightUpdate(id=flight_id, processing_status=FlightProcessingStatus.processing))
         logger.info(f"reading log file for {flight_id=}, {types=}, {max_rate_hz=}")
         mlog = self._read_and_parse_log(flight_id=flight_id, types=types, max_rate=max_rate_hz)
 
         results = []
+        errors = []
         for task, fcn in self._tasks.items():
             logger.info(f"running {task}")
             try:
@@ -52,14 +55,22 @@ class LogProcessingService:
             except Exception as e:
                 logger.exception(f"running {task} - failed")
                 results.append({"task": task, "error": str(e)})
+                errors.append(str(e))
             logger.debug(f"running {task} - done")
+
+        if errors:
+            self._flight_service.update(
+                FlightUpdate(
+                    id=flight_id, processing_status=FlightProcessingStatus.error, processing_error_msg="; ".join(errors)
+                )
+            )
+        else:
+            self._flight_service.update(FlightUpdate(id=flight_id, processing_status=FlightProcessingStatus.success))
         return results
 
     def process_flight_duration(self, flight_id: ID_Type) -> dict:
         logger.info(f"updating flight duration for flight: {flight_id}")
-
         mlog = self._read_and_parse_log(flight_id=flight_id, types=["BAT"])
-
         return self._flight_duration_from_mavlog(flight_id, mlog)
 
     def _flight_duration_from_mavlog(self, flight_id: ID_Type, mlog: MavLog) -> dict[str, t.Any]:

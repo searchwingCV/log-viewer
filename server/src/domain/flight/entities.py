@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from domain import DomainEntity, DomainUpdate, EntityID
-from domain.flight.value_objects import FlightPurpose, FlightRating, WindIntensity
+from domain.flight.value_objects import FlightProcessingStatus, FlightPurpose, FlightRating, WindIntensity
 from domain.types import ID_Type
 from pydantic import BaseModel, Field, validator
 
@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field, validator
 class IBaseFlight(BaseModel):
     class Config:
         orm_mode = True
+        allow_arbitrary_types = True
 
     # user-defined and editable fields
 
@@ -22,6 +23,8 @@ class IBaseFlight(BaseModel):
     purpose: Optional[FlightPurpose] = Field(description="The purpose of the flight: test/training/mission")
     notes: Optional[str] = Field(default=None, description="Some notes about the flight")
     drone_needs_repair: bool = Field(default=False)
+    processing_status: FlightProcessingStatus = Field(default=FlightProcessingStatus.not_processed)
+    processing_error_msg: Optional[str] = Field(default=None)
 
 
 class BaseComputedFields(BaseModel):
@@ -92,7 +95,7 @@ class Flight(BaseFlight, DomainEntity):
     pass
 
 
-class FlightUpdate(IBaseFlight, DomainUpdate):
+class FlightUpdate(IBaseFlight, EntityID, DomainUpdate):
     @validator("fk_drone", "fk_mission", "location", "drone_needs_repair", pre=True)
     def _check_which_none(cls, v):
         if v is None:
