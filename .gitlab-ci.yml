@@ -124,7 +124,7 @@ release-main:
     - apk update
     - apk add bash
   script:
-    - ./scripts/deploy.sh
+    - ./scripts/release.sh
 
 deploy-production:
   only:
