@@ -121,3 +121,22 @@ def list_files(
 ):
     result = file_service.list_all_files(id)
     return FlightFilesListResponse.build_from_records(result, id)
+
+
+@router.post("/{id}/process", status_code=status.HTTP_200_OK)
+def process_flight(
+    id: int,
+    flight_service: FlightService = Depends(get_flight_service),
+    file_service: FileService = Depends(get_file_service),
+):
+    try:
+        flight = flight_service.get_by_id(id)
+        if flight is None:
+            raise NotFoundException("Flight not found", flight)
+        file_service.get_by_flight_id_type(id, AllowedFiles.log)
+        parse_log_file.delay(id)
+    except NotFoundException:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="flight or file does not exist",
+        )
