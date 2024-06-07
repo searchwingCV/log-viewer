@@ -133,8 +133,9 @@ def process_flight(
         flight = flight_service.get_by_id(id)
         if flight is None:
             raise NotFoundException("Flight not found", flight)
-        file_service.get_by_flight_id_type(id, AllowedFiles.log)
-        parse_log_file.delay(id)
+        if len(file_service.list_all_files(id)) != 0:
+            file_service.get_by_flight_id_type(id, AllowedFiles.log)
+            parse_log_file.delay(id)
     except NotFoundException:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

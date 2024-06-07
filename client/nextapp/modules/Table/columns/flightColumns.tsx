@@ -98,7 +98,7 @@ export const flightColumns = (
             isOpen={isModalOpenProcess}
             closeModal={() => setIsModalOpenProcess(false)}
             proceedAction={() => {
-              processMutation.mutate(props.row.id)
+              processMutation.mutate({ flightId: props.row.values.id })
             }}
           >
             <div
