@@ -6,15 +6,16 @@ import type { Column } from 'react-table'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 
-import { FlightRating, FlightPurpose } from '@schema'
+import { FlightRating, FlightPurpose, FileService } from '@schema'
 import { TextInputCell, SelectInputCell, determineWidth, TippyValueWrapper } from '@modules/Table'
 import type { TableFlightSerializer } from '@lib/globalTypes'
 import { FileUploadForm } from '@modules/FileUploadForm'
 import { RowActionButton } from '@modules/RowActionButton/RowActionButton'
 import ModalOverlay from '@modules/ModalOverlay'
-import { deleteFlight } from '@api/flight'
+import { deleteFlight, getFlights } from '@api/flight'
 import { ApiErrorMessage } from '@lib/ErrorMessage'
 import { ALl_FLIGHTS_KEY } from '@api/flight'
+import { processFlight } from '@api/flight/processFlights'
 import { numberOfFilesSavedForFlight } from '../functions'
 
 export const flightColumns = (
@@ -29,8 +30,9 @@ export const flightColumns = (
     Cell: (props: any) => {
       const router = useRouter()
 
-      const [isModalOpen, setIsModalOpen] = useState(false)
+      const [isModalOpenDelete, setIsModalOpenDelete] = useState(false)
       const [isModalOpenUpload, setIsModalOpenUpload] = useState(false)
+      const [isModalOpenProcess, setIsModalOpenProcess] = useState(false)
       const queryClient = useQueryClient()
       const { page: queryPage, pagesize: queryPageSize } = router.query
 
@@ -51,12 +53,29 @@ export const flightColumns = (
           })
         },
       })
+      const processMutation = useMutation(processFlight, {
+        onSuccess: async (_) => {
+          toast('Processing flight.', {
+            type: 'success',
+          })
+          await queryClient.invalidateQueries([
+            ALl_FLIGHTS_KEY,
+            parseInt(queryPage as string) || 1,
+            parseInt(queryPageSize as string) || 10,
+          ])
+        },
+        onError: (error: AxiosError<any>) => {
+          toast(<ApiErrorMessage error={error} />, {
+            type: 'error',
+          })
+        },
+      })
       return (
         <div className="flex justify-center">
           <RowActionButton
             variant="delete"
             tooltipText="Delete flight"
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => setIsModalOpenDelete(true)}
           />
           <RowActionButton
             variant="link"
@@ -69,14 +88,36 @@ export const flightColumns = (
             onClick={() => setIsModalOpenUpload(true)}
             tooltipText="Upload a log file for creating plot data and a flight detail page"
           />
+          <RowActionButton
+            variant="process"
+            tooltipText="Process a flight"
+            onClick={() => setIsModalOpenProcess(true)}
+          />
+          <ModalOverlay
+            modalTitle={'Are you sure you want to trigger a re-processing of this flight?'}
+            isOpen={isModalOpenProcess}
+            closeModal={() => setIsModalOpenProcess(false)}
+            proceedAction={() => {
+              processMutation.mutate(props.row.id)
+            }}
+          >
+            <div
+              className={`text-sm
+                        text-gray-500`}
+            >
+              <p>
+                This will re-write the flight messages in the database, and re-calculate the flight properties.
+              </p>
+            </div>
+          </ModalOverlay>
           <ModalOverlay
             modalTitle={'Are you sure you want to delete this flight?'}
-            isOpen={isModalOpen}
+            isOpen={isModalOpenDelete}
             linkProps={{
               link: `/filemanager/${props.row.original.id}?curentPageSize=${queryPageSize}&currentPageCount=${queryPage}&totalNumber=${totalNumber}`,
               linkText: 'See files',
             }}
-            closeModal={() => setIsModalOpen(false)}
+            closeModal={() => setIsModalOpenDelete(false)}
             proceedAction={() => {
               deleteMutation.mutate({ flightId: props.row.values.id })
             }}
