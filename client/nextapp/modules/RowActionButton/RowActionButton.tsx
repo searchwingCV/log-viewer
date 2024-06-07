@@ -4,7 +4,7 @@ import NextLink from 'next/link'
 import clsx from 'clsx'
 import Tippy from '@tippyjs/react'
 
-const RowActionButtonVariant = ['delete', 'download', 'link', 'upload'] as const
+const RowActionButtonVariant = ['delete', 'download', 'link', 'upload', 'process'] as const
 
 type RowActionButtonProps = {
   variant: (typeof RowActionButtonVariant)[number]
@@ -24,7 +24,8 @@ const renderIcon = (variant: (typeof RowActionButtonVariant)[number]) => {
       return <FontAwesomeIcon icon="share-from-square" />
     case 'upload':
       return <FontAwesomeIcon icon="file-arrow-up" />
-
+    case 'process':
+      return <FontAwesomeIcon icon="spinner" />
     default:
   }
 }
@@ -67,6 +68,7 @@ export const RowActionButton = ({
             baseClass,
             variant === 'delete' && ['bg-primary-red hover:bg-secondary-dark-red'],
             variant === 'upload' && ['bg-primary-rose hover:bg-secondary-dark-rose'],
+            variant === 'process' && ['bg-primary-light-petrol hover:bg-secondary-dark-petrol'],
           )}
           onClick={onClick}
         >
