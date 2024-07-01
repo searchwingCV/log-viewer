@@ -305,3 +305,33 @@ def test_process_gps(get_log_processing_service, mock_mavlog, mock_file_service,
     ).json(exclude_none=True)
 
     assert output == expected
+
+
+def test_process_firmware_version(get_log_processing_service, mock_mavlog, mock_file_service, get_mock_mavlink_series):
+    mock_file_service.get_by_flight_id_type.return_value = IOFile(
+        flight_file=FlightFile(
+            fk_flight=1, file_type=AllowedFiles.log, location="foo/bar/file.bin", id=1, created_at=datetime.now()
+        ),
+        io=BytesIO(b"foobar"),
+    )
+
+    mock_mavlog().types = [
+        "VER",
+    ]
+    
+    series = Mock()
+
+    series.return_value = get_mock_mavlink_series(
+        name="VER", columns=["FWS", "Major", "Minor"], data=[["1.0"], [1], [0]]
+    )
+
+    mock_mavlog().__getitem__ = series
+    log_processing_service: LogProcessingService = get_log_processing_service(mavlog=mock_mavlog)
+
+    output = log_processing_service.process_firmware_version(flight_id=1)
+    expected = FlightComputedUpdate(
+        id=1,
+        firmware_version="1.0",
+    ).json(exclude_none=True)
+
+    assert output == expected
