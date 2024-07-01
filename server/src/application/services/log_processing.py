@@ -195,5 +195,7 @@ class LogProcessingService:
             max_vertical_speed_down_kmh=mlog["GPS"]["VZ"].min(),
             max_vertical_speed_up_kmh=mlog["GPS"]["VZ"].max(),
             max_groundspeed_kmh=mlog["GPS"]["Spd"].max(),
+            min_groundspeed_kmh=mlog["GPS"]["Spd"].min(),
+            avg_groundspeed_kmh=mlog["GPS"]["Spd"].mean(),
         )
         return self._update(flight_updates)

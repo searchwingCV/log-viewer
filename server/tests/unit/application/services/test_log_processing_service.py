@@ -278,6 +278,8 @@ def test_process_gps(get_log_processing_service, mock_mavlog, mock_file_service,
     expected_end_lat = lat[-1]
     expected_end_lon = lon[-1]
     expected_max_speed = max(spd)
+    expected_min_speed = min(spd)
+    expected_mean_speed = sum(spd) / len(spd)
     expected_max_speed_vertical = max(vz)
     expected_min_speed_vertical = min(vz)
 
@@ -298,6 +300,8 @@ def test_process_gps(get_log_processing_service, mock_mavlog, mock_file_service,
         max_vertical_speed_up_kmh=expected_max_speed_vertical,
         max_vertical_speed_down_kmh=expected_min_speed_vertical,
         max_groundspeed_kmh=expected_max_speed,
+        min_groundspeed_kmh=expected_min_speed,
+        avg_groundspeed_kmh=expected_mean_speed,
     ).json(exclude_none=True)
 
     assert output == expected
