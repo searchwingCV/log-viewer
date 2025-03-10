@@ -318,7 +318,7 @@ def test_process_firmware_version(get_log_processing_service, mock_mavlog, mock_
     mock_mavlog().types = [
         "VER",
     ]
-    
+
     series = Mock()
 
     series.return_value = get_mock_mavlink_series(
