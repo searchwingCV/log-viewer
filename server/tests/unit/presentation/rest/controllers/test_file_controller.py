@@ -1,5 +1,7 @@
 from datetime import datetime
+from unittest.mock import Mock
 
+import pytest
 from common.exceptions.db import NotFoundException
 from domain.flight_file.entities import FlightFile
 from domain.flight_file.value_objects import AllowedFiles
@@ -7,7 +9,15 @@ from presentation.rest.dependencies import get_file_service
 from presentation.rest.serializers.file import FlightFileSerializer
 
 
-def test_put_file_no_error(test_client, mock_file_service, get_sample_flight_file):
+@pytest.fixture
+def mock_parse_log_file(monkeypatch):
+    mock_task = Mock()
+    monkeypatch.setattr("presentation.rest.controllers.flight.parse_log_file", mock_task)
+    return mock_task
+
+
+@pytest.mark.parametrize("process", [True, False])
+def test_put_file_no_error(test_client, mock_file_service, get_sample_flight_file, process, mock_parse_log_file):
     flight_file = FlightFile(id=1, created_at=datetime.now(), **get_sample_flight_file().dict())
 
     mock_file_service.upload_file.return_value = flight_file
@@ -16,13 +26,18 @@ def test_put_file_no_error(test_client, mock_file_service, get_sample_flight_fil
     test_file = b"foo"
     file_type = "log"
     response = test_client.put(
-        "/flight/1/file?file_type=log&process=false",
+        f"/flight/1/file?file_type=log&process={str(process).lower()}",
         files={"file": ("test.bin", test_file, "application/octet-stream")},
         params={"file_type": file_type},
     )
 
     assert response.status_code == 200
     assert response.json() == FlightFileSerializer.from_orm(flight_file).to_json()
+
+    if process:
+        mock_parse_log_file.delay.assert_called_once_with(1)
+    else:
+        mock_parse_log_file.delay.assert_not_called()
 
     test_client.app.dependency_overrides.clear()
 
