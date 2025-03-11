@@ -200,7 +200,7 @@ class LogProcessingService:
             avg_groundspeed_kmh=mlog["GPS"]["Spd"].mean(),
         )
         return self._update(flight_updates)
-    
+
     def process_firmware_version(self, flight_id: ID_Type) -> dict[str, t.Any]:
         logger.info(f"processing firmware version for flight: {flight_id}")
 
