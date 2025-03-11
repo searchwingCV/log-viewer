@@ -278,6 +278,8 @@ def test_process_gps(get_log_processing_service, mock_mavlog, mock_file_service,
     expected_end_lat = lat[-1]
     expected_end_lon = lon[-1]
     expected_max_speed = max(spd)
+    expected_min_speed = min(spd)
+    expected_mean_speed = sum(spd) / len(spd)
     expected_max_speed_vertical = max(vz)
     expected_min_speed_vertical = min(vz)
 
@@ -298,6 +300,38 @@ def test_process_gps(get_log_processing_service, mock_mavlog, mock_file_service,
         max_vertical_speed_up_kmh=expected_max_speed_vertical,
         max_vertical_speed_down_kmh=expected_min_speed_vertical,
         max_groundspeed_kmh=expected_max_speed,
+        min_groundspeed_kmh=expected_min_speed,
+        avg_groundspeed_kmh=expected_mean_speed,
+    ).json(exclude_none=True)
+
+    assert output == expected
+
+
+def test_process_firmware_version(get_log_processing_service, mock_mavlog, mock_file_service, get_mock_mavlink_series):
+    mock_file_service.get_by_flight_id_type.return_value = IOFile(
+        flight_file=FlightFile(
+            fk_flight=1, file_type=AllowedFiles.log, location="foo/bar/file.bin", id=1, created_at=datetime.now()
+        ),
+        io=BytesIO(b"foobar"),
+    )
+
+    mock_mavlog().types = [
+        "VER",
+    ]
+
+    series = Mock()
+
+    series.return_value = get_mock_mavlink_series(
+        name="VER", columns=["FWS", "Major", "Minor"], data=[["1.0"], [1], [0]]
+    )
+
+    mock_mavlog().__getitem__ = series
+    log_processing_service: LogProcessingService = get_log_processing_service(mavlog=mock_mavlog)
+
+    output = log_processing_service.process_firmware_version(flight_id=1)
+    expected = FlightComputedUpdate(
+        id=1,
+        firmware_version="1.0",
     ).json(exclude_none=True)
 
     assert output == expected

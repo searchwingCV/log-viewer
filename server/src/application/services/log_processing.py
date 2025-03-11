@@ -37,6 +37,7 @@ class LogProcessingService:
             "process_flight_duration": self._flight_duration_from_mavlog,
             "process_battery": self._process_battery_from_mavlog,
             "process_gps": self._process_gps_from_mavlog,
+            "process_firmware_version": self._process_firmware_version_from_mavlog,
         }
 
     def parse_log_file(self, flight_id: ID_Type, types: t.List[str] | None, max_rate_hz: float) -> dict:
@@ -195,5 +196,21 @@ class LogProcessingService:
             max_vertical_speed_down_kmh=mlog["GPS"]["VZ"].min(),
             max_vertical_speed_up_kmh=mlog["GPS"]["VZ"].max(),
             max_groundspeed_kmh=mlog["GPS"]["Spd"].max(),
+            min_groundspeed_kmh=mlog["GPS"]["Spd"].min(),
+            avg_groundspeed_kmh=mlog["GPS"]["Spd"].mean(),
+        )
+        return self._update(flight_updates)
+
+    def process_firmware_version(self, flight_id: ID_Type) -> dict[str, t.Any]:
+        logger.info(f"processing firmware version for flight: {flight_id}")
+
+        mlog = self._read_and_parse_log(flight_id=flight_id, types=["VER"])
+
+        return self._process_firmware_version_from_mavlog(flight_id, mlog)
+
+    def _process_firmware_version_from_mavlog(self, flight_id: ID_Type, mlog: MavLog) -> dict[str, t.Any]:
+        flight_updates = FlightComputedUpdate(
+            id=flight_id,
+            firmware_version=mlog["VER"]["FWS"][0],
         )
         return self._update(flight_updates)

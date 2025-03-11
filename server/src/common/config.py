@@ -11,7 +11,7 @@ class BaseConfig(object):
     SQLALCHEMY_DATABASE_URI = (
         f"postgresql+psycopg2://{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}"
         f"@{os.environ['POSTGRES_SERVER']}:{os.environ['POSTGRES_PORT']}"
-        f"/{os.environ['POSTGRES_DB']}"
+        f"/{os.environ['POSTGRES_DB']}?sslmode={os.environ.get('POSTGRES_SSLMODE', 'disable')}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_POOL_SIZE = int(os.getenv("SQLALCHEMY_POOL_SIZE", 10))
