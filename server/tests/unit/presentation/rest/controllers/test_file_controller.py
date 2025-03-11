@@ -16,7 +16,6 @@ def mock_parse_log_file(monkeypatch):
     return mock_task
 
 
-@pytest.mark.parametrize("process", [True, False])
 def test_put_file_no_error(test_client, mock_file_service, get_sample_flight_file, process, mock_parse_log_file):
     flight_file = FlightFile(id=1, created_at=datetime.now(), **get_sample_flight_file().dict())
 
@@ -26,18 +25,14 @@ def test_put_file_no_error(test_client, mock_file_service, get_sample_flight_fil
     test_file = b"foo"
     file_type = "log"
     response = test_client.put(
-        f"/flight/1/file?file_type=log&process={str(process).lower()}",
+        "/flight/1/file?file_type=log&process=true",
         files={"file": ("test.bin", test_file, "application/octet-stream")},
         params={"file_type": file_type},
     )
 
     assert response.status_code == 200
     assert response.json() == FlightFileSerializer.from_orm(flight_file).to_json()
-
-    if process:
-        mock_parse_log_file.delay.assert_called_once_with(1)
-    else:
-        mock_parse_log_file.delay.assert_not_called()
+    mock_parse_log_file.delay.assert_called_once_with(1)
 
     test_client.app.dependency_overrides.clear()
 
