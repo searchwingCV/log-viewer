@@ -16,7 +16,7 @@ def mock_parse_log_file(monkeypatch):
     return mock_task
 
 
-def test_put_file_no_error(test_client, mock_file_service, get_sample_flight_file, process, mock_parse_log_file):
+def test_put_file_no_error(test_client, mock_file_service, get_sample_flight_file, mock_parse_log_file):
     flight_file = FlightFile(id=1, created_at=datetime.now(), **get_sample_flight_file().dict())
 
     mock_file_service.upload_file.return_value = flight_file
